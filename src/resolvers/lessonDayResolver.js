@@ -1,0 +1,138 @@
+import lessonDayModel from '../models/lessonDay'
+import userModel from '../models/user'
+import lessonModel from '../models/lesson'
+import teacherModel from '../models/teacher'
+import creditModel from '../models/credit'
+import mongoose from 'mongoose'
+import { ApolloError } from 'apollo-server'
+import { sendMail, CANCEL_LESSON_DAY, FROM } from '../mailer'
+import moment from 'moment'
+moment.locale('fr')
+
+export default {
+  Query: {
+    lessonDay: async (parent, { id }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.findById({ _id: id}).exec()
+      return lessonDay
+    },
+
+    lessonsDay: async (parent, args, { models: { lessonDayModel }}, info) => {
+      const lessonsDay = await lessonDayModel.find().exec()
+      return lessonsDay
+    },
+
+    lessonsDayFromToday: async (parent, { today }, { models: { lessonDayModel }}, info) => {
+      const lessonsDay = await lessonDayModel.find({
+        dayDate: { $gte: today }
+      })
+      return lessonsDay
+    },
+
+    lessonsDaySpotCanceled: async (parent, args, { models: { lessonDayModel }}, info) => {
+      var today = moment().toISOString(true)
+      const lessonsDay = await lessonDayModel.find({
+        isCanceled: false,
+        spotCanceled: { $gte: 1 },
+        dayDate: { $gte: today },
+      })
+      return lessonsDay
+    },
+  },
+  Mutation: {
+    createLessonDay: async(parent, { teacher, dayDate, hour, spotLeft, spotTotal }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.create({ teacher, dayDate, hour, spotLeft, spotTotal })
+      return lessonDay
+    },
+
+    updateLessonDay: async(parent, { id, lesson, teacher, users, dayDate, hour, spotLeft, spotTotal, isCanceled}, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.updateLessonDay(id, { lesson, teacher, users, dayDate, hour, spotLeft, spotTotal, isCanceled })
+      return lessonDay
+    },
+
+    cancelLessonDay: async(parent, { id, lesson, teacher, users, dayDate, hour, spotLeft, spotTotal, isCanceled, message}, { models: { lessonDayModel }}, info) => {
+      const session = await mongoose.startSession()
+      const opts = { session }
+      session.startTransaction() 
+      try{
+        var usersID = []
+        for(var i = 0; i < users.length; i++) {
+          usersID.push(users[i].id)
+        }
+        const lessonDay = await lessonDayModel.updateLessonDay(id, { lesson, teacher, usersID, dayDate, hour, spotLeft, spotTotal, isCanceled }, opts)
+        if(!lessonDay) {
+          throw new ApolloError()
+        }
+        var validityEnd = moment(dayDate).add(1, 'y')
+        var credits = []
+        for(var i = 0; i < users.length; i++) {
+          const credit = await creditModel.create(users[i].id, id, validityEnd.toISOString(true))
+          const tmp = await userModel.addCredit(users[i].id, credit.id)
+          if(!credit) {
+            throw new ApolloError()
+          }
+          credits.push(credit)
+          var mail = await sendMail(FROM, users[i].email, 'Aquadream - Un cours a été annulé', CANCEL_LESSON_DAY(users[i], lessonDay, message))
+        }
+        await session.commitTransaction()
+        session.endSession()
+        return credits
+      }catch(error) {
+        await session.abortTransaction()
+        session.endSession()
+      }
+    },
+
+    deleteLessonDay: async(parent, { id }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.deleteLessonDay(id)
+      return lessonDay
+    },
+
+    increaseSpotLeftFromLessonDay: async(parent, { id }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.increaseSpotLeft(id)
+      return lessonDay
+    },
+
+    decreaseSpotLeftFromLessonDay: async(parent, { id }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.decreaseSpotLeft(id)
+      return lessonDay
+    },
+
+    addLessonToLessonDay: async(parent, { id, lesson }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.addLesson(id, lesson)
+      return lessonDay
+    },
+
+    addUserToLessonDay: async(parent, { id, user }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.addUser(id, user)
+      return lessonDay
+    },
+
+    removeUserFromLessonDay: async(parent, { id, user }, { models: { lessonDayModel }}, info) => {
+      const lessonDay = await lessonDayModel.removeUser(id, user)
+      return lessonDay
+    },
+  },
+  LessonDay: {
+    users: async({ users }, args, { models: { userModel }}, info) => {
+      if(users === undefined) return null
+      var usersList = []
+      users.forEach(element => {
+        var object = userModel.findById({ _id: element }).exec()
+        usersList.push(object)
+      });
+      return usersList
+    },
+
+    lesson: async({ lesson }, args, { models: { lessonModel }}, info) => {
+      if(lesson === undefined) return null
+      const object = await lessonModel.findById({ _id: lesson }).exec()
+      return object
+    },
+
+    teacher: async({ teacher }, args, { models: { teacherModel }}, info) => {
+      if(teacher === undefined) return null
+      const object = await teacherModel.findById({ _id: teacher }).exec()
+      return object
+    }
+  }
+}

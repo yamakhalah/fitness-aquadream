@@ -1,0 +1,58 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": "v10.15.3",
+    "npm": "6.4.1"
+  },
+  "scripts": {
+    "start": "babel-node server.js",
+    "server": "nodemon --exec babel-node ./server.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently --names \"server,client\" \"npm run server --silent\" \"npm run client --silent\"",
+    "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/node": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@graphql-modules/core": "^0.7.13",
+    "@mollie/api-client": "^3.0.0-beta.1",
+    "apollo-server": "^2.9.12",
+    "apollo-server-express": "^2.10.0",
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "bcrypt": "^3.0.7",
+    "body-parser": "^1.19.0",
+    "concurrently": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "generate-password": "^1.4.2",
+    "graphql": "^14.5.8",
+    "graphql-iso-date": "^3.6.1",
+    "graphql-tools": "^4.0.6",
+    "graphql-type-json": "^0.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "local-cors-proxy": "^1.1.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "mongoose": "^5.7.7",
+    "node-cron": "^2.0.3",
+    "nodemailer": "^6.4.1",
+    "nodemon": "^1.19.4",
+    "promise": "^8.0.3",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
+  }
+}

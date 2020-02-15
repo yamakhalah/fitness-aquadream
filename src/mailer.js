@@ -1,0 +1,88 @@
+require('dotenv').config()
+var mailer = require('nodemailer')
+var moment = require('moment')
+moment.locale('fr')
+
+export const FROM = 'noreply@aquadream-temploux.be'
+
+export function RESET_MAIL(user) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+    '<p>Suite à votre demande votre mot de passe a été réinitialisé</p>'+
+    '<p>Nouveau mot de passe: '+user.password+'</p>'+
+    '<p>Changez le rapidement via votre profil sur www.aquadream.be</p>'+
+    '<p>Cordialement,</p>'+
+    '<p>L\'équipe Aquadream</p>'+
+    '</br></br>'+
+    '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+export function CANCEL_LESSON_DAY(user, lessonDay, message) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous signalons que votre cours de '+lessonDay.lesson.name+' prévu le '+moment(lessonDay.dayDate).format('DD/MM/YYYY')+' de '+moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')+' à '+moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')+' a été annulé.</p>'+
+  '<h4>Motif:</h4>'+
+  '<p>'+message+'</p>'+
+  '<p>Rassurez-vous, un avoir a été émis et peut être utilisé gratuitement pendant un an pour n\'importe quel cours. Rendez vous sur l\'onglet crédit pour l\'utiliser</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+export function OPEN_LESSON(user, lesson) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p> Nous vous informons que l\'abonnement '+ lesson.name +' débutant le '+moment(lesson.recurenceBegin).format('DD/MM/YYYY')+' est maintenant ouvert. </p>'+
+  '<p> Vous pouvez dès à présent aller réserver une place pour ce cours via la page de réservation sur www.aquadream-temploux.be </p>'+
+  '<p> Dépechez vous, nous ne réservons pas de place mais vous êtes bien entendu prévenu(e) en avance ! </p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+var transport = mailer.createTransport({
+  host: "ssl0.ovh.net",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.MAILER_USER,
+    pass: process.env.MAILER_PASSWORD
+  }
+})
+
+export function sendMail(from, to, subject, html) {
+  var content = {
+    from: from,
+    to: to,
+    subject: subject,
+    html: html
+  }
+
+  transport.sendMail(content, (error, response) => {
+    if(error) {
+      return false
+    }else{
+      return true
+    }
+    transport.close()
+  })
+}
+
+export function sendMultipleMail(from, to, subject, html) {
+  to.forEach(element => {
+    var content = {
+      from: from,
+      to: element,
+      subject: subject,
+      html: html
+    }
+
+    transport.sendMail(content, (error, response) => {
+      if(error) {
+        console.log(error)
+        return false
+      }
+      transport.close()
+    })
+  });
+
+}

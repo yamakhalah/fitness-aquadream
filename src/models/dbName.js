@@ -1,0 +1,17 @@
+const CREDIT = 'credit'
+const LESSON_DAY = 'lesson_day'
+const LESSON_DAY_SPOT = 'lesson_day_spot'
+const LESSON_TYPE = 'lesson_type'
+const LESSON_SUB_TYPE = 'lesson_sub_type'
+const TEACHER = 'teacher'
+const LESSON = 'lesson'
+const USER = 'user'
+const SUBSCRIPTION = 'subscription'
+const LESSON_BUNDLE = 'lesson_bundle'
+const PAYEMENT = 'payement'
+const NO_SHOW_DATE = 'no_show_date'
+const ERROR_LOG = 'error_log'
+const ADDRESS = 'address'
+const DISCOUNT = 'discount'
+
+module.exports = { LESSON_SUB_TYPE, LESSON_TYPE, LESSON_DAY_SPOT, DISCOUNT, CREDIT, LESSON_DAY, TEACHER, LESSON, USER, SUBSCRIPTION, LESSON_BUNDLE, PAYEMENT, NO_SHOW_DATE, ERROR_LOG, ADDRESS }
