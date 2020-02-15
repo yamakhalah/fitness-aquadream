@@ -217,7 +217,7 @@ export default function Navigation(props) {
             </IconButton>
          }
             <Typography variant="h6" noWrap>
-              Aquatime
+              Aquadream
             </Typography>
             <div className="buttonBar">
               {loginButton}
