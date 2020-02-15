@@ -44,14 +44,15 @@ mongoose.connect(process.env.DATABASE, {
 })
 
 const app = express()
-
 /*
-const whitelist = ['http://aquadream.herokuapp.com', 'https://aquadream.herokuapp.com', 'http://localhost:3000', 'https://localhost:3000', 'https://aquadream-temploux.be', 'https://aquadream-temploux.be', 'https://app.aquadream-temploux.be', 'https://app.aquadream-temploux.be', 'www.app.aquadream.temploux.be']
-
+const whitelist = ['http://aquadream.herokuapp.com', 'https://aquadream.herokuapp.com', 'http://localhost:3000', 'https://localhost:3000', 'https://aquadream.herokuapp.com/static/js/2.eb8ff982.chunk.js']
+/*
 const corsOptions = {
   origin:function (origin, callback){
     console.log('origin: ' +origin)
     if(whitelist.indexOf(origin) !== -1){
+      callback(null, true)
+    }else if(origin === undefined){
       callback(null, true)
     }else {
       callback(null, false)
@@ -60,12 +61,10 @@ const corsOptions = {
   credentials: true
 };
 */
-
 const corsOptions = {
-  origin: 'aquadream.herokuapp.com',
+  origin: '*',
   credentials: true
 }
-
 app.use(cors(corsOptions))
 
 
@@ -97,8 +96,8 @@ const getUser = async (req) => {
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
-  introspection: false,
-  playground: false,
+  introspection: true,
+  playground: true,
   engine: {
     debugPrintReports: true
   },

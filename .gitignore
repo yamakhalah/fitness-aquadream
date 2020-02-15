@@ -1,1 +1,6 @@
 /node_modules
+.gitHEROKU
+.gitGIT
+.env
+.vscode
+/node_modules
