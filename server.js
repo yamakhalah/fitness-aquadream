@@ -98,7 +98,7 @@ const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
   introspection: true,
-  playground: true,
+  playground: false,
   engine: {
     debugPrintReports: true
   },
