@@ -62,7 +62,7 @@ const corsOptions = {
 */
 
 const corsOptions = {
-  origin: 'aquadream.herokuapp.com',
+  origin: 'www.app.aquadream-temploux.be',
   credentials: true
 }
 
