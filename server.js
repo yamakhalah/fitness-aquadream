@@ -27,7 +27,6 @@ import lessonTypeModel from './src/models/lessonType'
 import lessonSubTypeModel from './src/models/lessonSubType'
 require('dotenv').config()
 //require('dotenv').config()
-console.log(process.env.NODE_ENV)
 
 /*
 const schema = makeExecutableSchema({
@@ -62,13 +61,9 @@ const corsOptions = {
 */
 
 const corsOptions = {
-  origin: 'app.aquadream-temploux.be',
+  origin: '/.aquadream-temploux.be$/',
   credentials: true
 }
-
-app.use(cors(corsOptions))
-
-
 
 app.use((req, res, next) => {
   console.log('HEADER')
@@ -76,6 +71,8 @@ app.use((req, res, next) => {
   console.log(req.headers.host)
   next()
 })
+
+app.use(cors(corsOptions))
 
 app.use(bodyParser.urlencoded({ extended: true }))
 //A CHANGER
