@@ -96,8 +96,8 @@ const getUser = async (req) => {
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
-  introspection: true,
-  playground: true,
+  introspection: false,
+  playground: false,
   engine: {
     debugPrintReports: true
   },
