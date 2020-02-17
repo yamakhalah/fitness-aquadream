@@ -10,6 +10,13 @@ import { UPDATE_IS_ADMIN, UPDATE_IS_TEACHER } from '../../database/mutation/user
 import { CustomSnackBar } from '../global/CustomSnackBar'
 
 const styles = theme => ({
+  root: {
+    marginTop: 25,
+    backgroundColor: 'white',
+    paddingTop: 30,
+    paddingBottom: 30
+  },
+
   title: {
     marginTop: 50
   },
@@ -111,7 +118,7 @@ class AdminUser extends React.Component {
     const { classes } = this.props
     return(
       <div>
-      <Container component="main" maxWidth="xl" className={classes.title}>
+      <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
         <Typography component="h1" variant="h5">
           Utilisateurs

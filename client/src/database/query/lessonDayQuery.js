@@ -94,6 +94,43 @@ export const GET_LESSONS_DAY_SPOT_CANCELED_BY_CAT = gql`
   }
 `
 
+export const GET_ACTIVE_LESSONS_DAY_FOR_USER = gql`
+  query getActiveLessonsDayForUser($user: ID!){
+    activeLessonsDayForUser(user: $user){
+      id
+      lesson{
+        id
+        lessonType{
+          id
+          simpleName
+        }
+        lessonSubType{
+          id
+          simpleName
+        }
+        address{
+          street
+          city
+          postalCode
+        }
+        name
+        comment
+        recurenceBegin
+        recurenceEnd
+      }
+      isCanceled
+      teacher{
+        id
+      },
+      dayDate
+      hour{
+        begin
+        end
+      }
+    }
+  }
+`
+
 
 
 

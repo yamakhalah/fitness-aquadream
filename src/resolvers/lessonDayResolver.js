@@ -37,6 +37,21 @@ export default {
       })
       return lessonsDay
     },
+
+    activeLessonsDayForUser: async (parent, { user }, { models: { lessonDayModel }}, info) => {
+      var today = moment()
+      today.subtract(1, 'days')
+      console.log(today.toISOString(true))
+      try{
+        const lessonsDay = await lessonDayModel.find({
+          dayDate: { $gte: today.toISOString(true) }
+        })
+        return lessonsDay
+      }catch(error){
+        console.log(error)
+        return {}
+      }
+    }
   },
   Mutation: {
     createLessonDay: async(parent, { teacher, dayDate, hour, spotLeft, spotTotal }, { models: { lessonDayModel }}, info) => {

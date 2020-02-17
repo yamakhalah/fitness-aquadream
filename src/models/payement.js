@@ -8,6 +8,7 @@ const PayementSchema = new Schema ({
     type: Schema.Types.ObjectId,
     reference: SUBSCRIPTION,
   }, 
+  mollieCustomerID: { type: String, required: true },
   mollieSubscriptionID: { type: String, required: true },
   molliePaymentID: { type: String, required: true },
   mollieMandateID: { type: String, required: true },
@@ -24,7 +25,7 @@ PayementSchema.statics.deletePayement = function(id) {
 }
 
 PayementSchema.statics.create = function(data, opts) {
-  const payement = new Payement({ mollieSubscriptionID: data.mollieSubscriptionID, molliePaymentID: data.molliePaymentID, mollieMandateID: data.mollieMandateID, mollieMandatestatus: data.mollieMandatestatus, reference: data.reference })
+  const payement = new Payement({ mollieCustomerID: data.mollieCustomerID, mollieSubscriptionID: data.mollieSubscriptionID, molliePaymentID: data.molliePaymentID, mollieMandateID: data.mollieMandateID, mollieMandatestatus: data.mollieMandatestatus, reference: data.reference })
   return payement.save(opts)
 }
 

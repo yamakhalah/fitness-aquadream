@@ -17,6 +17,12 @@ import moment from 'moment'
 moment.locale('fr')
 
 const styles = theme => ({
+  root: {
+    marginTop: 25,
+    backgroundColor: 'white',
+    paddingTop: 30,
+    paddingBottom: 30
+  },
   paper: {
     marginTop: 100,
     display: 'flex',
@@ -277,7 +283,7 @@ class AdminLessonDay extends React.Component {
     const { classes } = this.props
     return(
       <div>
-        <Container component="main" maxWidth="xl" className={classes.title}>
+        <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
         <Typography component="h1" variant="h5">
           Liste des cours quotidiens
@@ -317,7 +323,7 @@ class AdminLessonDay extends React.Component {
                         <ExpansionPanelDetails>
                           <Grid container spacing={2}>
                             {lessonDay.users.map((user, index) => (
-                              <Grid item xs={12} md={12} key={user.id}>
+                              <Grid item xs={12} md={12} key={user.id+' '+lessonDay.id}>
                                 <Typography>
                                 {user.firstName} {user.lastName}
                                 </Typography>

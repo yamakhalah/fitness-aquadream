@@ -13,7 +13,6 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom'
 import Navigation from './components/global/Navigation'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import Home from './components/global/Home'
 import Login from './components/global/Login'
 import SignUp from './components/global/SignUp'
 import Reset from './components/global/Reset'
@@ -26,6 +25,7 @@ import Booking from './components/user/Booking'
 import Credit from './components/user/Credit'
 import CreditUse from './components/user/CreditUse'
 import Payement from './components/user/BookingSubComponents/Payement'
+import Home from './components/user/Home'
 
 const drawerWidth = 240;
 
@@ -123,7 +123,7 @@ export default function App(props) {
           <main className={classes.content}>
             <div className={classes.toolbar} />
             <Switch>
-              <Route exact path="/booking/checkout" component={Payement} />
+              <Route exact path="/booking/checkout/:reference" component={Payement} />
               <AuthRoute user={user} component={Home} exact path="/" />
               <AuthRoute user={user} component={Credit} exact path="/credit" />
               <AuthRoute user={user} component={CreditUse} exact path="/creditUse" />

@@ -15,6 +15,13 @@ import moment from 'moment'
 moment.locale('fr')
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    marginTop: 25,
+    backgroundColor: 'white',
+    paddingTop: 30,
+    paddingBottom: 30
+  },
+
   loader: {
     display: 'flex',
     alignItems: 'center',
@@ -127,7 +134,7 @@ export default function AdminCredit(props) {
 
   return (
     <div>
-      <Container component="main" maxWidth="xl" className={classes.title}>
+      <Container component="main" maxWidth="xl" className={classes.root}>
       <CssBaseline />
       <Typography component="h1" variant="h5">
         Liste des crédits valides

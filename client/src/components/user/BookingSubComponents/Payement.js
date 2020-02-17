@@ -1,77 +1,147 @@
 import React, { useEffect } from 'react'
 import moment from 'moment'
+import Loader from '../../global/Loader.js'
 import axios from 'axios'
 //import chargebee from 'chargebee'
 import { useHistory } from 'react-router-dom'
-import { Container, CssBaseline, Typography, Grid } from '@material-ui/core'
+import { Container, CssBaseline, Typography, Grid, Button } from '@material-ui/core'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient } from 'react-apollo'
-
-//chargebee.configure({site : "digital-production-test"}
+import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { GET_MOLLIE_CHECKOUT_RESULT } from '../../../database/query/payementQuery'
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    paddingTop: theme.spacing(25)
+  },
   loader: {
-    textAlign: 'center'
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttons: {
+    padding: theme.spacing(2)
   },
 }))
 
-const Payement = () => {
+interface PayementProps extends RouteComponentProps {
+  reference: string;
+}
+
+const Payement = (props: PayementProps) => {
+  const [loading, setLoading] = React.useState(true)
+  const [preBooked, setPreBooked] = React.useState(false)
+  const [success, setSuccess] = React.useState(false)
+  const history = useHistory()
   const classes = useStyles()
   
   
   useEffect(() => {
-    console.log('TESTTEST')
-  })
+    console.log(props)
+    if(props.match.params.reference === 'prebooked'){
+      setSuccess(true)
+      setPreBooked(true)
+    }else if(props.match.params.reference !== 'null'){
+      setSuccess(true)
+      setPreBooked(false)
+    }else{
+      setSuccess(false)
+      setPreBooked(false)
+    }
+    setLoading(false)
+  }, [loading])
 
-
-
-  /*
-  const openCheckout = (session) => {
-    stripe.redirectToCheckout({
-      sessionId: session.id
-    }).then((result) => {
-      console.log(result)
-    })
+  const backToHome = () => {
+    history.push('/home')
   }
-
-  /*
-  const openCheckout = (hostedPage) => {
-    console.log('OPEN CHECKOUT')
-    console.log(hostedPage)
-    cbInstance.openCheckout({
-      hostedPage: function getHostedPagePromise(){
-        return new Promise((resolve, reject) => {
-          resolve(hostedPage)
-        }) 
-      },
-      success: (hostedPageID) => {
-        console.log('success')
-        console.log(hostedPageID)
-      },
-      error: (error) => {
-        console.log(error)
-      },
-      close:() => {
-        console.log('Checkout closed')
-      },
-      step(step) {
-        console.log('checkout', step)
-      }
-    })
-  }
-  */
   
-
-  return (
-    <React.Fragment>
-      COUCOU
-    </React.Fragment>
-  )
+  if(loading) {
+    return(
+      <div className={classes.loader}>
+        <Loader />
+      </div>
+    )
+  }else if(success){
+    if(preBooked){
+      return(
+        <div className={classes.root}>
+          <Typography component="h1" variant="h4" align="center">
+            Pré-réservation réussie
+          </Typography>
+          <h4>Vous êtes maintenant dans notre liste d'attente. Nous vous préviendrons par mail dès que le cours est ouvert</h4>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={backToHome}
+            className={classes.button}
+          >
+            Retour à l'accueil
+          </Button>
+        </div>
+      )
+    }else{
+      return(
+        <div className={classes.root}>
+          <Typography component="h1" variant="h4" align="center">
+            Réservation réussie
+          </Typography>
+          <h4>Votre abonnement est maintenant actif ! Vous avez payé la première échéance. La prochaine sera débitée un mois après le début de vos cours</h4>
+          <h4>Si vous avez sélectionné des cours en pré-réservation vous êtes maintenant dans notre liste d'attente. Nous vous préviendrons par mail dès que le cours est ouvert </h4>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={backToHome}
+            className={classes.button}
+          >
+            Retour à l'accueil
+          </Button>
+        </div>
+      )
+    }
+  }else if(!success){
+    if(preBooked){
+      return(
+        <div className={classes.root}>
+          <Typography component="h1" variant="h4" align="center">
+            Pré-réservation réussie
+          </Typography>
+          <h4>Une erreur inattendue est survenue lors de la pré-réservation. L'administrateur du site a normalement été prévenu</h4>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={backToHome}
+            className={classes.button}
+          >
+            Retour à l'accueil
+          </Button>
+        </div>
+      )
+    }else{
+      return(
+        <div className={classes.root}>
+          <Typography component="h1" variant="h4" align="center">
+            Echec du paiement
+          </Typography>
+          <h4>Votre paiement a été refusé par notre intermédiaire bancaire. Si vous avez été débité par erreur, merci de contacter l'administrateur du site.</h4>
+          <h4>Si vous avez sélectionné des cours en pré-réservation vous êtes maintenant dans notre liste d'attente. Nous vous préviendrons par mail dès que le cours est ouvert </h4>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={backToHome}
+            className={classes.button}
+          >
+            Retour à l'accueil
+          </Button>
+        </div>
+      )
+    }
+  }
 
 }
 
-export default Payement
+export default withRouter(Payement)
 
 
 /*

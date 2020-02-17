@@ -14,9 +14,13 @@ import {lessonSubTypeToString, lessonTypeToString} from '../../utils/enumToStrin
 moment.locale('fr')
 
 const styles = theme => ({
-  title: {
-    marginTop: 75
+  root: {
+    marginTop: 25,
+    backgroundColor: 'white',
+    paddingTop: 30,
+    paddingBottom: 30
   },
+
   card: {
     maxWidth: 345,
   },
@@ -104,11 +108,12 @@ class Credit extends React.Component {
     const { classes } = this.props
     return(
       <div>
-      <Container component="main" maxWidth="xl">
+      <Container component="main" maxWidth="xl" className={classes.root}>
       <CssBaseline />
       <Typography component="h1" variant="h5" className={classes.title}>
         Vos crédits
       </Typography>
+        {this.state.credits.length > 0 ? (
         <Grid container spacing={1} className={classes.grid}>
         {this.state.credits.map((credit, index) => (
           <Grid item xs={3} sm={3} key={credit.id}>
@@ -165,6 +170,9 @@ class Credit extends React.Component {
           </Grid>
         ))}
         </Grid>
+        ):(
+          <h2>Vous n'avez aucun crédit</h2>
+        )}
       </Container>
       <Snackbar
         anchorOrigin={{

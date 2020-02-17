@@ -48,11 +48,12 @@ const createSubscription = async (data) => {
       console.log(mandate)
       //SET PAYMENT
       const dataPayment = {
+        mollieCustomerID: payment.customerId,
         mollieSubscriptionID: subscription.id,
         molliePaymentID: payment.id,
         mollieMandateID: subscription.mandateId,
         mollieMandatestatus: mandate.status,
-        reference: uuid.v4()
+        reference: payment.metadata.reference
       }
       //ADD PAYEMENT TO DB
       const graphqlPayement = await payementModel.create(dataPayment, opts)

@@ -17,10 +17,14 @@ export default {
     },
 
     lessonsWaitingOrGoing: async (parent, args, { models: { lessonModel }}, info) => {
-      const lessons = await lessonModel.find(
-        { 'status': ["WAITING_BEGIN", "ON_GOING"]}
-      ).exec()
-      return lessons
+      try{
+        const lessons = await lessonModel.find(
+          { 'status': ["WAITING_BEGIN", "ON_GOING"]}
+        ).exec()
+        return lessons
+      }catch(error){
+        console.log(error)
+      }
     }
   },
   Mutation: {

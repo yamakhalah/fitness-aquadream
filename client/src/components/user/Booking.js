@@ -8,6 +8,7 @@ import { Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step 
 import { GET_USER_BY_ID } from '../../database/query/userQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_SESSION } from '../../database/query/payementQuery'
+import { PRE_SUBSCRIBE_TO_LESSONS } from '../../database/mutation/paymentMutation'
 import LessonPicker from './BookingSubComponents/LessonPicker'
 import OrderResume from './BookingSubComponents/OrderResume'
 import Payement from './BookingSubComponents/Payement'
@@ -58,12 +59,16 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: 0
   },
   loader: {
-    textAlign: 'center'
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 }))
 
 export default function Booking() {
   const classes = useStyles()
+  const history = useHistory()
   const steps = ['Sélection des cours', 'Votre Commande', 'Paiement']
   const [client, setClient] = React.useState(useApolloClient())
   const [activeStep, setActiveStep] = React.useState(0)
@@ -103,7 +108,11 @@ export default function Booking() {
       case 1: 
         return <OrderResume handleFinalPriceCallBack={orderResumeCallBack} preBookedLessons={preBookedLessons} bookedLessons={bookedLessons} fUser={getUser} />
       case 2:
-        checkout()
+        if(bookedLessons.length === 0) {
+          noBookingCheckout()
+        }else{
+          checkout()
+        }
     }
   }
 
@@ -112,12 +121,30 @@ export default function Booking() {
       query: GET_SESSION,
       variables: {
         orderResume: orderResume,
+        preBookedLessons: preBookedLessons,
+        user: user
+      }
+    })
+    .then(result => {      
+      window.location = result.data.getSession._links.checkout.href
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+
+  const noBookingCheckout = () => {
+    client.mutate({
+      mutation: PRE_SUBSCRIBE_TO_LESSONS,
+      variables: {
+        preBookedLessons: preBookedLessons,
         user: user
       }
     })
     .then(result => {
-      console.log(result)      
-      window.location = result.data.getSession._links.checkout.href
+      history.push({
+        pathname: '/booking/checkout/prebooked',
+      })
     })
     .catch(error => {
       console.log(error)

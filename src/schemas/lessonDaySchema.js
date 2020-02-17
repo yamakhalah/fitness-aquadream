@@ -31,6 +31,7 @@ export default gql`
     lessonsDay: [LessonDay!]!
     lessonsDayFromToday(today: String!): [LessonDay!]!
     lessonsDaySpotCanceled: [LessonDay!]!
+    activeLessonsDayForUser(user: ID!): [LessonDay!]!
   }
 
   extend type Mutation {

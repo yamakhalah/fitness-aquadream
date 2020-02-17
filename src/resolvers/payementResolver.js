@@ -3,6 +3,7 @@ import GraphQLJSON from 'graphql-type-json'
 import payementModel from '../models/payement'
 import subscriptionModel from '../models/subscription'
 import userModel from '../models/user'
+import lessonModel from '../models/lesson'
 import uuid from 'uuid'
 import Promise  from 'promise'
 import moment from 'moment'
@@ -23,7 +24,26 @@ export default {
       return payements
     },
 
-    getSession: async (parent, { orderResume, user }, { models: { payementModel }}, info) => {
+    getMollieCheckoutResult: async (parent, { paymentRef }, { models: { payementModel }}, info) => {
+      try {
+        const payment = await payementModel.find(
+          { reference: paymentRef }
+        )
+        if(payment) {
+          const mSubscription = await mollieClient.customers_subscriptions.get(
+            payment.mollieSubscriptionID,
+            { customerId: payment.mollieCustomerID}
+          )
+          return mSubscription
+        }else{
+          return {}
+        }
+      }catch(error){
+        console.log(error)
+      }
+    },
+
+    getSession: async (parent, { orderResume, preBookedLessons, user }, { models: { payementModel }}, info) => {
       try{
         //CHECK IF USER HAS MOLLIE CUSTOMER ID
         if(user.mollieCustomerID.length === 0){
@@ -37,11 +57,12 @@ export default {
           user.mollieCustomerID = mollieUser.id
         }
         //CREATE FIRST PAYEMENT
+        const ref = uuid.v4()
         const lessonsID = []
         for(const lesson of orderResume.lessonsData){
           var elem = {
             lessonID: lesson.lesson.id,
-            lessonMonthlyPrice: lesson.lessonMonthlyPrice
+            //lessonMonthlyPrice: lesson.lessonMonthlyPrice
           }
           lessonsID.push(elem)
         }
@@ -51,7 +72,7 @@ export default {
             value: String(orderResume.totalMonthly+orderResume.yearlyTax)+'.00'
           },
           description: 'Première échéance abonnement et taxe annuelle (si non payée)',
-          redirectUrl: process.env.MOLLIE_REDIRECT_URL,
+          redirectUrl: process.env.MOLLIE_REDIRECT_URL+'/'+ref,
           webhookUrl: process.env.MOLLIE_WEBHOOK_URL,
           locale: 'fr_BE',
           method: ['bancontact', 'creditcard', 'directdebit', 'inghomepay', 'belfius'],
@@ -61,7 +82,8 @@ export default {
             totalMonthly: orderResume.totalMonthly,
             total: orderResume.total,
             startDate: moment(orderResume.recurenceBegin).add(1, 'M').format('YYYY-MM-DD'),
-            lessons: lessonsID
+            lessons: lessonsID,
+            reference: ref
           },
           sequenceType: 'first',
           customerId: user.mollieCustomerID,
@@ -69,8 +91,6 @@ export default {
         }) 
         var graphqlUser = {}
         if(orderResume.yearlyTax > 0) {
-          console.log('PAID GOING TO TRUE')
-          console.log(user.mollieCustomerID)
           graphqlUser = await userModel.findOneAndUpdate(
             { _id: user.id },
             { mollieCustomerID: user.mollieCustomerID, paidYearlyTax: true },
@@ -83,6 +103,9 @@ export default {
             { mollieCustomerID: user.mollieCustomerID },
             { new: true }
           )
+        }
+        for(const lesson of preBookedLessons) {
+          const preBookedLesson = lessonModel.addUser(lesson.id, user.id, null)
         }
         return molliePayment
       }catch(error){
@@ -199,12 +222,24 @@ export default {
       return payement
     },
 
-    addSubscriptionToPayement: async(parent, {id, subscription}, { models: { payementModel }}, info) => {
+    addSubscriptionToPayement: async(parent, {id, subscription }, { models: { payementModel }}, info) => {
       const payement = await payementModel.findOneAndUpdate(
         { _id: id },
         { subscription: subscription },
         { new: true}
       )
+    },
+
+    preSubscribeToLessons: async(parent, { preBookedLessons, user }, { models: { payementModel }}, info) => {
+      try{
+        for(const lesson of preBookedLessons) {
+          const preBookedLesson = lessonModel.addUser(lesson.id, user.id, null)
+        }
+        return true
+      }catch(error){
+        console.log(error)
+        return false
+      }
     }
   },
   Payement: {

@@ -12,6 +12,8 @@ import resolver from './store/resolver'
 import typeDef from './store/typeDef'
 import './index.css';
 import App from './App';
+import { ThemeProvider } from '@material-ui/styles';
+import theme from './style/theme/default'
 import * as serviceWorker from './serviceWorker';
 
 const cache = new InMemoryCache()
@@ -138,11 +140,13 @@ const setupAndRender = async () => {
     storage: window.localStorage
   })
   ReactDOM.render(
-    <ApolloProvider client={client}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ApolloProvider>,
+    <ThemeProvider theme={theme}>
+      <ApolloProvider client={client}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ApolloProvider>
+    </ThemeProvider>,
   document.getElementById('root'));
 }
 

@@ -56,85 +56,87 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
   })
 
   useEffect(() => {
-    var lessonsData = []
-    var highestMonth = 0
-    var total = 0
-    var totalMonth = 0
-    var closestRecurenceBegin = moment(bookedLessons[0].recurenceBegin)
-    var lBookedLessonsDiscount = {
-      "X1": [],
-      "X2": [],
-      "X3": []
-    }
-    bookedLessons.forEach(lesson => {
-      var counter = 1
-      if(lesson.totalMonth > highestMonth) {
-        highestMonth = lesson.totalMonth
+    if(bookedLessons.length > 0) {
+      var lessonsData = []
+      var highestMonth = 0
+      var total = 0
+      var totalMonth = 0
+      var closestRecurenceBegin = moment(bookedLessons[0].recurenceBegin)
+      var lBookedLessonsDiscount = {
+        "X1": [],
+        "X2": [],
+        "X3": []
       }
-      var recurenceBegin = moment(lesson.recurenceBegin)
-      if(recurenceBegin.isSameOrBefore(closestRecurenceBegin)) {
-        closestRecurenceBegin = recurenceBegin
-      }
-      lesson.lessonType.compatibilities.forEach(compatibility => {
-        bookedLessons.forEach(lessonBis => {
-          if(lesson.id !== lessonBis.id) {
-            lessonBis.lessonType.compatibilities.forEach(compatibilityBis => {
-              if(compatibility.id === compatibilityBis.id) {
-                counter++
-              }
-            })
-          }
+      bookedLessons.forEach(lesson => {
+        var counter = 1
+        if(lesson.totalMonth > highestMonth) {
+          highestMonth = lesson.totalMonth
+        }
+        var recurenceBegin = moment(lesson.recurenceBegin)
+        if(recurenceBegin.isSameOrBefore(closestRecurenceBegin)) {
+          closestRecurenceBegin = recurenceBegin
+        }
+        lesson.lessonType.compatibilities.forEach(compatibility => {
+          bookedLessons.forEach(lessonBis => {
+            if(lesson.id !== lessonBis.id) {
+              lessonBis.lessonType.compatibilities.forEach(compatibilityBis => {
+                if(compatibility.id === compatibilityBis.id) {
+                  counter++
+                }
+              })
+            }
+          })
         })
+      
+        if(counter >= 3) {
+          lBookedLessonsDiscount['X3'].push(lesson)
+          total += lesson.pricing.totalPrice3X
+        }else if(counter == 2) {
+          lBookedLessonsDiscount['X2'].push(lesson)
+          total += lesson.pricing.totalPrice2X
+        }else {
+          lBookedLessonsDiscount['X1'].push(lesson)
+          total += lesson.pricing.totalPrice
+        }
+      });
+      totalMonth = Math.ceil(total/highestMonth)
+      lBookedLessonsDiscount['X1'].forEach(lesson => {
+        var data = {
+          lesson: lesson,
+          lessonMonthlyPrice: Math.ceil((lesson.pricing.totalPrice/highestMonth))
+        }
+        lessonsData.push(data)
       })
-    
-      if(counter >= 3) {
-        lBookedLessonsDiscount['X3'].push(lesson)
-        total += lesson.pricing.totalPrice3X
-      }else if(counter == 2) {
-        lBookedLessonsDiscount['X2'].push(lesson)
-        total += lesson.pricing.totalPrice2X
-      }else {
-        lBookedLessonsDiscount['X1'].push(lesson)
-        total += lesson.pricing.totalPrice
+      lBookedLessonsDiscount['X2'].forEach(lesson => {
+        var data = {
+          lesson: lesson,
+          lessonMonthlyPrice: Math.ceil((lesson.pricing.totalPrice2X/highestMonth))
+        }
+        lessonsData.push(data)
+      })
+      lBookedLessonsDiscount['X3'].forEach(lesson => {
+        var data = {
+          lesson: lesson,
+          lessonMonthlyPrice: Math.ceil((lesson.pricing.totalPrice3X/highestMonth))
+        }
+        lessonsData.push(data)
+      })
+      var tax = 0
+      if(!user.paidYearlyTax){
+        tax = 25
       }
-    });
-    totalMonth = Math.ceil(total/highestMonth)
-    lBookedLessonsDiscount['X1'].forEach(lesson => {
-      var data = {
-        lesson: lesson,
-        lessonMonthlyPrice: Math.ceil((lesson.pricing.totalPrice/highestMonth))
+      var orderResume = {
+        recurenceBegin: closestRecurenceBegin.toISOString(),
+        subDuration: highestMonth,
+        total: total,
+        totalMonthly: totalMonth,
+        yearlyTax: tax,
+        lessonsData: lessonsData
       }
-      lessonsData.push(data)
-    })
-    lBookedLessonsDiscount['X2'].forEach(lesson => {
-      var data = {
-        lesson: lesson,
-        lessonMonthlyPrice: Math.ceil((lesson.pricing.totalPrice2X/highestMonth))
-      }
-      lessonsData.push(data)
-    })
-    lBookedLessonsDiscount['X3'].forEach(lesson => {
-      var data = {
-        lesson: lesson,
-        lessonMonthlyPrice: Math.ceil((lesson.pricing.totalPrice3X/highestMonth))
-      }
-      lessonsData.push(data)
-    })
-    var tax = 0
-    if(!user.paidYearlyTax){
-      tax = 25
+      setBookedLessonsDiscount(lBookedLessonsDiscount)
+      setOrderResume(orderResume)
+      handleFinalPriceCallBack(orderResume)
     }
-    var orderResume = {
-      recurenceBegin: closestRecurenceBegin.toISOString(),
-      subDuration: highestMonth,
-      total: total,
-      totalMonthly: totalMonth,
-      yearlyTax: tax,
-      lessonsData: lessonsData
-    }
-    setBookedLessonsDiscount(lBookedLessonsDiscount)
-    setOrderResume(orderResume)
-    handleFinalPriceCallBack(orderResume)
   }, [needReRender])
 
   return(

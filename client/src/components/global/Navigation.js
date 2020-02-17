@@ -9,7 +9,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { Tooltip, AppBar, Toolbar, IconButton, Typography, Button, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro } from '@material-ui/icons'
+import { ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { useApolloClient } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
@@ -139,7 +139,7 @@ export default function Navigation(props) {
         </Link>
         <Tooltip title="Gérer les abonnements">
           <ListItem button key="adminSubscription">
-            <ListItemIcon><Home /></ListItemIcon>
+            <ListItemIcon><Payment /></ListItemIcon>
             <ListItemText>Abonnements</ListItemText>
           </ListItem>
         </Tooltip>
@@ -185,7 +185,7 @@ export default function Navigation(props) {
       <h3 className="center">Prof</h3>
       <List>
         <Tooltip title="Gérer votre calendrier">
-          <ListItem button key="teacherCalendar">
+          <ListItem disabled={true} button key="teacherCalendar">
             <ListItemIcon><Home /></ListItemIcon>
             <ListItemText>Créer un cours</ListItemText>
           </ListItem>
@@ -249,15 +249,17 @@ export default function Navigation(props) {
             {teacherDrawer}
             <Divider/>
             <h3 className="center">Client</h3>
-            <Tooltip title="Accueil">
-              <ListItem button key="home">
-                <ListItemIcon><Home /></ListItemIcon>
-                <ListItemText>Accueil</ListItemText>
-              </ListItem>
-            </Tooltip>
+            <Link to="/" className="leftNavItem">
+              <Tooltip title="Accueil">
+                <ListItem button key="home">
+                  <ListItemIcon><Home /></ListItemIcon>
+                  <ListItemText>Accueil</ListItemText>
+                </ListItem>
+              </Tooltip>
+            </Link>
             <Tooltip title="Abonnements">
               <ListItem button key="subscription">
-                <ListItemIcon><Home /></ListItemIcon>
+                <ListItemIcon><Payment /></ListItemIcon>
                 <ListItemText>Abonnements</ListItemText>
               </ListItem>
             </Tooltip>

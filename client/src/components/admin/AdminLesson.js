@@ -14,6 +14,12 @@ import moment from 'moment'
 moment.locale('fr')
 
 const styles = theme => ({
+  root: {
+    marginTop: 25,
+    backgroundColor: 'white',
+    paddingTop: 30,
+    paddingBottom: 30
+  },
   paper: {
     marginTop: 100,
     display: 'flex',
@@ -91,6 +97,7 @@ class AdminLesson extends React.Component {
       this.setState({ lessons: sortedLessons })
     })
     .catch(error => {
+      console.log(error)
       this.showSnackMessage('Erreur lors de la récupération des cours', 'error')
     })
   }
@@ -169,7 +176,7 @@ class AdminLesson extends React.Component {
     return(
       <div>
       {this.state.loading && <CircularProgress size={150} className={classes.buttonProgress} />} 
-      <Container component="main" maxWidth="xl" className={classes.title}>
+      <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
         <Typography component="h1" variant="h5">
           Liste des cours

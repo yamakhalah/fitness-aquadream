@@ -1,8 +1,8 @@
 import { gql } from 'apollo-boost'
 
 export const GET_LESSONS = gql`
-  query getLessons{
-    lessons{
+  query getLessons{ 
+    lessons{ 
       id
       users{
         id
@@ -76,6 +76,29 @@ export const GET_LESSONS = gql`
       mainType
       dateType
       isOpened
+    }
+  }
+`
+
+export const GET_ACTIVE_LESSONS_FOR_USER = gql`
+  query getActiveLessonsForUser($user: ID){
+    activeLessonsForUser(user: $user){
+      id
+      lessonsDay{
+        id
+        users{
+          id
+        }
+        isCanceled
+        teacher{
+          id
+        },
+        dayDate
+        hour{
+          begin
+          end
+        }
+      }
     }
   }
 `

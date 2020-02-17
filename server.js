@@ -27,7 +27,6 @@ import lessonTypeModel from './src/models/lessonType'
 import lessonSubTypeModel from './src/models/lessonSubType'
 require('dotenv').config()
 //require('dotenv').config()
-console.log(process.env.NODE_ENV)
 
 /*
 const schema = makeExecutableSchema({
@@ -62,19 +61,20 @@ const corsOptions = {
 };
 */
 const corsOptions = {
-  origin: '*',
+  origin: 'http://localhost:3000',
   credentials: true
 }
-app.use(cors(corsOptions))
-
-
 
 app.use((req, res, next) => {
+  /*
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  */
   console.log('HEADER')
-  console.log(req.headers.origin)
-  console.log(req.headers.host)
+  console.log(req.header)
   next()
 })
+app.use(cors(corsOptions))
 
 app.use(bodyParser.urlencoded({ extended: true }))
 //A CHANGER
@@ -96,8 +96,8 @@ const getUser = async (req) => {
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
-  introspection: false,
-  playground: false,
+  introspection: true,
+  playground: true,
   engine: {
     debugPrintReports: true
   },
@@ -136,6 +136,12 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path: '/graphql', cors: false}) 
 
 if(process.env.NODE_ENV === "production") {
+  app.use(express.static('client/build'))
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
+  })
+}else{
   app.use(express.static('client/build'))
 
   app.get('*', (req, res) => {

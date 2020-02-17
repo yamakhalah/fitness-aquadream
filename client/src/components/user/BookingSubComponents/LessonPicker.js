@@ -1,7 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import Loader from '../../global/Loader.js'
-import {List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip } from '@material-ui/core'
+import { Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip } from '@material-ui/core'
 import { lessonSubTypeToString, lessonTypeToString } from '../../../utils/enumToString'
 import { dateToDayString } from '../../../utils/dateTimeConverter'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   list: {
-    backgroundColor: '#FFEFEF',
+    backgroundColor: theme.palette.primary.main,
     padding: 0
 
   },
@@ -44,12 +44,18 @@ const useStyles = makeStyles(theme => ({
   lessons: {
   },
   lessonPaper: {
-    backgroundColor: '#FLDJS3',
+    backgroundColor: theme.palette.aquawhite.main,
     padding: theme.spacing(1),
     margin: theme.spacing(3)
   },
   loader: {
-    textAlign: 'center'
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  error: {
+    marginTop: '10rem'
   }
 }))
 
@@ -81,6 +87,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
 
   const initLessonPicker = (data) => {
     var lessonsDic = lessonsBySubType
+    console.log(data.lessonsWaitingOrGoing)
     data.lessonsWaitingOrGoing.forEach(element => {
       lessonsDic[element.lessonSubType.name].push(element)
     });
@@ -137,7 +144,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
 
   if (error) return (
     <div className={classes.errorText}>
-      <h2>Erreur lors de la récupération des cours</h2>
+      <h2 className={classes.error}>Erreur lors de la récupération des cours</h2>
       <p>{error.message}</p>
     </div>
   )
@@ -175,7 +182,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
         <Grid item xs={10} sm={10} className={classes.lessons}>
         <Box border={2} borderColor="primary.main" height="100%">
           {selectedLessons.length === 0 ? (
-            <h1>Aucun cours dans cette catégorie</h1>
+            <h1 className={classes.error}>Aucun cours dans cette catégorie</h1>
           ):(
             <Grid container>
               {selectedLessons.map((lesson) => {

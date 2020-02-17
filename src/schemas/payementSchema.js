@@ -22,7 +22,9 @@ export default gql`
   extend type Query {
     payement(id: ID!): Payement!
     payements: [Payement!]!
-    getSession(orderResume: JSON!, user: JSON!): JSON!
+    getSession(orderResume: JSON!, user: JSON!, preBookedLessons: JSON!): JSON!
+    getMollieCheckoutResult(paymentRef: String!): JSON!
+
   }
 
   extend type Mutation {
@@ -30,5 +32,6 @@ export default gql`
     updatePayement(subscription: ID!, mollieSubscriptionID: String!, molliePaymentID: String!, mollieMandateID: String!, mollieMandateStatus: PayementStatus!, reference: String!): Payement!
     deletePayement(id: ID!): Payement! 
     addSubscriptionToPayement(id: ID!, subscription: ID!): Boolean!
+    preSubscribeToLessons(preBookedLessons: JSON!, user: JSON!): Boolean!
   }
 `

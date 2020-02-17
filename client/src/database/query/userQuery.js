@@ -25,6 +25,27 @@ export const GET_USER_BY_ID = gql`
       mollieCustomerID
       subscriptions{
         id
+        payement{
+          id
+          mollieSubscriptionID
+          molliePaymentID
+          mollieMandateID
+          mollieMandateStatus
+          reference
+        }
+        lessonsDay{
+          id
+        }
+        lessons{
+          id
+        }
+        created
+        subType
+        subStatus
+        total
+        totalMonth
+        validityBegin
+        validityEnd
       }
       credits{
         id
