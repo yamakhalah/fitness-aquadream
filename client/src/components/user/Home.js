@@ -36,7 +36,6 @@ const Home = () => {
   }
 
   const initCalendar = (data) => {
-    console.log(data)
     setLessonsDay(data.activeLessonsDayForUser)
     var events = []
     for(const lessonDay of data.activeLessonsDayForUser){

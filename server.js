@@ -66,12 +66,15 @@ const corsOptions = {
 }
 
 app.use((req, res, next) => {
+  console.log('HEADER')
+  console.log(req.header.origin)
   /*
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  if(!req.secure){
+    res.redirect("https://"+req.headers.host + req.url)
+  }
   */
-  console.log('HEADER')
-  console.log(req.header)
   next()
 })
 app.use(cors(corsOptions))

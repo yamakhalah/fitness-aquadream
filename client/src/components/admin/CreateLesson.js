@@ -342,14 +342,6 @@ class CreateLesson extends React.Component {
         lesson: lesson,
         lessonsDay: lessonsDay
       },
-      refetchQueries: [
-        {
-          query: GET_LESSONS
-        },
-        {
-          query: GET_LESSONS_WAITING_OR_GOING
-        },
-      ]
     })
     .then(result => {
       console.log(result)
