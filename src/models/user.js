@@ -111,13 +111,18 @@ UserSchema.statics.removeActiveLessonDay = function(id, lessonDay) {
 }
 
 UserSchema.statics.create = function(data) {
+  console.log(Number(process.env.SALT))
   const user = new User({ email: data.email , password: data.password, firstName: data.firstName, lastName: data.lastName, phone: data.phone, gender: data.gender, isAdmin: false, isTeacher: false })
   return user.save()
 }
 
 UserSchema.pre('save', function() {
-  const hashedPassword = bcrypt.hashSync(this.password, process.env.SALT)
-  this.password = hashedPassword
+  try{
+    const hashedPassword = bcrypt.hashSync(this.password, Number(process.env.SALT))
+    this.password = hashedPassword
+  }catch(error){
+    console.log(error)
+  }
 })
 
 
