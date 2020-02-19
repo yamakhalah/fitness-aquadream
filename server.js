@@ -66,21 +66,16 @@ const corsOptions = {
 }
 */
 app.use((req, res, next) => {
-  console.log('HEADER')
-  console.log(req.header.origin)
-  /*
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  if(!req.secure){
-    res.redirect("https://"+req.headers.host + req.url)
-  }
-  */
-  next()
+  console.log('APP USE HTTPS')
+  console.log(req.header('x-forwarded-proto'))
+  if (req.header('x-forwarded-proto') !== 'https')
+    res.redirect(`https://${req.header('host')}${req.url}`)
+  else
+    next()
 })
 app.use(cors(corsOptions))
 
 app.use(bodyParser.urlencoded({ extended: true }))
-//A CHANGER
 app.use('/booking', payementRouter)
 
 const getUser = async (req) => {
@@ -140,12 +135,6 @@ server.applyMiddleware({ app, path: '/graphql', cors: false})
 
 if(process.env.NODE_ENV === "production") {
   app.use(express.static('client/build'))
-  app.use((req, res, next) => {
-    if (req.header('x-forwarded-proto') !== 'https')
-      res.redirect(`https://${req.header('host')}${req.url}`)
-    else
-      next()
-  })
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
