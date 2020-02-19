@@ -140,9 +140,7 @@ const setupAndRender = async () => {
     cache,
     storage: window.localStorage
   })
-  ReactDOM.render(
-    
-    //<HttpsRedirect>
+  ReactDOM.render( 
       <ThemeProvider theme={theme}>
         <ApolloProvider client={client}>
           <BrowserRouter>
@@ -150,7 +148,6 @@ const setupAndRender = async () => {
           </BrowserRouter>
         </ApolloProvider>
       </ThemeProvider>,
-    //</HttpsRedirect>,
   document.getElementById('root'));
 }
 
