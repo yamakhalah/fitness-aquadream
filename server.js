@@ -44,7 +44,7 @@ mongoose.connect(process.env.DATABASE, {
 
 const app = express()
 
-const whitelist = ['http://localhost:3000']
+const whitelist = ['http://localhost:3000', 'http://aquadream-test.herokuapp.com']
 const corsOptions = {
   origin: function (origin, callback){
     console.log('ORIGIN: '+origin)
