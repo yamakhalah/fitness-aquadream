@@ -1,4 +1,5 @@
 import React from 'react';
+import HttpsRedirect from 'react-https-redirect'
 import { BrowserRouter } from 'react-router-dom'
 import ReactDOM from 'react-dom';
 import ApolloClient from 'apollo-client'
@@ -130,7 +131,7 @@ const client = new ApolloClient({
 
 cache.writeData({
   data: {
-    Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, userID: '', token: '', __typename: "Authentification" }
+    Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', token: '', __typename: "Authentification" }
   }
 })
 
@@ -140,13 +141,16 @@ const setupAndRender = async () => {
     storage: window.localStorage
   })
   ReactDOM.render(
-    <ThemeProvider theme={theme}>
-      <ApolloProvider client={client}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ApolloProvider>
-    </ThemeProvider>,
+    
+    <HttpsRedirect>
+      <ThemeProvider theme={theme}>
+        <ApolloProvider client={client}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ApolloProvider>
+      </ThemeProvider>,
+    </HttpsRedirect>,
   document.getElementById('root'));
 }
 
@@ -159,7 +163,7 @@ client.onResetStore(() => {
   persistor.purge()
   cache.writeData({
     data: {
-      Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, userID: '', token: '', __typename: "Authentification" }
+      Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', token: '', __typename: "Authentification" }
     }
   })
 })

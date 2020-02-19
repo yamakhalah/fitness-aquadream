@@ -38,3 +38,18 @@ export const CANCEL_LESSON_DAY = gql`
     }
   }
 `
+
+export const CANCEL_LESSON_DAY_FOR_USER = gql`
+  mutation cancelLessonDayForUser($user: UserLightInput!, $lessonDay: ID!){
+    cancelLessonDayForUser(user: $user, lessonDay: $lessonDay){
+      id
+      lessonDay{
+        id
+      }
+      user{
+        id
+      }
+      validityEnd
+    }
+  }
+`

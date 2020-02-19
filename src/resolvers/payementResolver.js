@@ -75,13 +75,13 @@ export default {
           redirectUrl: process.env.MOLLIE_REDIRECT_URL+'/'+ref,
           webhookUrl: process.env.MOLLIE_WEBHOOK_URL,
           locale: 'fr_BE',
-          method: ['bancontact', 'creditcard', 'directdebit', 'inghomepay', 'belfius'],
+          method: ['bancontact', 'creditcard', 'directdebit', 'inghomepay', 'belfius', 'banktransfer', 'mybank'],
           metadata: {
             userID: user.id,
             subDuration: orderResume.subDuration,
             totalMonthly: orderResume.totalMonthly,
             total: orderResume.total,
-            startDate: moment(orderResume.recurenceBegin).add(1, 'M').format('YYYY-MM-DD'),
+            startDate: moment(orderResume.recurenceBegin).format('YYYY-MM-DD'),
             lessons: lessonsID,
             reference: ref
           },

@@ -4,8 +4,11 @@ export const GET_AUTHENTIFICATION = gql`
   query GET_AUTHENTIFICATION {
     Authentification @client {
       isAuthenticated
-      isAdmin,
-      isTeacher,
+      isAdmin
+      isTeacher
+      firstName
+      lastName
+      email
       userID
       token
     }
@@ -28,8 +31,11 @@ export const UPDATE_SUBSCRIPTION = gql `
   subscription UPDATE_SUBSCRIPTION {
     updateAuthentification @client {
       isAuthenticated
-      isAdmin,
+      isAdmin
       isTeacher
+      firstName
+      lastName
+      email
       userID
       token
     }

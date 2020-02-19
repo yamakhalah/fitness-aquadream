@@ -154,8 +154,8 @@ export default function AdminCredit(props) {
             {sortCredits(data.creditsValidity).map(credit => (
               <TableRow key={credit.id}>
                 <TableCell component="th" scope="row">{credit.user.firstName} {credit.user.lastName}</TableCell>
-                <TableCell>{lessonTypeToString(credit.lesson_day.lesson.lessonType.simpleName)}</TableCell>
-                <TableCell>{lessonSubTypeToString(credit.lesson_day.lesson.lessonSubType.simpleName)}</TableCell>
+                <TableCell>{credit.lessonDay.lesson.lessonType.simpleName}</TableCell>
+                <TableCell>{credit.lessonDay.lesson.lessonSubType.simpleName}</TableCell>
                 <TableCell>{credit.isUsed ? 'Oui' : 'Non'}</TableCell>
                 <TableCell>{moment(credit.validityEnd).format('DD/MM/YYYY')}</TableCell>
                 <TableCell>
@@ -231,7 +231,7 @@ export default function AdminCredit(props) {
               variables: {
                 id: selectedCredit.id,
                 user: selectedCredit.user.id,
-                lesson_day: selectedCredit.lesson_day.id,
+                lessonDay: selectedCredit.lessonDay.id,
                 isUsed: selectedCredit.isUsed,
                 validityEnd: validityEnd.toISOString(true)
               },

@@ -60,14 +60,23 @@ const corsOptions = {
   credentials: true
 };
 */
+const whitelist = ['http://localhost:3000']
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback){
+    console.log(origin)
+    if(whitelist.indexOf(origin) !== -1 || !origin){
+      callback(null, true)
+    }else{
+      callback(new Error('Nice try'))
+    }
+  },
   credentials: true
 }
 
+
 app.use((req, res, next) => {
   console.log('HEADER')
-  console.log(req.header.origin)
+  //console.log(req.header)
   /*
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

@@ -90,7 +90,7 @@ class Credit extends React.Component {
     .then(result => {
       var lessonsDay = []
       result.data.lessonsDaySpotCanceled.forEach(element => {
-        if(element.lesson.lessonType === this.state.credit.lesson_day.lesson.lessonType && element.lesson.lessonSubType === this.state.credit.lesson_day.lesson.lessonSubType) {
+        if(element.lesson.lessonType === this.state.credit.lessonDay.lesson.lessonType && element.lesson.lessonSubType === this.state.credit.lessonDay.lesson.lessonSubType) {
           lessonsDay.push(element)
         }
       });

@@ -88,6 +88,9 @@ class Login extends React.Component {
                 isAuthenticated: true,
                 isAdmin: result.data.login.user.isAdmin,
                 isTeacher: result.data.login.user.isTeacher,
+                firstName: result.data.login.user.firstName,
+                lastName: result.data.login.user.lastName,
+                email: result.data.login.user.email,
                 userID: result.data.login.user.id,
                 token: result.data.login.token
               }

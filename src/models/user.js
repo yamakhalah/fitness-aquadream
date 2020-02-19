@@ -69,10 +69,10 @@ UserSchema.statics.findActiveLessonsDay = function(id) {
   return User.findById(id).populate(LESSON_DAY).then(user => user.activeLessonsDay)
 }
 
-UserSchema.statics.addCredit = function(id, credit) {
+UserSchema.statics.addCredit = function(id, credit, opts) {
   return User.findById(id).then(user => {
     user.credits.push(credit)
-    return User.findOneAndUpdate({ _id: user._id }, { credits: user.credits }, { new: true })
+    return User.findOneAndUpdate({ _id: user._id }, { credits: user.credits }, { new: true, session: opts.session })
   })
 }
 
