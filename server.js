@@ -56,10 +56,19 @@ const corsOptions = {
 }
 */
 app.use((req, res, next) => {
-  if (req.header('x-forwarded-proto') !== 'https')
+  /*
+  if (req.header('x-forwarded-proto') !== 'https' && req.get())
     res.redirect(`https://${req.header('host')}${req.url}`)
   else
     next()
+    */
+  let host = req.headers.host;
+  if (!host.match(/^www\..*/i)) {
+    return res.redirect(301, "https://www." + host + req.url)
+  } else if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect('https://' + req.hostname + req.url)
+  }
+  next()
 })
 app.use(cors(corsOptions))
 
