@@ -66,8 +66,6 @@ const corsOptions = {
 }
 */
 app.use((req, res, next) => {
-  console.log('APP USE HTTPS')
-  console.log(req.header('x-forwarded-proto'))
   if (req.header('x-forwarded-proto') !== 'https')
     res.redirect(`https://${req.header('host')}${req.url}`)
   else
