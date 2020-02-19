@@ -142,15 +142,15 @@ const setupAndRender = async () => {
   })
   ReactDOM.render(
     
-    <HttpsRedirect>
+    //<HttpsRedirect>
       <ThemeProvider theme={theme}>
         <ApolloProvider client={client}>
           <BrowserRouter>
             <App />
           </BrowserRouter>
         </ApolloProvider>
-      </ThemeProvider>
-    </HttpsRedirect>,
+      </ThemeProvider>,
+    //</HttpsRedirect>,
   document.getElementById('root'));
 }
 
