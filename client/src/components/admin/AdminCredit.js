@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Loader from '../global/Loader'
-import { useQuery, useMutation } from  '@apollo/react-hooks'
+import { useQuery, useMutation } from  'react-apollo'
 import { GET_CREDITS_VALIDITY } from '../../database/query/creditQuery'
 import { INVALIDATE_CREDIT, UPDATE_CREDIT } from '../../database/mutation/creditMutation'
 import { Snackbar, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton, TableBody, TableRow, TableCell, Container, CssBaseline , Typography, Table, TableHead, Tooltip, Grid } from '@material-ui/core';
