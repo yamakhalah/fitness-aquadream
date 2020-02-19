@@ -1,7 +1,7 @@
 const { USER, CREDIT, SUBSCRIPTION, DISCOUNT, LESSON_DAY } = require( './dbName');
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-
+require('dotenv').config()
 
 import bcrypt from 'bcrypt'
 
@@ -116,6 +116,8 @@ UserSchema.statics.create = function(data) {
 }
 
 UserSchema.pre('save', function() {
+  console.log(this.password)
+  console.log(process.env.SALT)
   const hashedPassword = bcrypt.hashSync(this.password, process.env.SALT)
   this.password = hashedPassword
 })

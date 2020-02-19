@@ -26,14 +26,6 @@ import noShowDateModel from './src/models/noShowDate'
 import lessonTypeModel from './src/models/lessonType'
 import lessonSubTypeModel from './src/models/lessonSubType'
 require('dotenv').config()
-//require('dotenv').config()
-
-/*
-const schema = makeExecutableSchema({
-  typeDefs: schemas,
-  resolvers: resolvers,
-})
-*/
 
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
