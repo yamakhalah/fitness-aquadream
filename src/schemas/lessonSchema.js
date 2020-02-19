@@ -70,7 +70,7 @@ export default gql`
 
   extend type Query {
     lesson(id: ID!): Lesson!
-    lessonsWaitingOrGoing: [Lesson!]!
+    lessonsWaitingOrGoing: [Lesson]!
     lessons: [Lesson!]!
   }
 
