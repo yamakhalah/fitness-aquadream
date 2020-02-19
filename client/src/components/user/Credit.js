@@ -142,13 +142,13 @@ class Credit extends React.Component {
                   </Grid>
                   <Grid item xs={7} sm={7} className={classes.leftText}>
                     <Typography variant="body2" color="textSecondary" component="p">
-                      {credit.lesson_day.lesson.name}
+                      {credit.lessonDay.lesson.name}
                     </Typography>
                     <Typography className={classes.textPadding} variant="body2" color="textSecondary" component="p">
-                      {moment(credit.lesson_day.dayDate).format('DD/MM/YYYY')}
+                      {moment(credit.lessonDay.dayDate).format('DD/MM/YYYY')}
                     </Typography>
                     <Typography className={classes.textPadding} variant="body2" color="textSecondary" component="p">
-                      {moment(credit.lesson_day.hour.begin, 'HH:mm').format('HH:mm')} à {moment(credit.lesson_day.hour.end, 'HH:mm').format('HH:mm')}
+                      {moment(credit.lessonDay.hour.begin, 'HH:mm').format('HH:mm')} à {moment(credit.lessonDay.hour.end, 'HH:mm').format('HH:mm')}
                     </Typography>
                     <Typography className={classes.textPadding} variant="body2" color="textSecondary" component="p">
                       {moment(credit.validityEnd).format('DD/MM/YY à HH:mm')}
@@ -157,7 +157,7 @@ class Credit extends React.Component {
                 </Grid>
                 <Grid item xs={12} sm={12} className={classes.limitTextPadding}>
                     <Typography variant="body2" color="textSecondary" component="p">
-                      Ce crédit est limité à la catégorie {lessonTypeToString(credit.lesson_day.lesson.lessonType)} -> {lessonSubTypeToString(credit.lesson_day.lesson.lessonSubType)}
+                      Ce crédit est limité à la catégorie {credit.lessonDay.lesson.lessonType.simpleName} -> {credit.lessonDay.lesson.lessonSubType.simpleName}
                     </Typography>
                 </Grid>
                 </CardContent>

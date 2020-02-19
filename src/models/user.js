@@ -1,14 +1,13 @@
 const { USER, CREDIT, SUBSCRIPTION, DISCOUNT, LESSON_DAY } = require( './dbName');
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-
+require('dotenv').config()
 
 import bcrypt from 'bcrypt'
 
 const UserSchema = new Schema({
   mollieCustomerID: {
     type: String,
-    unique: true,
     default: ""
   },
   subscriptions: [{
@@ -69,10 +68,10 @@ UserSchema.statics.findActiveLessonsDay = function(id) {
   return User.findById(id).populate(LESSON_DAY).then(user => user.activeLessonsDay)
 }
 
-UserSchema.statics.addCredit = function(id, credit) {
+UserSchema.statics.addCredit = function(id, credit, opts) {
   return User.findById(id).then(user => {
     user.credits.push(credit)
-    return User.findOneAndUpdate({ _id: user._id }, { credits: user.credits }, { new: true })
+    return User.findOneAndUpdate({ _id: user._id }, { credits: user.credits }, { new: true, session: opts.session })
   })
 }
 
@@ -111,7 +110,6 @@ UserSchema.statics.removeActiveLessonDay = function(id, lessonDay) {
 }
 
 UserSchema.statics.create = function(data) {
-  console.log(Number(process.env.SALT))
   const user = new User({ email: data.email , password: data.password, firstName: data.firstName, lastName: data.lastName, phone: data.phone, gender: data.gender, isAdmin: false, isTeacher: false })
   return user.save()
 }

@@ -38,6 +38,7 @@ export default gql`
     createLessonDay(teacher: ID!, dayDate: String!, hour: HourIntervalInput!, spotLeft: Int!, spotTotal: Int!): LessonDay!
     updateLessonDay(id: ID!, lesson: ID!, teacher: ID!, users: [ID!]!, dayDate: String!, hour: HourIntervalInput!, spotLeft: Int!, spotTotal: Int!, isCanceled: Boolean!): LessonDay!
     cancelLessonDay(id: ID!, lesson: ID!, teacher: ID!, users: [UserLightInput!]!, dayDate: String!, hour: HourIntervalInput!, spotLeft: Int!, spotTotal: Int!, isCanceled: Boolean!, message: String!): [Credit]!
+    cancelLessonDayForUser(user: UserLightInput!, lessonDay: ID!): Credit!
     deleteLessonDay(id: ID!): LessonDay!
     increaseSpotLeftFromLessonDay(id: ID!): LessonDay!
     decreaseSpotLeftFromLessonDay(id: ID!): LessonDay!

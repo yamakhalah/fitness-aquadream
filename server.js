@@ -26,14 +26,6 @@ import noShowDateModel from './src/models/noShowDate'
 import lessonTypeModel from './src/models/lessonType'
 import lessonSubTypeModel from './src/models/lessonSubType'
 require('dotenv').config()
-//require('dotenv').config()
-
-/*
-const schema = makeExecutableSchema({
-  typeDefs: schemas,
-  resolvers: resolvers,
-})
-*/
 
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
@@ -47,21 +39,19 @@ const app = express()
 const whitelist = ['http://localhost:3000', 'https://localhost:3000']
 
 const corsOptions = {
-  origin:function (origin, callback){
-    console.log('origin: ' +origin)
-    if(whitelist.indexOf(origin) !== -1){
+  origin: function (origin, callback){
+    console.log('ORIGIN: '+origin)
+    if(whitelist.indexOf(origin) !== -1 || !origin){
       callback(null, true)
-    }else if(origin === undefined){
-      callback(null, true)
-    }else {
-      callback(null, false)
+    }else{
+      callback(new Error('Nice try'))
     }
   },
   credentials: true
-};
+}
 /*
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: '*',
   credentials: true
 }
 */
@@ -132,12 +122,14 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path: '/graphql', cors: false}) 
 
 if(process.env.NODE_ENV === "production") {
+  console.log('ask client prod')
   app.use(express.static('client/build'))
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
   })
 }else{
+  console.log('ask client')
   app.use(express.static('client/build'))
 
   app.get('*', (req, res) => {

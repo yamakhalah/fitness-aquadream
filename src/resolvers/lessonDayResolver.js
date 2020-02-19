@@ -41,10 +41,11 @@ export default {
     activeLessonsDayForUser: async (parent, { user }, { models: { lessonDayModel }}, info) => {
       var today = moment()
       today.subtract(1, 'days')
-      console.log(today.toISOString(true))
+      console.log(user)
       try{
         const lessonsDay = await lessonDayModel.find({
-          dayDate: { $gte: today.toISOString(true) }
+          dayDate: { $gte: today.toISOString(true)},
+          users: { $all: user }
         })
         return lessonsDay
       }catch(error){
@@ -80,8 +81,8 @@ export default {
         var validityEnd = moment(dayDate).add(1, 'y')
         var credits = []
         for(var i = 0; i < users.length; i++) {
-          const credit = await creditModel.create(users[i].id, id, validityEnd.toISOString(true))
-          const tmp = await userModel.addCredit(users[i].id, credit.id)
+          const credit = await creditModel.create(users[i].id, id, validityEnd.toISOString(), opts)
+          const tmp = await userModel.addCredit(users[i].id, credit.id, opts)
           if(!credit) {
             throw new ApolloError()
           }
@@ -92,8 +93,28 @@ export default {
         session.endSession()
         return credits
       }catch(error) {
+        console.log(error)
         await session.abortTransaction()
         session.endSession()
+      }
+    },
+
+    cancelLessonDayForUser: async(parent, { user, lessonDay }, { models: { lessonDayModel }}, info) => {
+      const session = await mongoose.startSession()
+      const opts = { session }
+      session.startTransaction() 
+      try{
+        const graphqlLessonDay = await lessonDayModel.removeUserDecreaseSpotLeft(lessonDay, user.id, opts)
+        const credit = await creditModel.create({ user: user.id, lessonDay: graphqlLessonDay.id, validityEnd: moment(graphqlLessonDay.dayDate).add(1, 'y').toISOString()}, opts)
+        const graphqlUser = await userModel.addCredit(user.id, credit, opts)
+        await session.commitTransaction()
+        session.endSession()
+        return credit
+      }catch(error){
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        return null
       }
     },
 

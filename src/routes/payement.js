@@ -89,9 +89,6 @@ const createSubscription = async (data) => {
       }
 
       const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
-      console.log('GRAPHQL SUBSCRIPTION')
-      console.log(graphqlSubscription)
-
       const updatedGraphqlPayement = await payementModel.findOneAndUpdate(
         { id: graphqlPayement.id },
         { subscription: graphqlSubscription.id },

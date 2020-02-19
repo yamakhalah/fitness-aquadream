@@ -19,9 +19,9 @@ const CreditSchema = new Schema({
   validityEnd: { type: String }
 })
 
-CreditSchema.statics.create = function(data) {
+CreditSchema.statics.create = function(data, opts) {
   const credit = new Credit({ user: data.user, lessonDay: data.lessonDay, validityEnd: data.validityEnd })
-  return credit.save()
+  return credit.save(opts)
 }
 
 CreditSchema.statics.deleteCredit = function(id) {

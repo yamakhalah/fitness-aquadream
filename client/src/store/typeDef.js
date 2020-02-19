@@ -3,6 +3,9 @@ export const typeDef = `
     isAuthenticated: Boolean!
     isAdmin: Boolean!
     isTeacher: Boolean!
+    firstName: String!
+    lastName: String!
+    email: String!
     userID: ID!
     token: String!
   }
@@ -11,6 +14,9 @@ export const typeDef = `
     isAuthenticated: Boolean!
     isAdmin: Boolean!
     isTeacher: Boolean!
+    firstName: String!
+    lastName: String!
+    email: String!
     userID: ID!
     token: String!
   }

@@ -6,6 +6,7 @@ export default createMuiTheme({
     primary: { main: '#00A9E0'},
     aquawhite: { main: '#F5E1A4'},
     secondary: { main: '#78BE31'}, 
-    aquabrown: { main: '#653818'} 
+    aquabrown: { main: '#653818'},
+    red: { main: '#C0392B'}
   }
 });
