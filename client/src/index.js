@@ -149,7 +149,7 @@ const setupAndRender = async () => {
             <App />
           </BrowserRouter>
         </ApolloProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     </HttpsRedirect>,
   document.getElementById('root'));
 }
