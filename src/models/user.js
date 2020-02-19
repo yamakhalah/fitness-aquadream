@@ -1,7 +1,6 @@
 const { USER, CREDIT, SUBSCRIPTION, DISCOUNT, LESSON_DAY } = require( './dbName');
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-require('dotenv').config()
 
 import bcrypt from 'bcrypt'
 

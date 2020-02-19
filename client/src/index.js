@@ -1,5 +1,4 @@
 import React from 'react';
-import HttpsRedirect from 'react-https-redirect'
 import { BrowserRouter } from 'react-router-dom'
 import ReactDOM from 'react-dom';
 import ApolloClient from 'apollo-client'
