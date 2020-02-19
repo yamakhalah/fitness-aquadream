@@ -8,7 +8,6 @@ import bcrypt from 'bcrypt'
 const UserSchema = new Schema({
   mollieCustomerID: {
     type: String,
-    unique: true,
     default: ""
   },
   subscriptions: [{
