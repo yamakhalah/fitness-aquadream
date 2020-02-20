@@ -56,17 +56,13 @@ const corsOptions = {
 }
 */
 app.use((req, res, next) => {
-  /*
-  if (req.header('x-forwarded-proto') !== 'https' && req.get())
-    res.redirect(`https://${req.header('host')}${req.url}`)
-  else
-    next()
-    */
-  let host = req.headers.host;
-  if (!host.match(/^www\..*/i)) {
-    return res.redirect(301, "https://www." + host + req.url)
-  } else if (req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect('https://' + req.hostname + req.url)
+  if(process.env.NODE_ENV === "production") {
+    let host = req.headers.host;
+    if (!host.match(/^www\..*/i)) {
+      return res.redirect(301, "https://www." + host + req.url)
+    } else if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect('https://' + req.hostname + req.url)
+    }
   }
   next()
 })
@@ -131,14 +127,12 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path: '/graphql', cors: false}) 
 
 if(process.env.NODE_ENV === "production") {
-  console.log('ask client prod')
   app.use(express.static('client/build'))
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
   })
 }else{
-  console.log('ask client')
   app.use(express.static('client/build'))
 
   app.get('*', (req, res) => {
@@ -150,19 +144,3 @@ if(process.env.NODE_ENV === "production") {
 app.listen({ port: process.env.PORT }, () => {
   console.log(`🚀 Server ready on port ${process.env.PORT}`)
 })
-
-/*
-app.listen(5000, () => {
-  mongoose.connect('mongodb://yamakhalah:-Yamakhalah71470504@ds047948.mlab.com:47948/heroku_k0j2bxt6', {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true
-  })
-  console.log('En écoute sur le port 5000');
-})
-const app = require('./server');
-
-app.listen(process.env.PORT || 4000, () => {
-  console.log('En écoute sur le port 4000');
-});
-*/

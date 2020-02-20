@@ -81,7 +81,7 @@ const client = new ApolloClient({
     }),
     requestLink,
     new HttpLink({
-      uri: process.env.REACT_APP_URI,
+      uri: process.env.REACT_APP_URI || 'http://localhost:4000/graphql',
       credentials: 'include'
     })
   ]),
@@ -140,13 +140,13 @@ const setupAndRender = async () => {
     storage: window.localStorage
   })
   ReactDOM.render( 
-      <ThemeProvider theme={theme}>
-        <ApolloProvider client={client}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ApolloProvider>
-      </ThemeProvider>,
+    <ThemeProvider theme={theme}>
+      <ApolloProvider client={client}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ApolloProvider>
+    </ThemeProvider>,
   document.getElementById('root'));
 }
 
