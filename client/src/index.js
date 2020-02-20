@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom'
 import ReactDOM from 'react-dom';
-import ApolloClient from 'apollo-client'
+import ApolloClient, { ApolloError } from 'apollo-client'
 import { onError } from 'apollo-link-error'
 import {ApolloLink, Observable} from 'apollo-link'
 import { CachePersistor, persistCache } from 'apollo-cache-persist'
@@ -10,6 +10,7 @@ import { ApolloProvider } from 'react-apollo'
 import { HttpLink } from 'apollo-link-http'
 import resolver from './store/resolver'
 import typeDef from './store/typeDef'
+import getErrorMessage from './error'
 import './index.css';
 import App from './App';
 import { ThemeProvider } from '@material-ui/styles';
@@ -26,14 +27,14 @@ const persistor = new CachePersistor({
 const defaultOptions = {
   watchQuery: {
     fetchPolicy: 'network-only',
-    errorPolicy: 'all',
+    errorPolicy: 'none',
   },
   query: {
     fetchPolicy: 'network-only',
-    errorPolicy: 'all',
+    errorPolicy: 'none',
   },
   mutate: {
-    errorPolicy: 'all',
+    errorPolicy: 'none',
   },
 };
 
@@ -70,14 +71,21 @@ const requestLink = new ApolloLink((operation, forward) =>
 
 const client = new ApolloClient({
   link: ApolloLink.from([
-    onError(({ graphQLErrors, networkError }) => {
-      if (graphQLErrors)
+    onError(({ graphQLErrors, networkError, operation, forward }) => {
+      if (graphQLErrors){
         graphQLErrors.forEach(({ message, locations, path }) =>
-          console.log(
+          console.error(
             `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
           ),
         );
-      if (networkError) console.log(`[Network error]: ${networkError}`);
+      //throw new ApolloError(graphQLErrors[0])
+      
+      }
+      if (networkError){
+        console.error(`[Network error]: ${networkError}`);
+        //throw new Error('NETWORK_ERROR')
+      }
+      return
     }),
     requestLink,
     new HttpLink({
@@ -88,7 +96,7 @@ const client = new ApolloClient({
   cache: cache,
   resolvers: resolver,
   typeDefs: typeDef,
-  defaultOptions: defaultOptions,
+  defaultOptions,
   request: (operation) => {
     const token = localStorage.getItem('token')
     if(token) {

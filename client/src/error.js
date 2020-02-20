@@ -4,7 +4,7 @@ const SESSION_EXPIRED = "SESSION_EXPIRED"
 
 export function getErrorMessage(error) {
   if(error) {
-    switch(error.message) {
+    switch(error.graphQLErrors[0].message) {
       case INVALID_CREDENTIALS:
         return {
           message: "L'email ou le mot de passe est incorrect", 
@@ -30,6 +30,12 @@ export function getErrorMessage(error) {
           show: true
         }
         break
+    }
+  }else{
+    return {
+      message: "Une erreur inconnue a eu lieu, contactez l'administrateur du site",
+      variant: "error",
+      show: true
     }
   } 
 }

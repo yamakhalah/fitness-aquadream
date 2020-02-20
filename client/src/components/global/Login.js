@@ -94,7 +94,7 @@ class Login extends React.Component {
                 userID: result.data.login.user.id,
                 token: result.data.login.token
               }
-            }
+            },
           })
           .then(result => {
             if(result.data.newAuthentification) {
@@ -109,7 +109,7 @@ class Login extends React.Component {
           })
       })
       .catch(error => {
-        const errorInfo = getErrorMessage(error.graphQLErrors[0])
+        const errorInfo = getErrorMessage(error)
         this.setState({'errorMessage': errorInfo.message})
         this.setState({'errorVariant': errorInfo.variant})
         this.setState({'open': true})
