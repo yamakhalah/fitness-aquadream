@@ -86,10 +86,10 @@ LessonDaySchema.statics.addUserDecreaseSpotLeft = function(id, user, opts) {
 
 LessonDaySchema.statics.removeUserDecreaseSpotLeft = function(id, user, opts) {
   return LessonDay.findById(id).then(lesson => {
-    console.log(lesson)
+    lesson.users.splice(user, 1)
     return LessonDay.findOneAndUpdate(
       {_id: lesson.id },
-      { $pull: { users: user} , $inc: { spotLeft: 1 }},
+      { users: lesson.users, $inc: { spotLeft: 1 }},
       { new: true, session: opts.session }
     )
   })
@@ -103,13 +103,13 @@ LessonDaySchema.statics.addUserDecreaseSpotCanceled = function(id, user) {
   })
 }
 
-LessonDaySchema.statics.removeUserDecreaseSpotCanceled = function(id, user) {
+LessonDaySchema.statics.removeUserIncreaseSpotCanceled = function(id, user, opts) {
   return LessonDay.findById(id).then(lesson => {
+    lesson.users.splice(user, 1)
     return LessonDay.findOneAndUpdate(
       {_id: lesson._id },
-      { $pull: { users: user }},
-      { $inc: { spotCanceled: 1 }},
-      { new: true }
+      { users: lesson.users, $inc: { spotCanceled: 1 }},
+      { new: true, session: opts.session }
     )
   })
 }

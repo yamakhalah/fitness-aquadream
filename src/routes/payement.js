@@ -93,11 +93,11 @@ const createSubscription = async (data) => {
       console.log('CATCH REFUND')
       await session.abortTransaction()
       session.endSession()
-      return false
+      return true
     }else{
       await session.abortTransaction()
       session.endSession()
-      return false
+      return true
     }
   }catch(error){
     console.log('ERROR')
@@ -106,7 +106,7 @@ const createSubscription = async (data) => {
     session.endSession()
     const dPayment = await mollieClient.payments.cancel(paymentID)
     const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payement.customerId })
-    return false
+    return true
   }
 }
 

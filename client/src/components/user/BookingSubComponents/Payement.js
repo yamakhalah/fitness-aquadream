@@ -10,6 +10,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient } from 'react-apollo'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { GET_MOLLIE_CHECKOUT_RESULT } from '../../../database/query/payementQuery'
+import { GET_AUTHENTIFICATION, UPDATE_AUTHENTIFICATION } from '../../../store/authentification'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -36,6 +37,7 @@ const Payement = (props: PayementProps) => {
   const [preBooked, setPreBooked] = React.useState(false)
   const [success, setSuccess] = React.useState(false)
   const [client, setClient] = React.useState(useApolloClient())
+  const [user, setUser] = React.useState(client.readQuery({query: GET_AUTHENTIFICATION}).Authentification)
   const history = useHistory()
   const classes = useStyles()
   
@@ -53,8 +55,24 @@ const Payement = (props: PayementProps) => {
         fetchPolicy: 'network-only'
       })
       .then(result => {
-        console.log(result)
-        if(result.data.getMollieCheckoutResult !== {}){
+        if(Object.entries(result.data.getMollieCheckoutResult).length > 0){
+          const mollieSubscription = result.data.getMollieCheckoutResult
+          client.mutate({
+            mutation: UPDATE_AUTHENTIFICATION,
+            variables: {
+              input: {
+                isAuthenticated: true,
+                isAdmin: user.isAdmin,
+                isTeacher: user.isTeacher,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                userID: user.userID,
+                mollieCustomerID: mollieSubscription.customerId,
+                token: user.token
+              }
+            }
+          })
           setSuccess(true)
           setPreBooked(false)
           setLoading(false)

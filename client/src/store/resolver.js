@@ -1,5 +1,3 @@
-import {  } from 'react-apollo'
-
 export const resolvers = {
   Mutation: {
     newAuthentification: (_, { input }, { cache }) => {

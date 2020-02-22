@@ -95,9 +95,10 @@ LessonSchema.statics.addUser = function(id, user, opts) {
 
 LessonSchema.statics.removeUser = function(id, user) {
   return Lesson.findById(id).then(lesson => {
+    lesson.splice(user, 1)
     return Lesson.findOneAndUpdate(
       {_id: lesson._id },
-      { $pull: { users: user }, $inc: { spotLeft: 1 }},
+      { users: lesson.users, $inc: { spotLeft: 1 }},
       { new: true }
     )
   })

@@ -41,7 +41,6 @@ export default {
     activeLessonsDayForUser: async (parent, { user }, { models: { lessonDayModel }}, info) => {
       var today = moment()
       today.subtract(1, 'days')
-      console.log(user)
       try{
         const lessonsDay = await lessonDayModel.find({
           dayDate: { $gte: today.toISOString(true)},
@@ -104,7 +103,7 @@ export default {
       const opts = { session }
       session.startTransaction() 
       try{
-        const graphqlLessonDay = await lessonDayModel.removeUserDecreaseSpotLeft(lessonDay, user.id, opts)
+        const graphqlLessonDay = await lessonDayModel.removeUserIncreaseSpotCanceled(lessonDay, user.id, opts)
         const credit = await creditModel.create({ user: user.id, lessonDay: graphqlLessonDay.id, validityEnd: moment(graphqlLessonDay.dayDate).add(1, 'y').toISOString()}, opts)
         const graphqlUser = await userModel.addCredit(user.id, credit, opts)
         await session.commitTransaction()

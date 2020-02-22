@@ -86,6 +86,7 @@ export default function Subscription(props) {
           fetchPolicy: 'network-only'
         })
         .then(result => {
+          console.log(result)
           lSubscriptionsData.push({
             subscription: subscription,
             mollieSubscription: result.data.getMollieSubscriptionData
@@ -201,7 +202,7 @@ export default function Subscription(props) {
                     <Grid item xs={4} md={4}>
                       Status: 
                     </Grid>
-                    {subscriptionData.mollieSubscription.status === 'active'? (
+                    {subscriptionData.mollieSubscription.status === 'active' ? (
                       <Grid item xs={8} md={8}>
                         <div className={classes.statusOK}>
                         Actif
@@ -265,7 +266,8 @@ export default function Subscription(props) {
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
                   <CardActions>
-                    {subscriptionData.mollieSubscription.status === 'active' (
+                  {console.log(subscriptionData)}
+                    {subscriptionData.mollieSubscription.status === 'suspended' && (
                       <IconButton onClick={correctPayment(subscriptionData)}>
                         <Money />
                       </IconButton>

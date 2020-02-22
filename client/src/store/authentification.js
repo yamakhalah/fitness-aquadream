@@ -30,16 +30,6 @@ export const DELETE_AUTHENTIFICATION = gql`
 
 export const UPDATE_AUTHENTIFICATION = gql `
   mutation UPDATE_AUTHENTIFICATION ($input: AuthentificationInput!) {
-    updateAuthentification(input: $input) @client {
-      isAuthenticated
-      isAdmin
-      isTeacher
-      firstName
-      lastName
-      email
-      userID
-      mollieCustomerID
-      token
-    }
+    updateAuthentification(input: $input) @client
   }
 `

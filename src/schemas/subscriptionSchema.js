@@ -3,6 +3,7 @@ import { gql } from 'apollo-server';
 export default gql`
   enum SubStatus {
     WAITING_PAYEMENT
+    WAITING_BEGIN
     ON_GOING
     EXPIRED
     CANCELED_BY_CLIENT

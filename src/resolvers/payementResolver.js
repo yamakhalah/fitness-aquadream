@@ -113,13 +113,15 @@ export default {
 
     getMollieSubscriptionData: async (parent, { mollieCustomerID, mollieSubscriptionID }, { models: { payementModel }}, info) => {
       try{
+        console.log(mollieCustomerID)
+        console.log(mollieSubscriptionID)
         const mollieSubscription = await mollieClient.customers_subscriptions.get(
           mollieSubscriptionID,
           { customerId: mollieCustomerID }
         )
         return mollieSubscription
       }catch(error){
-        console.log(error)
+        //console.log(error)
         return {}
       }
     },

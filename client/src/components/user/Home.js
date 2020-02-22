@@ -3,9 +3,11 @@ import moment from 'moment'
 import Loader from '../global/Loader.js'
 import localizer from 'react-big-calendar/lib/localizers/globalize'
 import globalize from 'globalize'
+import Snackbar from '@material-ui/core/Snackbar'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient, useQuery, useMutation } from 'react-apollo'
+import { CustomSnackBar } from '../global/CustomSnackBar'
 import { useHistory } from 'react-router-dom'
 import { Grid, Typography, Button, Container, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core'
 import { GET_ACTIVE_LESSONS_DAY_FOR_USER } from '../../database/query/lessonDayQuery'
@@ -39,6 +41,9 @@ const Home = () => {
   const [views, setViews] = React.useState([])
   const [localizer, setLocalizer] = React.useState(momentLocalizer(moment))
   const [infoModal, setInfoModal] = React.useState(false)
+  const [errorVariant, setErrorVariant] = React.useState('error')
+  const [errorMessage, setErrorMessage] = React.useState('')
+  const [openSnack, setOpenSnack] = React.useState(false)
 
 
   const initCalendar = (data) => {
@@ -111,10 +116,12 @@ const Home = () => {
       }]
     })
     .then(result => {
-      console.log(result)
+      window.location.reload()
     })
     .catch(error => {
       console.log(error)
+      setLoading(false)
+      showSnackMessage('Une erreur est survenue durant l\'annulation', 'error')
     })
   }
 
@@ -126,6 +133,16 @@ const Home = () => {
       return false
     }
     return true
+  }
+
+  const showSnackMessage = (message, type) => {
+    setErrorMessage(message)
+    setErrorVariant(type)
+    setOpenSnack(true)
+  }
+
+  const handleSnackClose = () => {
+    setOpenSnack(false)
   }
 
   const { load, error, data } = useQuery(GET_ACTIVE_LESSONS_DAY_FOR_USER, { fetchPolicy: 'network-only', variables: { user: user.userID}, onCompleted: initCalendar})
@@ -190,6 +207,21 @@ const Home = () => {
           )}
         </DialogActions>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={openSnack}
+        autoHideDuration={5000}
+        onClose={handleSnackClose}
+      >
+        <CustomSnackBar
+          onClose={handleSnackClose}
+          variant={errorVariant}
+          message={errorMessage}
+        />
+      </Snackbar>
     </div>
   )
 }
