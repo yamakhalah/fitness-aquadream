@@ -46,6 +46,7 @@ export default gql`
   extend type Query {
     subscription(id: ID!): Subscription!
     subscriptions: [Subscription!]!
+    subscriptionsForUser(user: ID!): [Subscription!]!
   }
 
   extend type Mutation {

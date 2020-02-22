@@ -226,20 +226,22 @@ export default function Booking() {
                   </Grid>
                   <Grid item xs={6} sm={6}>
                     <div className={classes.buttons}>
-                      {activeStep !== 0 && (
+                      {(activeStep !== 0 && activeStep !== 2) && (
                         <Button onClick={handleBack} className={classes.button}>
                           Retour
                         </Button>
                       )}
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleNext}
-                        className={classes.button}
-                        disabled={nextButtonDisable}
-                      >
-                        {activeStep === steps.length - 1 ? 'Payer' : 'Suivant'}
-                      </Button>
+                      {activeStep !== 2 && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleNext}
+                          className={classes.button}
+                          disabled={nextButtonDisable}
+                        >
+                          {activeStep === steps.length - 1 ? 'Payer' : 'Suivant'}
+                        </Button>
+                      )}
                     </div>
                   </Grid>
                 </Grid>

@@ -29,32 +29,55 @@ const useStyles = makeStyles(theme => ({
 interface PayementProps extends RouteComponentProps {
   reference: string;
 }
-
+// SI molliCustomerID est nouveau: changer les data dans Authentification
+// Si reference !== null vérifier la reference et le status
 const Payement = (props: PayementProps) => {
   const [loading, setLoading] = React.useState(true)
   const [preBooked, setPreBooked] = React.useState(false)
   const [success, setSuccess] = React.useState(false)
+  const [client, setClient] = React.useState(useApolloClient())
   const history = useHistory()
   const classes = useStyles()
   
   
   useEffect(() => {
-    console.log(props)
     if(props.match.params.reference === 'prebooked'){
       setSuccess(true)
       setPreBooked(true)
     }else if(props.match.params.reference !== 'null'){
-      setSuccess(true)
-      setPreBooked(false)
+      client.query({
+        query: GET_MOLLIE_CHECKOUT_RESULT,
+        variables: {
+          paymentRef: props.match.params.reference
+        },
+        fetchPolicy: 'network-only'
+      })
+      .then(result => {
+        console.log(result)
+        if(result.data.getMollieCheckoutResult !== {}){
+          setSuccess(true)
+          setPreBooked(false)
+          setLoading(false)
+        }else{
+          setSuccess(false)
+          setPreBooked(false)
+          setLoading(false)
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        setSuccess(false)
+        setPreBooked(false)
+        setLoading(false)
+      })
     }else{
       setSuccess(false)
       setPreBooked(false)
     }
-    setLoading(false)
   }, [loading])
 
   const backToHome = () => {
-    history.push('/home')
+    history.push('/')
   }
   
   if(loading) {
@@ -105,7 +128,7 @@ const Payement = (props: PayementProps) => {
       return(
         <div className={classes.root}>
           <Typography component="h1" variant="h4" align="center">
-            Pré-réservation réussie
+            Pré-réservation échouée
           </Typography>
           <h4>Une erreur inattendue est survenue lors de la pré-réservation. L'administrateur du site a normalement été prévenu</h4>
           <Button

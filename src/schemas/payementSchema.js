@@ -24,6 +24,7 @@ export default gql`
     payements: [Payement!]!
     getSession(orderResume: JSON!, user: JSON!, preBookedLessons: JSON!): JSON!
     getMollieCheckoutResult(paymentRef: String!): JSON!
+    getMollieSubscriptionData(mollieCustomerID: String!, mollieSubscriptionID: String!): JSON!
 
   }
 

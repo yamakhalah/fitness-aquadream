@@ -9,6 +9,13 @@ export const resolvers = {
       return true
     },
 
+    updateAuthentification: (_, { input }, { cache }) => {
+      cache.writeData({
+        data: { Authentification: { __typename: 'Authentification', ...input}},
+      })
+      return true
+    },
+
     deleteAuthentification: (_, variables, { cache }) => {
       cache.writeData({ data: { Authentification: null }})
 

@@ -17,6 +17,7 @@ export const GET_LESSONS = gql`
         teacher{
           id
           user{
+            id
             firstName
             lastName
           }
@@ -81,7 +82,7 @@ export const GET_LESSONS = gql`
 `
 
 export const GET_ACTIVE_LESSONS_FOR_USER = gql`
-  query getActiveLessonsForUser($user: ID){
+  query getActiveLessonsForUser($user: ID!){
     activeLessonsForUser(user: $user){
       id
       lessonsDay{
@@ -107,11 +108,6 @@ export const GET_LESSONS_WAITING_OR_GOING = gql`
   query getLessonsWaitingOrGoing{
     lessonsWaitingOrGoing{
       id
-      users{
-        id
-        firstName
-        lastName
-      }
       lessonsDay{
         id
         lesson{
@@ -120,12 +116,10 @@ export const GET_LESSONS_WAITING_OR_GOING = gql`
         teacher{
           id
           user{
+            id
             firstName
             lastName
           }
-        }
-        users{
-          id
         }
         dayDate
         hour{

@@ -74,6 +74,7 @@ export const LOGIN = gql`
         token
         user {
           id
+          mollieCustomerID
           subscriptions {
             id
           }

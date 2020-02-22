@@ -138,7 +138,7 @@ const client = new ApolloClient({
 
 cache.writeData({
   data: {
-    Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', token: '', __typename: "Authentification" }
+    Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', mollieCustomerID: '', token: '', __typename: "Authentification" }
   }
 })
 
@@ -167,7 +167,7 @@ client.onResetStore(() => {
   persistor.purge()
   cache.writeData({
     data: {
-      Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', token: '', __typename: "Authentification" }
+      Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', mollieCustomerID: '', token: '', __typename: "Authentification" }
     }
   })
 })

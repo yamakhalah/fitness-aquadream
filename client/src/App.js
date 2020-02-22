@@ -26,6 +26,7 @@ import Credit from './components/user/Credit'
 import CreditUse from './components/user/CreditUse'
 import Payement from './components/user/BookingSubComponents/Payement'
 import Home from './components/user/Home'
+import Subscription from './components/user/Subscription'
 
 const drawerWidth = 240;
 
@@ -128,6 +129,7 @@ export default function App(props) {
               <AuthRoute user={user} component={Credit} exact path="/credit" />
               <AuthRoute user={user} component={CreditUse} exact path="/creditUse" />
               <AuthRoute user={user} component={Booking} exact path="/booking" />
+              <AuthRoute user={user} component={Subscription} exact path="/subscription" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={CreateLesson} path="/createLesson" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminUser} path="/adminUser" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminLesson} path="/adminLesson" />

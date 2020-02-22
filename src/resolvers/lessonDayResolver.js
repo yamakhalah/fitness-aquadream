@@ -29,7 +29,7 @@ export default {
     },
 
     lessonsDaySpotCanceled: async (parent, args, { models: { lessonDayModel }}, info) => {
-      var today = moment().toISOString(true)
+      var today = moment().toISOString()
       const lessonsDay = await lessonDayModel.find({
         isCanceled: false,
         spotCanceled: { $gte: 1 },

@@ -9,7 +9,6 @@ import Promise  from 'promise'
 import moment from 'moment'
 import { createMollieClient } from '@mollie/api-client'
 const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
-
 moment.locale('fr')
 
 export default {
@@ -26,14 +25,11 @@ export default {
 
     getMollieCheckoutResult: async (parent, { paymentRef }, { models: { payementModel }}, info) => {
       try {
-        const payment = await payementModel.find(
+        const payment = await payementModel.findOne(
           { reference: paymentRef }
         )
         if(payment) {
-          const mSubscription = await mollieClient.customers_subscriptions.get(
-            payment.mollieSubscriptionID,
-            { customerId: payment.mollieCustomerID}
-          )
+          const mSubscription = await mollieClient.customers_subscriptions.get(payment.mollieSubscriptionID, { customerId: payment.mollieCustomerID})
           return mSubscription
         }else{
           return {}
@@ -89,6 +85,8 @@ export default {
           customerId: user.mollieCustomerID,
           restrictPaymentMethodsToCountry: 'BE'
         }) 
+        console.log('MOLLIE PAYMENT')
+        console.log(molliePayment)
         var graphqlUser = {}
         if(orderResume.yearlyTax > 0) {
           graphqlUser = await userModel.findOneAndUpdate(
@@ -97,7 +95,6 @@ export default {
             { new: true }
           )
         } else{
-          console.log('NO TAX TO PAY')
           graphqlUser = await userModel.findOneAndUpdate(
             { _id: user.id },
             { mollieCustomerID: user.mollieCustomerID },
@@ -112,99 +109,21 @@ export default {
         console.log('error')
         console.log(error)
       }
+    },
 
-
-
-
-
-      /*
-      //CHARGEBEE IMPLEMENTATION
-        const id = uuid.v4()
-        var plan = {}
-        var checkout = {}
-        const planPromise = chargebee.plan.create({
-          id: id,
-          name: id,
-          description: 'Abonnement Aquadream',
-          price: orderResume.totalMonthly*100,
-          currency_code: 'EUR',
-          period: 1,
-          period_unit: 'month',
-          pricing_model: 'flat_fee',
-          billing_cycles: orderResume.subDuration
-        }).request()
-
-        await planPromise.then((result, error) => {
-          if(error) {
-            console.log('ERROR PLAN')
-            console.log(error)
-            //throw exception
-          }else{
-            plan = result.plan
-          }
-        })
-
-        const checkoutPromise = chargebee.hosted_page.checkout_new({
-          subscription: {
-            plan_id: plan.id
-          },
-          customer: {
-            first_name: user.firstName,
-            last_name:  user.lastName,
-            email: user.email,
-            phone: user.phone
-          },
-          card: {
-            gateway_account_id: 'gw_16CPTfRqEQy1LDB'
-          }
-        }).request()
-
-        await checkoutPromise.then((result, error) => {
-          if(error) {
-            //throw exception
-            console.log('ERROR')
-            console.log(error)
-          }else{
-            checkout = result.hosted_page
-          }
-        })
-        console.log(checkout)
-        
-        return checkout
-
-      */
-      /*
-      // STRIPE IMPLEMENTATION WILL BE DONE AFTER
-      console.log(orderResume)
-      const plans = []
-      const productsIDForType = {
-        "5e2dd8019507530031240dde":"Abonnement Aquadream Bébé",
-        "5e2dd8099507530031240ddf":"Abonnement Aquadream Enfant",
-        "5e2dd8129507530031240de0":"Abonnement Aquadream Adulte"
+    getMollieSubscriptionData: async (parent, { mollieCustomerID, mollieSubscriptionID }, { models: { payementModel }}, info) => {
+      try{
+        const mollieSubscription = await mollieClient.customers_subscriptions.get(
+          mollieSubscriptionID,
+          { customerId: mollieCustomerID }
+        )
+        return mollieSubscription
+      }catch(error){
+        console.log(error)
+        return {}
       }
-      for(const element of orderResume.lessonsData) {
-        const plan = await Stripe.plans.create({
-          amount: element.lessonMonthlyPrice*100,
-          currency: 'eur',
-          interval: 'month',
-          product: { name: productsIDForType[element.lesson.lessonType.id] }
-        })
-        plans.push({plan: plan.id})
-      }
+    },
 
-      const session = await Stripe.checkout.sessions.create({
-        payment_method_types: ['sds'],
-        subscription_data: {
-          items: plans
-        },
-        customer_email: user.email,
-
-        success_url: 'https://localhost:3000/booking/success',
-        cancel_url: 'https://localhost:3000/booking/cancel'
-      })
-      return session
-      */
-    }
   },
   Mutation: {
     createPayement: async(parent, { mollieSubscriptionID, molliePaymentID, mollieMandateID, mollieMandateStatus, reference }, { models: { payementModel }}, info) => {
@@ -214,6 +133,9 @@ export default {
 
     updatePayement: async(parent, { id, subscription, mollieSubscriptionID, molliePaymentID, mollieMandateID, mollieMandateStatus, reference }, { models: { payementModel }}, info) => {
       const payement = await payementModel.updatePayement(id, { subscription, mollieSubscriptionID, molliePaymentID, mollieMandateID, mollieMandateStatus, reference })
+        .then(payement => {
+          pubSub.publish(PAYEMENT_UPDATED, { payementUpdated: payement })
+        })
       return payement
     },
 
@@ -242,6 +164,7 @@ export default {
       }
     }
   },
+
   Payement: {
     subscription: async({ subscription }, args, { models: { subscriptionModel }}, info) => {
       if(subscription === undefined) return null

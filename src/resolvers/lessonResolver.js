@@ -2,7 +2,10 @@ import lessonModel from '../models/lesson'
 import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
 import mongoose from 'mongoose'
+import moment from 'moment'
 import { sendMail, FROM, OPEN_LESSON } from '../mailer'
+
+moment.locale('fr')
 
 export default {
   Query: {
@@ -18,9 +21,11 @@ export default {
 
     lessonsWaitingOrGoing: async (parent, args, { models: { lessonModel }}, info) => {
       try{
-        const lessons = await lessonModel.find(
-          { 'status': ["WAITING_BEGIN", "ON_GOING"]}
-        ).exec()
+        var today = moment().toISOString(true)
+        const lessons = await lessonModel.find({ 
+          'status': ["WAITING_BEGIN", "ON_GOING"],
+          'classicDate': { $lte: today}
+        }).exec()
         return lessons
       }catch(error){
         console.log(error)

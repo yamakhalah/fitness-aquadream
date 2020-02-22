@@ -81,12 +81,10 @@ const LessonPicker = ({ handleChangeCallback }) => {
     "PERFECTIONNEMENT_NAGE": [],
     "POST_NATAL_AQUATIQUE": [],
     "PREPARATION_PRENATALE": [],
-
   })
 
   const initLessonPicker = (data) => {
     var lessonsDic = lessonsBySubType
-    console.log(data.lessonsWaitingOrGoing)
     data.lessonsWaitingOrGoing.forEach(element => {
       lessonsDic[element.lessonSubType.name].push(element)
     });

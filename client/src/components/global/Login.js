@@ -92,6 +92,7 @@ class Login extends React.Component {
                 lastName: result.data.login.user.lastName,
                 email: result.data.login.user.email,
                 userID: result.data.login.user.id,
+                mollieCustomerID: result.data.login.user.mollieCustomerID,
                 token: result.data.login.token
               }
             },

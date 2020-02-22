@@ -10,6 +10,7 @@ export const GET_AUTHENTIFICATION = gql`
       lastName
       email
       userID
+      mollieCustomerID
       token
     }
   }
@@ -27,9 +28,9 @@ export const DELETE_AUTHENTIFICATION = gql`
   }
 `
 
-export const UPDATE_SUBSCRIPTION = gql `
-  subscription UPDATE_SUBSCRIPTION {
-    updateAuthentification @client {
+export const UPDATE_AUTHENTIFICATION = gql `
+  mutation UPDATE_AUTHENTIFICATION ($input: AuthentificationInput!) {
+    updateAuthentification(input: $input) @client {
       isAuthenticated
       isAdmin
       isTeacher
@@ -37,6 +38,7 @@ export const UPDATE_SUBSCRIPTION = gql `
       lastName
       email
       userID
+      mollieCustomerID
       token
     }
   }

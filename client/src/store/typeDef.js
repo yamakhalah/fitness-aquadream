@@ -7,6 +7,7 @@ export const typeDef = `
     lastName: String!
     email: String!
     userID: ID!
+    mollieCustomerID: String!
     token: String!
   }
 
@@ -18,6 +19,7 @@ export const typeDef = `
     lastName: String!
     email: String!
     userID: ID!
+    mollieCustomerID: String!
     token: String!
   }
 
@@ -27,6 +29,7 @@ export const typeDef = `
 
   type Mutation {
     newAuthentification(input: AuthentificationInput!): Boolean!
+    updateAuthentification(input: AuthentificationInput!): Boolean!
     deleteAuthentification()
   }
 `

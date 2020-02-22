@@ -8,13 +8,20 @@ export default {
   Query: {
     subscription: async (parent, { id }, { models: { subscriptionModel }}, info) => {
       const subscription = await subscriptionModel.findById({ _id: id}).exec()
-      return tsubscription
+      return subscription
     },
 
     subscriptions: async (parent, args, { models: { subscriptionModel }}, info) => {
       const graphqlSubscription = await subscriptionModel.find().exec()
       return graphqlSubscription
     },
+
+    subscriptionsForUser: async (parent, { user }, { models: { subscriptionModel }}, info) => {
+      const subscriptions = await subscriptionModel.find({
+        user: user
+      }).exec()
+      return subscriptions
+    }
   },
   Mutation: {
     createSubscriptionWithLessons: async(parent, { subscription }, { models: { subscriptionModel }}, info) => {
@@ -60,7 +67,7 @@ export default {
       return  lessonsDayList
     },
 
-    lessons: async({ lessons }, args, { moodels: { lessonModel }}, info) => {
+    lessons: async({ lessons }, args, { models: { lessonModel }}, info) => {
       if(lessons == null) return null
       var lessonsList = []
       lessons.forEach(element => {
