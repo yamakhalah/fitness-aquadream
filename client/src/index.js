@@ -142,8 +142,6 @@ cache.writeData({
 })
 
 const setupAndRender = async () => {
-  client.resetStore()
-  persistor.purge()
   cache.writeData({
     data: {
       Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', mollieCustomerID: '', token: '', __typename: "Authentification" }
