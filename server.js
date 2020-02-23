@@ -149,7 +149,7 @@ if(process.env.NODE_ENV === "production") {
 }
 
 
-httpServer.listen({ port: process.env.PORT }, () => {
+app.listen({ port: process.env.PORT }, () => {
   console.log(`🚀 Server ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.graphqlPath}`)
   //console.log(`🚀 Subscriptions ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.subscriptionsPath}`)
 })
