@@ -57,6 +57,7 @@ const corsOptions = {
 }
 */
 app.use((req, res, next) => {
+  console.log('test')
   if(process.env.NODE_ENV === "production") {
     let host = req.headers.host;
     if (!host.match(/^www\..*/i)) {
@@ -129,6 +130,7 @@ server.installSubscriptionHandlers(httpServer)
 */
 
 if(process.env.NODE_ENV === "production") {
+  console.log('TEST STATIC')
   app.use(express.static('client/build'))
 
   app.post('/booking/subscription', subscription)
