@@ -55,7 +55,6 @@ export default function AdminSubscription() {
             fetchPolicy: 'network-only'
           })
           .then(result => {
-            console.log(result)
             lSubscriptionsData.push({
               subscription: subscription,
               mollieSubscription: result.data.getMollieSubscriptionData

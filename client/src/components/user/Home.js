@@ -19,6 +19,9 @@ require('globalize/lib/cultures/globalize.culture.fr')
 moment.locale('fr')
 const globalizeLocalizer = localizer(globalize)
 const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(5) 
+  },
   loader: {
     height: '100vh',
     display: 'flex',
@@ -161,7 +164,7 @@ const Home = () => {
   )
 
   if(data) return(
-    <div style={{ height: 900 }}>
+    <div style={{ height: 900 }} className={classes.root}>
       <Calendar
         events={events}
         views={views}
@@ -196,8 +199,6 @@ const Home = () => {
           </Button>
           {selectedLessonDay !== null &&  (
             <div>
-            {console.log(moment(selectedLessonDay.dayDate).isSameOrAfter(moment()))}
-            {console.log(selectedLessonDay.isCanceled)}
             {canBeCanceled() && (
               <Button onClick={handleCancel.bind(this)} className={classes.cancelButton} disabled={loading}>
                 Annuler le cours          

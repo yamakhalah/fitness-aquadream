@@ -76,6 +76,9 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     padding: theme.spacing(3),
   },
+  title: {
+    color: '#FFFFFF'
+  }
 }));
 
 export default function Navigation(props) {
@@ -112,13 +115,13 @@ export default function Navigation(props) {
         </IconButton>
 
       logoutButton = 
-      <Button color="inherit" onClick={logout.bind(this)}>
+      <Button className={classes.title} onClick={logout.bind(this)}>
         Se Déconnecter
       </Button>
     } else {
       loginButton = 
       <Link to="/login" className="topNavItem">
-        <Button color="inherit">
+        <Button className={classes.title}>
           Login
         </Button>
       </Link>
@@ -218,7 +221,7 @@ export default function Navigation(props) {
               <MenuIcon />
             </IconButton>
          }
-            <Typography variant="h6" noWrap>
+            <Typography variant="h6" noWrap className={classes.title}>
               Aquadream
             </Typography>
             <div className="buttonBar">

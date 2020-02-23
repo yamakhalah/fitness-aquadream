@@ -1,5 +1,5 @@
 import React from 'react';
-import { Snackbar, Button, Checkbox, Grid, Box, Link, Container, Typography }from '@material-ui/core';
+import { Paper, Snackbar, Button, Checkbox, Grid, Box, Link, Container, Typography }from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import logo from '../../style/img/Aquadream-outlined-transparent.png'
@@ -12,14 +12,45 @@ import { withRouter} from 'react-router-dom'
 import { getErrorMessage } from '../../error'
 import { LOGIN } from '../../database/query/userQuery'
 import { NEW_AUTHENTIFICATION, GET_AUTHENTIFICATION } from '../../store/authentification.js'
+import defaultImg from '../../style/img/aquaboxing.jpg'
 
 const styles = theme => ({
+  root: {
+    height: '94vh',
+  },
+  image: {
+    backgroundImage: `url(${defaultImg})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundColor:
+      theme.palette.type === 'dark' ? theme.palette.grey[900] : theme.palette.grey[50],
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  },
+  paper: {
+    margin: theme.spacing(15, 4),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '50%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+  /*
   paper: {
     marginTop: 100,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
+  
   avatar: {
     margin: 1,
     //backgroundColor: theme.palette.secondary.main,
@@ -31,8 +62,9 @@ const styles = theme => ({
   submit: {
     margin: 3
   },
+  */
   img: {
-    width: '100%',
+    width: '60%',
     margin: 0,
     padding: 0
   },
@@ -120,9 +152,11 @@ class Login extends React.Component {
   render() {
     const { classes } = this.props
     return(
-      <div>
-      <Container component="main" maxWidth="xs">
+      <React.Fragment>
+      <Grid container component="main" className={classes.root}>
       <CssBaseline />
+      <Grid item xs={false} sm={4} md={7} className={classes.image} />
+      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
       <div className={classes.paper}>
         <img src={logo} className={classes.img} alt="logo"/>
         <Typography component="h1" variant="h5">
@@ -175,23 +209,24 @@ class Login extends React.Component {
           </Button>
           </ValidatorForm>
           <Grid container>
-            <Grid item xs>
+            <Grid item xs={2} />
+            <Grid item xs={4}>
               <Link href="/reset" variant="body2">
                 Mot de passe oublié?
               </Link>
             </Grid>
-            <Grid item>
+            <Grid item xs={4}>
               <Link href="/signup" variant="body2">
                 {"Inscrivez-vous"}
               </Link>
             </Grid>
           </Grid>
-        
+        <Box mt={25}>
+          <Copyright />
+        </Box>
       </div>
-      <Box mt={8}>
-        <Copyright />
-      </Box>
-    </Container>
+      </Grid>
+    </Grid>
     <Snackbar
       anchorOrigin={{
         vertical: 'bottom',
@@ -207,7 +242,7 @@ class Login extends React.Component {
         message={this.state.errorMessage}
       />
     </Snackbar>
-    </div>
+    </React.Fragment>
     )
   }
 }

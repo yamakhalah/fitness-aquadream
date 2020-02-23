@@ -22,6 +22,7 @@ const useStyles = makeStyles(theme => ({
     height: '80vh'
   },
   root: {
+    padding: theme.spacing(5) 
   },
   img: {
   },
@@ -86,7 +87,6 @@ export default function Subscription(props) {
           fetchPolicy: 'network-only'
         })
         .then(result => {
-          console.log(result)
           lSubscriptionsData.push({
             subscription: subscription,
             mollieSubscription: result.data.getMollieSubscriptionData
@@ -111,7 +111,7 @@ export default function Subscription(props) {
   }
 
   const correctPayment = (subscriptionData) => {
-    console.log(subscriptionData)
+    //TODO
   }
 
   const handleSnackClose = () => {
@@ -148,7 +148,7 @@ export default function Subscription(props) {
   )
 
   return (
-    <div>
+    <div className={classes.root}>
       <Typography component="h1" variant="h5" className={classes.typoTitle}>
         Liste de vos abonnements
       </Typography>
@@ -266,7 +266,6 @@ export default function Subscription(props) {
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
                   <CardActions>
-                  {console.log(subscriptionData)}
                     {subscriptionData.mollieSubscription.status === 'suspended' && (
                       <IconButton onClick={correctPayment(subscriptionData)}>
                         <Money />

@@ -16,6 +16,9 @@ import moment from 'moment'
 moment.locale('fr')
 
 const styles = theme => ({
+  root: {
+    padding: theme.spacing(5) 
+  },
   paper: {
     marginTop: 100,
     display: 'flex',
@@ -128,7 +131,6 @@ class Credit extends React.Component {
       ]
     })
     .then(result => {
-      console.log(result)
       this.props.history.push('/home')
     })
     .catch(error => {
@@ -165,7 +167,7 @@ class Credit extends React.Component {
   render() {
     const { classes } = this.props
     return(
-      <div>
+      <div className={classes.root}>
       <Container component="main" maxWidth="xl">
       <CssBaseline />
       <Typography component="h1" variant="h5" className={classes.title}>
