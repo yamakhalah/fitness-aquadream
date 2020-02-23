@@ -16,6 +16,7 @@ moment.locale('fr')
 
 const createSubscription = async (data) => {
   console.log('CREATE SUBSCRIPTION')
+  console.log(data)
   const paymentID = data.id
   const session = await mongoose.startSession()
   session.startTransaction()

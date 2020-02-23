@@ -102,6 +102,8 @@ export default {
         for(const lesson of preBookedLessons) {
           const preBookedLesson = lessonModel.addUser(lesson.id, user.id, null)
         }
+        console.log('MOLLIE PAYMENT BEFORE HOOK')
+        console.log(molliePayment)
         return molliePayment
       }catch(error){
         console.log('error')
