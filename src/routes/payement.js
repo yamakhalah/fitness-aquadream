@@ -112,7 +112,6 @@ const createSubscription = async (data) => {
 
 export async function checkout(req, res, next){
   console.log('passage checkout')
-  console.log(req)
   const isAccepted = await createSubscription(req.body)
   console.log(isAccepted)
   if(isAccepted) {
