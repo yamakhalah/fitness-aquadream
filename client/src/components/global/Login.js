@@ -16,7 +16,10 @@ import defaultImg from '../../style/img/aquaboxing.jpg'
 
 const styles = theme => ({
   root: {
-    height: '94vh',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '100%'
   },
   image: {
     backgroundImage: `url(${defaultImg})`,
@@ -27,7 +30,8 @@ const styles = theme => ({
     backgroundPosition: 'center',
   },
   paper: {
-    margin: theme.spacing(15, 4),
+    margin: theme.spacing(0, 4),
+    paddingTop: '25%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -68,6 +72,10 @@ const styles = theme => ({
     margin: 0,
     padding: 0
   },
+  copyright: {
+    position: 'absolute',
+    bottom: 0
+  }
 });
 
 class Login extends React.Component {
@@ -221,7 +229,7 @@ class Login extends React.Component {
               </Link>
             </Grid>
           </Grid>
-        <Box mt={25}>
+        <Box className={classes.copyright}>
           <Copyright />
         </Box>
       </div>
