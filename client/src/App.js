@@ -97,8 +97,9 @@ export default function App(props) {
     const classes = useStyles()
     const theme = useTheme()
     const client = useApolloClient()
+    console.log(client)
     const [open, setOpen] = React.useState(false);
-    const user = null //client.readQuery({query: GET_AUTHENTIFICATION}).Authentification
+    const user = client.readQuery({query: GET_AUTHENTIFICATION}).Authentification
     const history = useHistory()
     const isAuthenticated = user.isAuthenticated  || false
     const isAdmin = user.isAdmin || false
