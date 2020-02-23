@@ -85,7 +85,6 @@ const client = new ApolloClient({
         console.error(`[Network error]: ${networkError}`);
         //throw new Error('NETWORK_ERROR')
       }
-      return
     }),
     requestLink,
     new HttpLink({
@@ -143,6 +142,13 @@ cache.writeData({
 })
 
 const setupAndRender = async () => {
+  client.resetStore()
+  persistor.purge()
+  cache.writeData({
+    data: {
+      Authentification: { isAuthenticated: false, isAdmin: false, isTeacher: false, firstName: '', lastName: '', email: '', userID: '', mollieCustomerID: '', token: '', __typename: "Authentification" }
+    }
+  })
   await persistCache({
     cache,
     storage: window.localStorage
