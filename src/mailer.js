@@ -5,6 +5,19 @@ moment.locale('fr')
 
 export const FROM = 'noreply@aquadream-temploux.be'
 
+export function SIGN_UP(user) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous confirmons la création de votre compte sur www.aquadream-temploux.be</p></br>'+
+  '<p>Informations: </p>'+
+  '<p>Email: '+user.email+'</p>'+
+  '<p>Mot de passe: Seul vous le connaissez.</p></br>'+
+  '<p>Nous vous souhaitons une bonne journée.</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 export function RESET_MAIL(user) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
     '<p>Suite à votre demande votre mot de passe a été réinitialisé</p>'+

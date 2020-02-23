@@ -70,9 +70,9 @@ class CreateLesson extends React.Component {
       noShowDates: [],
       lessonTypes: [],
       lessonSubTypes: [],
-      name: 'Aquasirène',
-      info: 'Test',
-      mainType: 'COLLECTIF',
+      name: '',
+      info: '',
+      mainType: '',
       dateType: '',
       lessonType: '',
       lessonSubType: '',
@@ -81,19 +81,19 @@ class CreateLesson extends React.Component {
       postalCode: '5020',
       recurenceBegin: moment().set({
         'hour': 0,
-        'minute': 2
+        'minute': 0
       }),
       recurenceEnd: moment().set({
-        'hour': 23,
-        'minute': 58
+        'hour': 0,
+        'minute': 0
       }),
       timeBegin: moment(),
       timeEnd: moment(),
       priorityDate: moment(),
       classicDate: moment(),
-      unitPrice: 10,
-      unitPrice2X: 9.5,
-      unitPrice3X: 9,
+      unitPrice: 0,
+      unitPrice2X: 0,
+      unitPrice3X: 0,
       monthlyPrice: 0,
       monthlyPrice2X: 0,
       monthlyPrice3X: 0,
@@ -105,7 +105,7 @@ class CreateLesson extends React.Component {
       totalMonth: 0,
       isOpened: false,
       isUnitPurchasable: false,
-      spotTotal: 10,
+      spotTotal: 0,
       open: false,
       openSnack: false,
       selectedDayDate: moment().day(),

@@ -10,7 +10,6 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 import logo from '../../style/img/Aquadream-outlined-transparent.png'
 import { CREATE_USER } from '../../database/mutation/userMutation'
 import { CustomSnackBar } from './CustomSnackBar' 
-import { EMAILJS_USER_ID, EMAILJS_SERVICE_ID, EMAILJS_SIGNUP } from '../../utils/config'
 
 const styles = theme => ({
   paper: {
@@ -75,14 +74,6 @@ class SignUp extends React.Component {
       }
     })
     .then(result => {
-      console.log(result)
-      var user = result.data.createUser
-      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_SIGNUP, {firstName: user.firstName, lastName: user.lastName, email: user.email}, EMAILJS_USER_ID)
-        .then((response) => {
-        console.log(response)
-      }, (err) => {
-        console.log(err)
-      })
       this.props.history.push('/login', {open: true, errorVariant: 'success', errorMessage: 'Votre compte a bien été crée'})
     })
     .catch(error => {
