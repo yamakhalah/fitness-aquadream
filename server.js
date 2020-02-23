@@ -37,7 +37,7 @@ mongoose.connect(process.env.DATABASE, {
 
 const app = express()
 
-const whitelist = ['http://localhost:3000', 'https://localhost:3000', 'https://localhost:4000', 'http://localhost:4000', 'https://www.app.aquadream-temploux.be', 'https://app.aquadream-temploux.be']
+const whitelist = ['http://localhost:3000', 'https://localhost:3000', 'https://localhost:4000', 'http://localhost:4000', 'https://www.app.aquadream-temploux.be', 'https://app.aquadream-temploux.be', 'https://aquadream-test.herokuapp.com', 'https://www.aquadream-test.herokuapp.com']
 
 const corsOptions = {
   origin: function (origin, callback){
@@ -87,8 +87,8 @@ const getUser = async (req) => {
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
-  introspection: true,
-  playground: true,
+  introspection: false,
+  playground: false,
   engine: {
     debugPrintReports: true
   },

@@ -85,8 +85,6 @@ export default {
           customerId: user.mollieCustomerID,
           restrictPaymentMethodsToCountry: 'BE'
         }) 
-        console.log('MOLLIE PAYMENT')
-        console.log(molliePayment)
         var graphqlUser = {}
         if(orderResume.yearlyTax > 0) {
           graphqlUser = await userModel.findOneAndUpdate(

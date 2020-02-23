@@ -137,12 +137,14 @@ export default function Navigation(props) {
             </ListItem>
           </Tooltip>
         </Link>
-        <Tooltip title="Gérer les abonnements">
-          <ListItem button key="adminSubscription">
-            <ListItemIcon><Payment /></ListItemIcon>
-            <ListItemText>Abonnements</ListItemText>
-          </ListItem>
-        </Tooltip>
+        <Link to="/adminSubscription" className="leftNavItem">
+          <Tooltip title="Gérer les abonnements">
+            <ListItem button key="adminSubscription">
+              <ListItemIcon><Payment /></ListItemIcon>
+              <ListItemText>Abonnements</ListItemText>
+            </ListItem>
+          </Tooltip>
+        </Link>
         <Link to="/adminLesson" className="leftNavItem">
         <Tooltip title="Gérer vos cours">
           <ListItem button key="adminLesson">

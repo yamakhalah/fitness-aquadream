@@ -13,6 +13,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom'
 import Navigation from './components/global/Navigation'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import Footer from './components/global/Footer'
 import Login from './components/global/Login'
 import SignUp from './components/global/SignUp'
 import Reset from './components/global/Reset'
@@ -21,6 +22,7 @@ import AdminUser from './components/admin/AdminUser'
 import AdminLesson from './components/admin/AdminLesson'
 import AdminLessonDay from './components/admin/AdminLessonDay'
 import AdminCredit from './components/admin/AdminCredit'
+import AdminSubscription from './components/admin/AdminSubscription'
 import Booking from './components/user/Booking'
 import Credit from './components/user/Credit'
 import CreditUse from './components/user/CreditUse'
@@ -135,6 +137,7 @@ export default function App(props) {
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminLesson} path="/adminLesson" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminLessonDay} path="/adminLessonDay" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminCredit} path="/adminCredit" />
+              <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminSubscription} path="/adminSubscription" />
               <Route component={Login} path="/login" />
               <Route component={SignUp} path="/signup" />
               <Route component={Reset} path="/reset" />

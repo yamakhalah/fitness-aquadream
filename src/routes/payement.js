@@ -85,7 +85,7 @@ const createSubscription = async (data) => {
         { subscription: graphqlSubscription.id },
         { new: true }
       ).session(session)
-      const user = await userModel.addSubscription(payment.metadata.userID, graphqlPayement.id, opts)
+      const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
       await session.commitTransaction()
       session.endSession()
       return true
@@ -100,7 +100,6 @@ const createSubscription = async (data) => {
       return true
     }
   }catch(error){
-    console.log('ERROR')
     console.log(error)
     await session.abortTransaction()
     session.endSession()

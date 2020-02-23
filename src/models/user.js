@@ -77,7 +77,7 @@ UserSchema.statics.addCredit = function(id, credit, opts) {
 UserSchema.statics.removeCredit = function(id, credit) {
   return User.findById(id).then(user => {
     return User.findOneAndUpdate(
-      { id: user._id },
+      { _id: user._id },
       { $pull: { credits: credit }},
       { new: true }
     )
@@ -88,7 +88,7 @@ UserSchema.statics.addSubscription = function(id, subscription, opts) {
   return User.findById(id).then(user => {
     user.subscriptions.push(subscription)
     return User.findOneAndUpdate(
-      { id: user._id },
+      { _id: user._id },
       { subscriptions: user.subscriptions },
       { new: true , opts }
     )
