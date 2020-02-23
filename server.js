@@ -123,8 +123,10 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app, path: '/graphql', cors: false})
 
+/*
 const httpServer = createServer(app)
 server.installSubscriptionHandlers(httpServer)
+*/
 
 if(process.env.NODE_ENV === "production") {
   app.use(express.static('client/build'))
@@ -149,5 +151,5 @@ if(process.env.NODE_ENV === "production") {
 
 httpServer.listen({ port: process.env.PORT }, () => {
   console.log(`🚀 Server ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.graphqlPath}`)
-  console.log(`🚀 Subscriptions ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.subscriptionsPath}`)
+  //console.log(`🚀 Subscriptions ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.subscriptionsPath}`)
 })
