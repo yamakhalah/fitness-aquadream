@@ -5,7 +5,6 @@ import bodyParser from 'body-parser'
 import path from 'path'
 //const { ApolloServer, AuthenticationError }  from  'apollo-server-express'
 import { ApolloServer, AuthenticationError } from 'apollo-server-express'
-import { createServer } from 'http'
 const { graphiqlExoress, graphqlExpress } = require('apollo-server-express')
 const { makeExecutableSchema } = require('graphql-tools')
 import cors from 'cors'
@@ -88,8 +87,8 @@ const getUser = async (req) => {
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
-  introspection: false,
-  playground: false,
+  introspection: true,
+  playground: true,
   engine: {
     debugPrintReports: true
   },
@@ -133,9 +132,10 @@ if(process.env.NODE_ENV === "production") {
   console.log('TEST STATIC')
   app.use(express.static('client/build'))
 
+  /*
   app.post('/booking/subscription', subscription)
   app.post('/booking/checkout', checkout)
-
+  */
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
   })
@@ -152,6 +152,5 @@ if(process.env.NODE_ENV === "production") {
 
 
 app.listen({ port: process.env.PORT }, () => {
-  console.log(`🚀 Server ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.graphqlPath}`)
-  //console.log(`🚀 Subscriptions ready at https://www.app.aquadream-temploux.be:${process.env.PORT}${server.subscriptionsPath}`)
+  console.log(`🚀 Server ready on port ${process.env.PORT}`)
 })
