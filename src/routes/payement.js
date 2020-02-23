@@ -15,8 +15,6 @@ const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
 moment.locale('fr')
 
 const createSubscription = async (data) => {
-  console.log('CREATE SUBSCRIPTION')
-  console.log(data)
   const paymentID = data.id
   const session = await mongoose.startSession()
   session.startTransaction()
@@ -91,7 +89,6 @@ const createSubscription = async (data) => {
       session.endSession()
       return true
     }else if(payment.status === 'paid' && payment.amount.value === payment.amountRefunded.value){
-      console.log('CATCH REFUND')
       await session.abortTransaction()
       session.endSession()
       return true
@@ -111,9 +108,7 @@ const createSubscription = async (data) => {
 }
 
 export async function checkout(req, res, next){
-  console.log('passage checkout')
   const isAccepted = await createSubscription(req.body)
-  console.log(isAccepted)
   if(isAccepted) {
     res.sendStatus(200)
   }else{
@@ -122,7 +117,5 @@ export async function checkout(req, res, next){
 }
 
 export async function subscription(req, res, next){
-  console.log('passage subscription')
-  console.log(req.body)
   res.sendStatus(200)
 }
