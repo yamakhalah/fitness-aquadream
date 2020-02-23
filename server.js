@@ -36,7 +36,7 @@ mongoose.connect(process.env.DATABASE, {
 
 const app = express()
 
-const whitelist = ['http://localhost:3000', 'https://localhost:3000', 'https://localhost:4000', 'http://localhost:4000', 'https://www.app.aquadream-temploux.be', 'https://app.aquadream-temploux.be', 'https://aquadream-test.herokuapp.com', 'https://www.aquadream-test.herokuapp.com']
+const whitelist = ['http://localhost:3000', 'https://localhost:3000', 'https://www.app.aquadream-temploux.be', 'https://app.aquadream-temploux.be', 'https://aquadream-test.herokuapp.com', 'https://www.aquadream-test.herokuapp.com', '*']
 
 const corsOptions = {
   origin: function (origin, callback){
@@ -56,7 +56,6 @@ const corsOptions = {
 }
 */
 app.use((req, res, next) => {
-  console.log('test')
   if(process.env.NODE_ENV === "production") {
     let host = req.headers.host;
     if (!host.match(/^www\..*/i)) {
@@ -129,13 +128,11 @@ server.installSubscriptionHandlers(httpServer)
 */
 
 if(process.env.NODE_ENV === "production") {
-  console.log('TEST STATIC')
   app.use(express.static('client/build'))
 
-  /*
   app.post('/booking/subscription', subscription)
   app.post('/booking/checkout', checkout)
-  */
+
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
   })
