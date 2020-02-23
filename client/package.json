@@ -21,7 +21,6 @@
     "apollo-link-http": "^1.5.16",
     "apollo-link-state": "^0.4.2",
     "axios": "^0.19.2",
-    "chargebee": "^2.5.6",
     "clsx": "^1.0.4",
     "date-fns": "^2.8.1",
     "emailjs-com": "^2.4.1",
