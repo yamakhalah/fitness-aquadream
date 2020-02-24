@@ -89,7 +89,13 @@ const LessonPicker = ({ handleChangeCallback }) => {
       lessonsDic[element.lessonSubType.name].push(element)
     });
     setLessonsBySubType(lessonsDic)
-    setSelectedLessons(lessonsBySubType["AQUA_BOXING"])
+    const lessons = lessonsBySubType["AQUA_BOXING"]
+    var lessonsByDay = [[], [], [], [], [], [], []]
+    for(const lesson of lessons) {
+      lessonsByDay[moment(lesson.recurenceBegin).weekday()].push(lesson)
+    }
+    setSelectedLessons(lessons)
+
   }
 
   const handleListItemClick = (key, index) => {
@@ -125,6 +131,10 @@ const LessonPicker = ({ handleChangeCallback }) => {
     lessons.splice(index, 1)
     setPreBookedLessons([...lessons])
     handleChangeCallback(bookedLessons, preBookedLessons)
+  }
+
+  sortLessonsTime = (lessons) => {
+    return lessons.sort((a,b) => Date.parse)
   }
 
   const contains = (array, item) => {
@@ -182,6 +192,22 @@ const LessonPicker = ({ handleChangeCallback }) => {
             <h1 className={classes.error}>Aucun cours dans cette catégorie</h1>
           ):(
             <Grid container>
+            <Table className={classes.table} size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Lundi</TableCell>
+                  <TableCell>Mardi</TableCell>
+                  <TableCell>Mercredi</TableCell>
+                  <TableCell>Jeudi</TableCell>
+                  <TableCell>Vendredi</TableCell>
+                  <TableCell>Samedi</TableCell>
+                  <TableCell>Dimanche</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+
+              </TableBody>
+            </Table>
               {selectedLessons.map((lesson) => {
                 return(
                   <Grid item xs={4} sm={4} key={lesson.id}>
