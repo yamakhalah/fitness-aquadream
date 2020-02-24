@@ -1,6 +1,6 @@
 {
   "name": "aquadream",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^1.3.13",
