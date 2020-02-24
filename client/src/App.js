@@ -29,6 +29,7 @@ import CreditUse from './components/user/CreditUse'
 import Payement from './components/user/BookingSubComponents/Payement'
 import Home from './components/user/Home'
 import Subscription from './components/user/Subscription'
+import NotFound from './components/global/404'
 
 const drawerWidth = 240;
 
@@ -141,9 +142,8 @@ export default function App(props) {
               <Route component={Login} path="/login" />
               <Route component={SignUp} path="/signup" />
               <Route component={Reset} path="/reset" />
-              <Route path="/recovery">
-
-              </Route>
+              <Route path="/recovery" />
+              <Route  component={NotFound} path="*" />
             </Switch>
           </main>
         </div>
