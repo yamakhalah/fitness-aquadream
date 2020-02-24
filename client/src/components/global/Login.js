@@ -12,7 +12,7 @@ import { withRouter} from 'react-router-dom'
 import { getErrorMessage } from '../../error'
 import { LOGIN } from '../../database/query/userQuery'
 import { NEW_AUTHENTIFICATION, GET_AUTHENTIFICATION } from '../../store/authentification.js'
-import defaultImg from '../../style/img/aquaboxing.jpg'
+import defaultImg from '../../style/img/homepage.jpg'
 
 const styles = theme => ({
   root: {

@@ -149,7 +149,8 @@ class CreateLesson extends React.Component {
     })
 
     this.props.client.query({
-      query: GET_TEACHERS
+      query: GET_TEACHERS,
+      fetchPolicy: 'network-only'
     }).then(result => {
       this.setState({ teachers: result.data.teachers })
     })

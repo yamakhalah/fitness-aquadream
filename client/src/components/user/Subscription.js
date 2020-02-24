@@ -152,7 +152,7 @@ export default function Subscription(props) {
       <Typography component="h1" variant="h5" className={classes.typoTitle}>
         Liste de vos abonnements
       </Typography>
-      <Container component="main" maxWidth="md" className={classes.root}>
+      <Container component="main" maxWidth="xl" className={classes.root}>
       <CssBaseline />
         <Grid container spacing={5}>
           {sortSubscriptions(subscriptionsData).map(subscriptionData => (
