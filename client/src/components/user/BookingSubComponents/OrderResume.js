@@ -123,7 +123,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
       })
       var tax = 0
       if(!user.paidYearlyTax){
-        tax = 25
+        tax = 35
       }
       var orderResume = {
         recurenceBegin: closestRecurenceBegin.toISOString(),

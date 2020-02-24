@@ -14,6 +14,7 @@ import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { CREATE_LESSON_AND_LESSONS_DAY } from '../../database/mutation/lessonMutation'
 import { GET_LESSONS, GET_LESSONS_WAITING_OR_GOING } from '../../database/query/lessonQuery'
 import DateFnsUtils from '@date-io/date-fns'
+import frLocale from "date-fns/locale/fr";
 import moment from 'moment'
 import localization from 'moment/locale/fr'
 
@@ -72,7 +73,7 @@ class CreateLesson extends React.Component {
       lessonSubTypes: [],
       name: '',
       info: '',
-      mainType: '',
+      mainType: 'COLLECTIF',
       dateType: '',
       lessonType: '',
       lessonSubType: '',
@@ -122,7 +123,8 @@ class CreateLesson extends React.Component {
     var lessonSubTypes = []
 
     this.props.client.query({
-      query: GET_LESSON_TYPES
+      query: GET_LESSON_TYPES,
+      fetchPolicy: 'network-only'
     }).then(result => {
       result.data.lessonsType.forEach(element => {
         lessonTypes.push(element)
@@ -131,7 +133,8 @@ class CreateLesson extends React.Component {
     })
 
     this.props.client.query({
-      query: GET_LESSON_SUB_TYPES
+      query: GET_LESSON_SUB_TYPES,
+      fetchPolicy: 'network-only'
     }).then(result => {
       result.data.lessonsSubType.forEach(element => {
         lessonSubTypes.push(element)
@@ -141,6 +144,7 @@ class CreateLesson extends React.Component {
 
     this.props.client.query({
       query: GET_NO_SHOW_DATE,
+      fetchPolicy: 'network-only'
     }).then(result => {
       result.data.noShowDates.forEach(element => {
         noShowDates.push(element)
@@ -345,7 +349,6 @@ class CreateLesson extends React.Component {
       },
     })
     .then(result => {
-      console.log(result)
       if(result.data.createLessonAndLessonsDay){
         this.setState(this.getInitialState())
         this.showSnackMessage('Le cours a bien été crée', 'success')
@@ -357,7 +360,6 @@ class CreateLesson extends React.Component {
     .catch(error => {
       console.log(error)
       this.showSnackMessage('Une erreur est survenue durant l\'enregistrement', 'error')
-      this.setState(this.getInitialState())
     })
   }
 
@@ -564,7 +566,7 @@ class CreateLesson extends React.Component {
             <Typography className={classes.title} component="h6" variant="h6">
                Dates et heures
             </Typography>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frLocale}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <KeyboardDatePicker
