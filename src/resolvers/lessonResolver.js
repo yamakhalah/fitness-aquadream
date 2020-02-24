@@ -4,6 +4,7 @@ import userModel from '../models/user'
 import mongoose from 'mongoose'
 import moment from 'moment'
 import { sendMail, FROM, OPEN_LESSON } from '../mailer'
+import { ApolloError } from 'apollo-server';
 
 moment.locale('fr')
 
@@ -57,9 +58,10 @@ export default {
         session.endSession()
         return true
       } catch(error) {
+        console.log(error)
         await session.abortTransaction()
         session.endSession()
-        return false
+        throw new ApolloError('Error')
       }
     },
 
