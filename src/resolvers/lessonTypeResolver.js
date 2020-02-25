@@ -8,7 +8,7 @@ export default {
     },
 
     lessonsType: async(parent, args, { models: { lessonTypeModel }}, info) => {
-      const lessonsType = await lessonTypeModel.find().exec()
+      const lessonsType = await lessonTypeModel.find().sort({name: 1}).exec()
       return lessonsType
     }
   },
