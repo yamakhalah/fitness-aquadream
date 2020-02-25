@@ -9,7 +9,7 @@ export default {
     },
 
     teachers: async (parent, args, { models: { teacherModel }}, info) => {
-      const teachers = await teacherModel.find().exec()
+      const teachers = await teacherModel.find().sort({dirstName: 1}).exec()
       return teachers
     },
   },

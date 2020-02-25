@@ -62,15 +62,15 @@ const styles = theme => ({
 class CreateLesson extends React.Component {
   constructor(props) {
     super(props)
-    this.state = this.getInitialState()
+    this.state = this.getInitialState([], [], [], [])
   }
 
-  getInitialState() {
+  getInitialState(teachers, noShowDates, lessonTypes, lessonSubTypes) {
     return  {
-      teachers: [],
-      noShowDates: [],
-      lessonTypes: [],
-      lessonSubTypes: [],
+      teachers: teachers, 
+      noShowDates: noShowDates,
+      lessonTypes: lessonTypes,
+      lessonSubTypes: lessonSubTypes,
       name: '',
       info: '',
       mainType: 'COLLECTIF',
@@ -371,11 +371,14 @@ class CreateLesson extends React.Component {
     })
     .then(result => {
       if(result.data.createLessonAndLessonsDay){
-        this.setState(this.getInitialState())
+        const teachers = this.state.teachers
+        const noShowDates = this.state.noShowDates
+        const lessonTypes = this.state.lessonTypes
+        const lessonSubTypes = this.state.lessonSubTypes
+        this.setState(this.getInitialState(teachers, noShowDates, lessonTypes, lessonSubTypes))
         this.showSnackMessage('Le cours a bien été crée', 'success')
       }else{
         this.showSnackMessage('Une erreur est survenue durant l\'enregistrement', 'error')
-        this.setState(this.getInitialState())
       }
     })
     .catch(error => {

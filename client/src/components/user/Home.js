@@ -17,6 +17,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 require('globalize/lib/cultures/globalize.culture.fr')
 
 moment.locale('fr')
+
 const globalizeLocalizer = localizer(globalize)
 const useStyles = makeStyles(theme => ({
   root: {
@@ -171,11 +172,12 @@ const Home = () => {
         defaultView={Views.WEEK}
         step={60}
         defaultDate={moment().toDate()}
-        localizer={globalizeLocalizer}
+        localizer={momentLocalizer(moment)}
         culture='fr'
         selectable
         onSelectEvent={toggleInfoModal}
         eventPropGetter={eventStyleGetter}
+        messages={{today: 'Aujourd\'hui', previous: 'Retour', next: 'Suivant', month: 'Mois', week: 'Semaine'}}
       />
       <Dialog open={infoModal}>
         <DialogTitle>Informations sur votre cours</DialogTitle>

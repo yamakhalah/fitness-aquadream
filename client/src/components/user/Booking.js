@@ -27,11 +27,11 @@ const useStyles = makeStyles(theme => ({
     },
   },
   paper: {
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(0),
     marginBottom: theme.spacing(3),
     paddingTop: theme.spacing(2),
     [theme.breakpoints.up(1000 + theme.spacing(3) * 2)]: {
-      marginTop: theme.spacing(6),
+      marginTop: theme.spacing(0),
       marginBottom: theme.spacing(6),
       paddingTop: theme.spacing(3),
     },

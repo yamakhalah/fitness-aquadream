@@ -33,6 +33,9 @@ const styles = theme => ({
     margin: 0,
     padding: 0
   },
+  controlCheck: {
+    textAlign: 'left'
+  }
 });
 
 class SignUp extends React.Component {
@@ -48,6 +51,8 @@ class SignUp extends React.Component {
       phone: '',
       errorMessage: '',
       errorVariant: 'error',
+      confirmHealth: false,
+      confirmRules: false,
       open: false
     }
   }
@@ -62,6 +67,12 @@ class SignUp extends React.Component {
   }
 
   signUp() {
+    if(!this.state.confirmHealth || !this.state.confirmRules){
+      this.setState({'errorMessage': 'Merci de cocher les cases d\'autorisation'})
+      this.setState({'errorVariant': 'error'})
+      this.setState({'open': true})
+      return
+    }
     this.props.client.mutate({
       mutation: CREATE_USER,
       variables: {
@@ -122,7 +133,7 @@ class SignUp extends React.Component {
                   label="Prénom"
                   autoFocus
                   value={this.state.firstName}
-                  validators={['required', 'matchRegexp:^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$']}
+                  validators={['required', 'matchRegexp:^[A-zÀ-ú]+(([\',. -][A-zÀ-ú])?[A-zÀ-ú]*)*$']}
                   errorMessages={['Champ requis', 'Format incorrect']}
                   onChange={event => this.handleChange(event)}
                 />
@@ -137,7 +148,7 @@ class SignUp extends React.Component {
                   name="lastName"
                   autoComplete="lname"
                   value={this.state.lastName}
-                  validators={['required', 'matchRegexp:^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$']}
+                  validators={['required', 'matchRegexp:^[A-zÀ-ú]+(([\',. -][A-zÀ-ú])?[A-zÀ-ú]*)*$']}
                   errorMessages={['Champ requis', 'Format incorrect']}
                   onChange={event => this.handleChange(event)}
                 />
@@ -224,10 +235,16 @@ class SignUp extends React.Component {
                   onChange={event => this.handleChange(event)}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} className={classes.controlCheck}>
                 <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="J'accepte les condiditions générales de vente."
+                  control={<Checkbox value={this.state.confirmRules} color="primary" />}
+                  label="J'accepte les CGU et le ROI."
+                />
+              </Grid>
+              <Grid item xs={12} className={classes.controlCheck}>
+                <FormControlLabel
+                  control={<Checkbox value={this.state.confirmHealth} color="primary" />}
+                  label="J'ai l'autorisation de mon médecin pour pratiquer ces sports"
                 />
               </Grid>
             </Grid>
