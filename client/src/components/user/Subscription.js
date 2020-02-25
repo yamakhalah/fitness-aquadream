@@ -259,6 +259,12 @@ export default function Subscription(props) {
                             <Grid item xs={8} md={8}>
                               {moment(lesson.recurenceEnd).format('DD/MM/YYYY')}
                             </Grid>
+                            <Grid item xs={4} md={4}>
+                              Heure:
+                            </Grid>
+                            <Grid item xs={8} md={8}>
+                              {moment(lesson.recurenceBegin).format('HH:mm')} - {moment(lesson.recurenceEnd).format('HH:mm')}
+                            </Grid>
                           </Grid>
                           </React.Fragment>
                         ))}
