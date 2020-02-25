@@ -1,26 +1,45 @@
 import React from 'react'
 import moment from 'moment'
 import Loader from '../../global/Loader.js'
-import { Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip } from '@material-ui/core'
+import { DialogTitle, DialogContent, DialogActions, Dialog, Table, TableHead, TableRow, TableCell, TableBody, Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip, CardContent, Card, CardActions, IconButton, Divider } from '@material-ui/core'
+import { Add, Info, Remove, LowPriority, Close } from '@material-ui/icons'
 import { lessonSubTypeToString, lessonTypeToString } from '../../../utils/enumToString'
 import { dateToDayString } from '../../../utils/dateTimeConverter'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
 import { useApolloClient, useQuery, useMutation } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
 import { GET_LESSONS_WAITING_OR_GOING } from '../../../database/query/lessonQuery'
 import { GET_LESSON_TYPES } from '../../../database/query/lessonTypeQuery'
 import { GET_LESSON_SUB_TYPES } from '../../../database/query/lessonSubTypeQuery'
+import { textAlign, borderRadius } from '@material-ui/system';
 
 moment.locale('fr')
 
 const useStyles = makeStyles(theme => ({
+  rootModal: {
+    margin: 0,
+    padding: theme.spacing(2),
+  },
+  modal: {
+    width: '30%'
+  },
+  modalTypo: {
+    display: 'inlineBlock',
+    width: '90%'
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
   root: {
     width: '100%',
     backgroundColor: 'theme.palette.background.paper',
     padding: 0,
     '& h2': {
       marginBlockStart: '2rem',
-      marginBlockEnd: '1rem'
+      marginBlockEnd: '0rem'
     },
     '& h3': {
       marginBlockStart: '3rem',
@@ -28,17 +47,21 @@ const useStyles = makeStyles(theme => ({
     },
     '& p': {
       fontSize: '1.2em',
-      marginBlockStart: '0.3rem',
-      marginBlockEnd: '1rem'
+      marginBlockStart: '0rem',
+      marginBlockEnd: '0rem'
     }
   },
   list: {
     backgroundColor: theme.palette.primary.main,
     padding: 0
-
+  },
+  listItem: {
+    margin: 0,
+    color: 'white'
   },
   inline: {
     display: 'inline',
+    color: 'white'
   },
   lessons: {
   },
@@ -55,13 +78,55 @@ const useStyles = makeStyles(theme => ({
   },
   error: {
     marginTop: '10rem'
+  },
+  tableRoot: {
+    verticalAlign: 'top',
+    
+  },
+  tableHeader: {
+    maxWidth: '15vh'
+  },
+  tableCell: {
+    textAlign: 'center',
+  },
+  card: {
+    width: '100%',
+  },
+  cardContent: {
+    paddingBottom: 0,
+  },
+  cardActions: {
+    display: 'block',
+    marginTop: 0,
+    padding: 0
+  },
+  cellTime: {
+    color: 'white',
+    backgroundColor: theme.palette.primary.main,
+    padding: 6,
+    borderRadius: 15,
+    display: 'block'
+  },
+  cellType: {
+    paddingTop: 5
+  },
+  gridTitle: {
+  
+  },
+  gridData: {
+  
   }
 }))
+
+
 
 const LessonPicker = ({ handleChangeCallback }) => {
   const classes = useStyles()
   const [selectedType, setSelectedType] = React.useState([3,"AQUA_BOXING"])
+  const [selectedModalLesson, setSelectedModalLesson] = React.useState(null)
+  const [openInfoModal, setOpenInfoModal] = React.useState(false)
   const [selectedLessons, setSelectedLessons] = React.useState([])
+  const [selectedLessonsByDay, setSelectedLessonsByDay] = React.useState([[], [], [], [], [], [], []])
   const [bookedLessons, setBookedLessons] = React.useState([])
   const [preBookedLessons, setPreBookedLessons] = React.useState([])
   const [lessonsBySubType, setLessonsBySubType] = React.useState({
@@ -89,11 +154,16 @@ const LessonPicker = ({ handleChangeCallback }) => {
       lessonsDic[element.lessonSubType.name].push(element)
     });
     setLessonsBySubType(lessonsDic)
-    setSelectedLessons(lessonsBySubType["AQUA_BOXING"])
+    handleListItemClick('AQUA_BOXING', 3)
   }
 
   const handleListItemClick = (key, index) => {
+    var lessonsByDay = [[], [], [], [], [], [], []]
+    for(const lesson of lessonsBySubType[key]) {
+      lessonsByDay[moment(lesson.recurenceBegin).weekday()].push(lesson)
+    }
     setSelectedType([index,key])
+    setSelectedLessonsByDay(lessonsByDay)
     setSelectedLessons(lessonsBySubType[key])
   }
 
@@ -127,8 +197,39 @@ const LessonPicker = ({ handleChangeCallback }) => {
     handleChangeCallback(bookedLessons, preBookedLessons)
   }
 
+  const handleInfoModal = (lesson) => {
+    setSelectedModalLesson(lesson)
+    setOpenInfoModal(true)
+  }
+
   const contains = (array, item) => {
     return array.some(v => (v.id === item.id ))
+  }
+
+  const getDayByIndex = (index) => {
+    switch(index) {
+      case 0:
+        return 'Lundi'
+        break
+      case 1:
+        return 'Mardi'
+        break
+      case 2:
+        return 'Mercredi'
+        break
+      case 3:
+        return 'Jeudi'
+        break
+      case 4:
+        return 'Vendredi'
+        break
+      case 5:
+        return 'Samedi'
+        break
+      case 6:
+        return 'Dimanche'
+        break
+    }
   }
 
   const { loading, error, data } = useQuery(GET_LESSONS_WAITING_OR_GOING, { fetchPolicy: 'network-only', onCompleted: initLessonPicker } ) 
@@ -147,6 +248,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
   )
 
   if(data) return (
+    <div>
     <Container component="main" maxWidth="xl" className={classes.root}>
       <Grid container>
         <Grid item xs={2} sm={2}>
@@ -156,6 +258,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
                 <div key={key}>
                   <ListItem alignItems="flex-start" selected={selectedType[0]=== index} onClick={event => handleListItemClick(key, index)}>
                     <ListItemText
+                      className={classes.listItem}
                       primary={lessonSubTypeToString(key)}
                       secondary={
                         <React.Fragment>
@@ -163,7 +266,6 @@ const LessonPicker = ({ handleChangeCallback }) => {
                             component="span"
                             variant="body2"
                             className={classes.inline}
-                            color="textPrimary"
                           >
                             {lessonsBySubType[key].length} cours disponibles
                           </Typography>
@@ -171,6 +273,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
                       }
                     />
                   </ListItem>
+                  <Divider />
                 </div>
               )
             })}
@@ -181,7 +284,174 @@ const LessonPicker = ({ handleChangeCallback }) => {
           {selectedLessons.length === 0 ? (
             <h1 className={classes.error}>Aucun cours dans cette catégorie</h1>
           ):(
-            <Grid container>
+            <div>
+              <Table>
+                <TableBody >
+                <TableRow className={classes.tableRoot}>
+                  {selectedLessonsByDay.map((lessonsByDay, index) => (
+                    <TableCell className={classes.tableHeader} key={index}>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell className={classes.tableCell}>{getDayByIndex(index)}</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {lessonsByDay.map(lesson => (
+                            <TableRow key={lesson.id}>
+                              <TableCell className={classes.tableCell}>
+                                <Card className={classes.card}>
+                                  <CardContent className={classes.cardContent}>
+                                    <Typography variant="subtitle2" className={classes.cellTime}>
+                                      {moment(lesson.recurenceBegin).format('HH:mm')} - {moment(lesson.recurenceEnd).format('HH:mm')}
+                                    </Typography>
+                                    <Typography variant="subtitle1" className={classes.cellType}>
+                                      <strong>{lesson.lessonType.simpleName}</strong>
+                                    </Typography>
+                                  </CardContent>
+                                  <CardActions className={classes.cardActions}>
+                                  {lesson.isOpened ? (
+                                    <div key={lesson.id}>
+                                      <Tooltip title="Plus d'informations">
+                                        <IconButton onClick={() => handleInfoModal(lesson)}>
+                                          <Info />
+                                        </IconButton>
+                                      </Tooltip>
+                                    {contains(bookedLessons, lesson) ? (
+                                      <Tooltip title="Retirer le cours">
+                                        <IconButton onClick={() => removeBookedLesson(lesson)}>
+                                          <Remove />
+                                        </IconButton>
+                                      </Tooltip>
+                                    ):(
+                                      <Tooltip title="S'inscrire au cours">
+                                        <IconButton onClick={() => addBookedLesson(lesson)}>
+                                          <Add />
+                                        </IconButton>
+                                      </Tooltip>
+                                    )}
+                                    </div>
+                                  ):(
+                                    <div>
+                                      <Tooltip title="Plus d'informations">
+                                        <IconButton onClick={() => handleInfoModal(lesson)}>
+                                          <Info />
+                                        </IconButton>
+                                      </Tooltip>
+                                    {contains(preBookedLessons, lesson) ? (
+                                      <Tooltip title="Retirer le cours">
+                                        <IconButton onClick={() => removePreBookedLesson(lesson)}>
+                                          <Remove />
+                                        </IconButton>
+                                      </Tooltip>
+                                    ):(
+                                      <Tooltip title="Se pré-inscrire au cours">
+                                        <IconButton onClick={() => addPreBookedLesson(lesson)}>
+                                          <LowPriority />
+                                        </IconButton>
+                                      </Tooltip>
+                                    )}
+                                    </div>
+                                  )}
+                                  </CardActions>
+                                </Card>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableCell>
+                  ))}
+                </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          </Box>
+        </Grid>
+      </Grid>
+    </Container>
+    {selectedModalLesson !== null && (
+      <Dialog maxWidth="xs" fullWidth={true} open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
+        <DialogTitle className={classes.rootModal} onClose={() => setOpenInfoModal(false)}>
+            Informations du cours
+            <IconButton aria-label="close" className={classes.closeButton} onClick={() => setOpenInfoModal(false)}>
+              <Close />
+            </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Container component="main" maxWidth="xl">
+            <Typography variant='h6'>{selectedModalLesson.name}</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                Description:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.comment}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                Type de réservation
+              </Grid>
+              {selectedModalLesson.isOpened ? (
+                <Grid item xs={12} md={7}>
+                  <strong>Inscription</strong>
+                </Grid>
+              ):(
+                <Grid item xs={12} md={7}>
+                  <strong>Pré-Inscription</strong>
+                </Grid>
+              )}
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Jour:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {dateToDayString(selectedModalLesson.recurenceBegin)}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Début:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {moment(selectedModalLesson.recurenceBegin).format('DD/MM/YYYY')}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Fin:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {moment(selectedModalLesson.recurenceEnd).format('DD/MM/YYYY')}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Places restantes:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.spotLeft}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Prix mensuel:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.pricing.monthlyPrice}€
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Prix total:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.pricing.totalPrice}€
+              </Grid>
+            </Grid>
+          </Container>
+        </DialogContent>
+      </Dialog>
+    )}
+    </div>
+  )
+}
+
+export default LessonPicker
+
+
+/*
+
+<Grid container>
               {selectedLessons.map((lesson) => {
                 return(
                   <Grid item xs={4} sm={4} key={lesson.id}>
@@ -228,12 +498,4 @@ const LessonPicker = ({ handleChangeCallback }) => {
                 )
               })}
             </Grid>
-          )}
-          </Box>
-        </Grid>
-      </Grid>
-    </Container>
-  )
-}
-
-export default LessonPicker
+          */

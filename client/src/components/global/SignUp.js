@@ -133,7 +133,7 @@ class SignUp extends React.Component {
                   label="Prénom"
                   autoFocus
                   value={this.state.firstName}
-                  validators={['required', 'matchRegexp:^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$']}
+                  validators={['required', 'matchRegexp:^[A-zÀ-ú]+(([\',. -][A-zÀ-ú])?[A-zÀ-ú]*)*$']}
                   errorMessages={['Champ requis', 'Format incorrect']}
                   onChange={event => this.handleChange(event)}
                 />
@@ -148,7 +148,7 @@ class SignUp extends React.Component {
                   name="lastName"
                   autoComplete="lname"
                   value={this.state.lastName}
-                  validators={['required', 'matchRegexp:^[a-zA-Z]+(([\',. -][a-zA-Z ])?[a-zA-Z]*)*$']}
+                  validators={['required', 'matchRegexp:^[A-zÀ-ú]+(([\',. -][A-zÀ-ú])?[A-zÀ-ú]*)*$']}
                   errorMessages={['Champ requis', 'Format incorrect']}
                   onChange={event => this.handleChange(event)}
                 />
