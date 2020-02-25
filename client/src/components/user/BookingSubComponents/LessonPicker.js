@@ -55,6 +55,14 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.primary.main,
     padding: 0
   },
+  pickerListItem: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    "&$pickerListItem, &$pickerListItem:focus, &$pickerListItem:hover": {
+      backgroundColor: theme.palette.secondary.main
+
+    }
+  },
   listItem: {
     margin: 0,
     color: 'white'
@@ -256,7 +264,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
             {Object.keys(lessonsBySubType).map((key ,index) => {
               return(
                 <div key={key}>
-                  <ListItem alignItems="flex-start" selected={selectedType[0]=== index} onClick={event => handleListItemClick(key, index)}>
+                  <ListItem classes={{ selected: classes.pickerListItem }} alignItems="flex-start" selected={selectedType[0]=== index} onClick={event => handleListItemClick(key, index)}>
                     <ListItemText
                       className={classes.listItem}
                       primary={lessonSubTypeToString(key)}
