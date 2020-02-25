@@ -1,10 +1,7 @@
 import React from 'react'
 import moment from 'moment'
 import Loader from '../../global/Loader.js'
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import MuiDialogActions from '@material-ui/core/DialogActions';
-import { Dialog, Table, TableHead, TableRow, TableCell, TableBody, Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip, CardContent, Card, CardActions, IconButton, Divider } from '@material-ui/core'
+import { DialogTitle, DialogContent, DialogActions, Dialog, Table, TableHead, TableRow, TableCell, TableBody, Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip, CardContent, Card, CardActions, IconButton, Divider } from '@material-ui/core'
 import { Add, Info, Remove, LowPriority, Close } from '@material-ui/icons'
 import { lessonSubTypeToString, lessonTypeToString } from '../../../utils/enumToString'
 import { dateToDayString } from '../../../utils/dateTimeConverter'
@@ -59,10 +56,12 @@ const useStyles = makeStyles(theme => ({
     padding: 0
   },
   listItem: {
-    margin: 0
+    margin: 0,
+    color: 'white'
   },
   inline: {
     display: 'inline',
+    color: 'white'
   },
   lessons: {
   },
@@ -110,40 +109,21 @@ const useStyles = makeStyles(theme => ({
   },
   cellType: {
     paddingTop: 5
+  },
+  gridTitle: {
+  
+  },
+  gridData: {
+  
   }
 }))
 
-const DialogTitle = withStyles(useStyles)(props => {
-  const { children, classes, onClose, ...other } = props;
-  return (
-    <MuiDialogTitle disableTypography className={classes.rootModal} {...other}>
-      <Typography className={classes.modalTypo} variant="h6">{children}</Typography>
-      {onClose ? (
-        <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-          <Close />
-        </IconButton>
-      ) : null}
-    </MuiDialogTitle>
-  );
-});
 
-const DialogContent = withStyles(theme => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-}))(MuiDialogContent);
-
-const DialogActions = withStyles(theme => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(1),
-  },
-}))(MuiDialogActions);
 
 const LessonPicker = ({ handleChangeCallback }) => {
   const classes = useStyles()
   const [selectedType, setSelectedType] = React.useState([3,"AQUA_BOXING"])
-  const [selectedModalLesson, setSelectedModalLesson] = React.useState()
+  const [selectedModalLesson, setSelectedModalLesson] = React.useState(null)
   const [openInfoModal, setOpenInfoModal] = React.useState(false)
   const [selectedLessons, setSelectedLessons] = React.useState([])
   const [selectedLessonsByDay, setSelectedLessonsByDay] = React.useState([[], [], [], [], [], [], []])
@@ -286,7 +266,6 @@ const LessonPicker = ({ handleChangeCallback }) => {
                             component="span"
                             variant="body2"
                             className={classes.inline}
-                            color="textPrimary"
                           >
                             {lessonsBySubType[key].length} cours disponibles
                           </Typography>
@@ -326,7 +305,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
                                     <Typography variant="subtitle2" className={classes.cellTime}>
                                       {moment(lesson.recurenceBegin).format('HH:mm')} - {moment(lesson.recurenceEnd).format('HH:mm')}
                                     </Typography>
-                                    <Typography variant="body2" className={classes.cellType}>
+                                    <Typography variant="subtitle1" className={classes.cellType}>
                                       <strong>{lesson.lessonType.simpleName}</strong>
                                     </Typography>
                                   </CardContent>
@@ -392,24 +371,77 @@ const LessonPicker = ({ handleChangeCallback }) => {
         </Grid>
       </Grid>
     </Container>
-    <Dialog maxWidth="sm" fullWidth={true} open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
-      <DialogTitle onClose={() => setOpenInfoModal(false)}>
-          Informations du cours
-      </DialogTitle>
-      <DialogContent>
-        <Container component="main" maxWidth="xl">
-          <Grid container spacing={2}>
-            <Grid item xs={6} md={6}>
-                 Test 1
+    {selectedModalLesson !== null && (
+      <Dialog maxWidth="xs" fullWidth={true} open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
+        <DialogTitle className={classes.rootModal} onClose={() => setOpenInfoModal(false)}>
+            Informations du cours
+            <IconButton aria-label="close" className={classes.closeButton} onClick={() => setOpenInfoModal(false)}>
+              <Close />
+            </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Container component="main" maxWidth="xl">
+            <Typography variant='h6'>{selectedModalLesson.name}</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                Description:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.comment}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                Type de réservation
+              </Grid>
+              {selectedModalLesson.isOpened ? (
+                <Grid item xs={12} md={7}>
+                  <strong>Inscription</strong>
+                </Grid>
+              ):(
+                <Grid item xs={12} md={7}>
+                  <strong>Pré-Inscription</strong>
+                </Grid>
+              )}
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Jour:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {dateToDayString(selectedModalLesson.recurenceBegin)}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Début:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {moment(selectedModalLesson.recurenceBegin).format('DD/MM/YYYY')}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Fin:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {moment(selectedModalLesson.recurenceEnd).format('DD/MM/YYYY')}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Places restantes:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.spotLeft}
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Prix mensuel:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.pricing.monthlyPrice}€
+              </Grid>
+              <Grid item xs={12} md={5} className={classes.gridTitle}>
+                  Prix total:
+              </Grid>
+              <Grid item xs={12} md={7}>
+                {selectedModalLesson.pricing.totalPrice}€
+              </Grid>
             </Grid>
-            <Grid item xs={6} md={6}>
-
-                 Test 2
-            </Grid>
-          </Grid>
-        </Container>
-      </DialogContent>
-    </Dialog>
+          </Container>
+        </DialogContent>
+      </Dialog>
+    )}
     </div>
   )
 }
