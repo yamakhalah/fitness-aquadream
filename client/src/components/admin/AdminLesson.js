@@ -1,17 +1,28 @@
 import React, { Fragment } from 'react'
-import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import { withStyles, useTheme, makeStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
-import { CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
-import { MeetingRoom, ExpandMore } from '@material-ui/icons'
+import { MuiPickersUtilsProvider, KeyboardDatePicker, KeyboardTimePicker } from '@material-ui/pickers'
+import { TextField, TablePagination, TableFooter, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
+import { MeetingRoom, ExpandMore, Edit, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons'
 import { CustomSnackBar } from '../global/CustomSnackBar'
-import { GET_LESSONS_WAITING_OR_GOING, GET_LESSONS } from '../../database/query/lessonQuery'
-import { OPEN_LESSON } from '../../database/mutation/lessonMutation'
+import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS } from '../../database/query/lessonQuery'
+import { OPEN_LESSON, UPDATE_LESSON } from '../../database/mutation/lessonMutation'
 import { dateToDayString } from '../../utils/dateTimeConverter'
+import DateFnsUtils from '@date-io/date-fns'
+import frLocale from "date-fns/locale/fr";
 import moment from 'moment'
 
 moment.locale('fr')
+
+const styles2 = makeStyles(theme => ({
+  root: {
+    flexShrink: 0,
+    marginLeft: theme.spacing(2.5),
+  },
+}))
 
 const styles = theme => ({
   root: {
@@ -66,8 +77,66 @@ const styles = theme => ({
     top: '50%',
     left: '50%'
   },
-
 })
+
+function TablePaginationActions(props) {
+
+  const theme = useTheme();
+  const classes = styles2()
+  const { count, page, rowsPerPage, onChangePage } = props;
+
+  const handleFirstPageButtonClick = event => {
+    onChangePage(event, 0);
+  };
+
+  const handleBackButtonClick = event => {
+    onChangePage(event, page - 1);
+  };
+
+  const handleNextButtonClick = event => {
+    onChangePage(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = event => {
+    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <div className={classes.root}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === 'rtl' ? <LastPage /> : <FirstPage />}
+      </IconButton>
+      <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
+        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === 'rtl' ? <FirstPage /> : <LastPage />}
+      </IconButton>
+    </div>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onChangePage: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
 
 class AdminLesson extends React.Component {
   constructor(props) {
@@ -75,31 +144,38 @@ class AdminLesson extends React.Component {
     this.state = {
       lessons: [],
       openLessonDialog: false,
-      loading: false,
+      editLessonDialog: false,
+      loading: true,
       selectedLesson:  null,
+      selectedIndex: null,
       selectedIndex: null,
       errorVariant: 'error',
       errorMessage: '',
       openSnack: false,
+      page: 0,
+      rowsPerPage: 5
     }
   }
 
   componentDidMount() {
-    this.props.client.query({
-      query: GET_LESSONS_WAITING_OR_GOING
+    this.props.client.watchQuery({
+      query: GET_LESSONS_WAITING_OR_GOING_FULL,
+      fetchPolicy: 'cache-and-network'
     })
-    .then(result => {
-      var lessons = result.data.lessonsWaitingOrGoing
-      lessons.forEach((element, index) => {
-        lessons[index].lessonsDay = this.sortLessonsDay(element.lessonsDay)
-      });
-      var sortedLessons = this.sortLessons(lessons)
-      this.setState({ lessons: sortedLessons })
+    .subscribe(({data, loading, error }) => {
+      if(error){
+        this.setState({ loading: false})
+        this.showSnackMessage('Erreur durant le chargement de vos données', 'error')
+      }else{
+        var lessons = data.lessonsWaitingOrGoing
+        lessons.forEach((element, index) => {
+          lessons[index].lessonsDay = this.sortLessonsDay(element.lessonsDay)
+        });
+        var sortedLessons = this.sortLessons(lessons)
+        this.setState({ lessons: sortedLessons, loading: false })
+      }
     })
-    .catch(error => {
-      console.log(error)
-      this.showSnackMessage('Erreur lors de la récupération des cours', 'error')
-    })
+    
   }
 
   handleOpenLessonDialog = (lesson, index) => {
@@ -125,7 +201,7 @@ class AdminLesson extends React.Component {
       },
       refetchQueries: [
         {
-          query: GET_LESSONS_WAITING_OR_GOING
+          query: GET_LESSONS_WAITING_OR_GOING_FULL
         },
         {
           query: GET_LESSONS
@@ -171,11 +247,92 @@ class AdminLesson extends React.Component {
     this.setState({ openSnack: false })
   }
 
+  openEditDialog = (lesson, index) => {
+    console.log(lesson)
+    this.setState({ 
+      selectedLesson: lesson,
+      selectedIndex: index,
+      editLessonDialog: true
+    })
+  }
+
+  closeEditDialog = () => {
+    this.setState({ 
+      editLessonDialog: false
+    })
+  }
+
+  handleChangePage = (event, newPage) => {
+    this.setState({
+      page: newPage
+    })
+  };
+/*
+  handleChangeRowsPerPage = event => {
+    this.setState({
+      rowsPerPage: parseInt(event.target.value, 10)
+    })
+  };
+*/
+
+  handleClose = () => {
+    this.setState({ editLessonDialog: false })
+  }
+
+
+  handleButtonConfirm = () => {
+    if(!this.state.loading) {
+      this.setState({
+        loading: true,
+      })
+      this.props.client.mutate({
+        mutation: UPDATE_LESSON,
+        variables: {
+          id: this.state.selectedLesson.id,
+          name: this.state.selectedLesson.name,
+          comment: this.state.selectedLesson.comment,
+          spotLeft: this.state.selectedLesson.spotLeft,
+          spotTotal: this.state.selectedLesson.spotTotal,
+          pricing: {
+            unitPrice: this.state.selectedLesson.pricing.unitPrice,
+            unitPrice2X: this.state.selectedLesson.pricing.unitPrice2X,
+            unitPrice3X: this.state.selectedLesson.pricing.unitPrice3X,
+            monthlyPrice: this.state.selectedLesson.pricing.monthlyPrice,
+            monthlyPrice2X: this.state.selectedLesson.pricing.monthlyPrice2X,
+            monthlyPrice3X: this.state.selectedLesson.pricing.monthlyPrice3X,
+            totalPrice: this.state.selectedLesson.pricing.totalPrice,
+            totalPrice2X: this.state.selectedLesson.pricing.totalPrice2X,
+            totalPrice3X: this.state.selectedLesson.pricing.totalPrice3X
+          },
+          recurenceBegin: this.state.selectedLesson.recurenceBegin,
+          recurenceEnd: this.state.selectedLesson.recurenceEnd
+        }
+      })
+      .then(result => {
+        console.log(result)
+        this.setState({ 
+          editLessonDialog: false,
+          loading: false,
+          selectedLesson: result.data.updateLesson
+         })
+        this.showSnackMessage('Votre cours a bien été modifié', 'success')
+      })
+      .catch(error => {
+        console.log(error)
+        this.setState({ 
+          editLessonDialog: false,
+          loading: false 
+        })
+        this.showSnackMessage('Erreur lors de la modification du cours', 'error')
+      })
+    }
+  }
+
   render() {
     const { classes } = this.props
     return(
       <div>
-      {this.state.loading && <CircularProgress size={150} className={classes.buttonProgress} />} 
+      {this.state.loading ? (<CircularProgress size={150} className={classes.buttonProgress} />):( 
       <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
         <Typography component="h1" variant="h5">
@@ -198,7 +355,10 @@ class AdminLesson extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {this.state.lessons.map((lesson, index) => (
+          {(this.state.rowsPerPage > 0
+            ? this.state.lessons.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+            : this.state.lessons
+          ).map((lesson, index) => (
             <Fragment key={lesson.id}>
               <TableRow key={lesson.id} className={classes.row}>
                 <TableCell component="th" scope="row">{lesson.name}</TableCell> 
@@ -221,6 +381,11 @@ class AdminLesson extends React.Component {
                     </IconButton>
                   </Tooltip>
                 }
+                <Tooltip title="Editer le cours">
+                  <IconButton onClick={this.openEditDialog.bind(this, lesson, index)}>
+                    <Edit />
+                  </IconButton>
+                </Tooltip>
                 </TableCell>    
               </TableRow>
               <TableRow className={classes.row}>
@@ -377,8 +542,27 @@ class AdminLesson extends React.Component {
             </Fragment>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, { label: 'All', value: -1 }]}
+                colSpan={3}
+                count={this.state.lessons.length}
+                rowsPerPage={this.state.rowsPerPage}
+                page={this.state.page}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true,
+                }}
+                onChangePage={this.handleChangePage}
+                //onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+              />
+            </TableRow>
+          </TableFooter>
         </Table>
       </Container>
+      )}
       <Dialog
         open={this.state.openLessonDialog}
       >
@@ -393,6 +577,170 @@ class AdminLesson extends React.Component {
           <Button onClick={this.openLesson.bind(this)} color="primary" disabled={this.state.loading}>
             Confirmer           
           </Button> 
+        </DialogActions>
+      </Dialog>
+      <Dialog open={this.state.editLessonDialog}>
+        <DialogTitle>Modifier le cours</DialogTitle>
+        <DialogContent>
+          <Container component="main" maxWidth="xl" className={classes.container}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils} locale={frLocale}>
+            <Grid container spacing={2}>
+              <Grid item xs={6} md={6}>
+                <TextField
+                  autoFocus
+                  id="name"
+                  label="Nom"
+                  type="text"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.name : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.name = event.target.value
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6} md={6}>
+                <TextField
+                  autoFocus
+                  id="comment"
+                  label="Infos"
+                  type="text"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.comment : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.comment = event.target.value
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6} md={6}>
+                <TextField
+                  autoFocus
+                  id="spotLeft"
+                  label="Places Restantes"
+                  type="number"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.spotLeft : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.spotLeft = Number(event.target.value)
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6} md={6}>
+                <TextField
+                  autoFocus
+                  id="spotTotal"
+                  label="Places Totales"
+                  type="number"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.spotTotal : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.spotTotal = Number(event.target.value)
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+                  />
+              </Grid>
+              <Grid item xs={4} md={4}>
+                <TextField
+                  autoFocus
+                  id="unitPrice"
+                  label="Prix Unitaire"
+                  type="number"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.pricing.unitPrice : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.pricing.unitPrice = Number(event.target.value)
+                    selectedLesson.pricing.totalPrice = selectedLesson.pricing.unitPrice * selectedLesson.totalLessons
+                    selectedLesson.pricing.monthlyPrice = Math.ceil(selectedLesson.pricing.totalPrice / selectedLesson.totalMonth)
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+
+                />
+              </Grid>
+              <Grid item xs={4} md={4}>
+                <TextField
+                  autoFocus
+                  id="unitPrice2X"
+                  label="Prix Unitaire 2X"
+                  type="number"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.pricing.unitPrice2X : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.pricing.unitPrice2X = Number(event.target.value)
+                    selectedLesson.pricing.totalPrice2X = selectedLesson.pricing.unitPrice2X * selectedLesson.totalLessons
+                    selectedLesson.pricing.monthlyPrice2X = Math.ceil(selectedLesson.pricing.totalPrice2X / selectedLesson.totalMonth)
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+                />
+              </Grid>
+              <Grid item xs={4} md={4}>
+                <TextField
+                  autoFocus
+                  id="unitPrice3X"
+                  label="Prix Unitaire 3X"
+                  type="number"
+                  value={this.state.selectedLesson ? this.state.selectedLesson.pricing.unitPrice3X : ''}
+                  onChange={event => {
+                    var selectedLesson = this.state.selectedLesson 
+                    selectedLesson.pricing.unitPrice3X = Number(event.target.value)
+                    selectedLesson.pricing.totalPrice3X = selectedLesson.pricing.unitPrice3X * selectedLesson.totalLessons
+                    selectedLesson.pricing.monthlyPrice3X = Math.ceil(selectedLesson.pricing.totalPrice3X / selectedLesson.totalMonth)
+                    this.setState({ selectedLesson: selectedLesson })
+                  }}
+                />
+              </Grid>
+              <Grid item xs={4} md={4}>
+                  <KeyboardTimePicker
+                    required
+                    name="recurenceBegin"
+                    margin="normal"
+                    id="timeBegin"
+                    label="Heure de début"
+                    ampm={false}
+                    value={this.state.selectedLesson ? moment(this.state.selectedLesson.recurenceBegin): moment()}
+                    KeyboardButtonProps={{
+                      'aria-label': 'Sélectionner Heure'
+                    }}
+                    onChange={event => {
+                      var selectedLesson = this.state.selectedLesson
+                      var time = moment(event)
+                      selectedLesson.recurenceBegin = moment(selectedLesson.recurenceBegin).hour(time.hour()).minute(time.minute()).toISOString(true)
+                      this.setState({ selectedLesson: selectedLesson }) 
+                    }}
+                  />
+              </Grid>
+              <Grid item xs={4} md={4}>
+                  <KeyboardTimePicker
+                    required
+                    name="recurenceEnd"
+                    margin="normal"
+                    id="timeEnd"
+                    label="Heure de fin"
+                    ampm={false}
+                    value={this.state.selectedLesson ? moment(this.state.selectedLesson.recurenceEnd): moment()}
+                    KeyboardButtonProps={{
+                      'aria-label': 'Sélectionner Heure'
+                    }}
+                    onChange={event => {
+                      var selectedLesson = this.state.selectedLesson
+                      var time = moment(event)
+                      selectedLesson.recurenceEnd = moment(selectedLesson.recurenceEnd).hour(time.hour()).minute(time.minute()).toISOString(true)
+                      this.setState({ selectedLesson: selectedLesson }) 
+                    }}
+                  />
+              </Grid>
+            </Grid>
+          </ MuiPickersUtilsProvider>
+          </Container>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleClose.bind(this)} color="default" disabled={this.state.loading}>
+            Annuler           
+          </Button>
+          <Button onClick={this.handleButtonConfirm.bind(this)} color="primary" disabled={this.state.loading}>
+            Confirmer           
+          </Button>  
         </DialogActions>
       </Dialog>
       <Snackbar

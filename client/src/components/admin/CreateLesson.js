@@ -324,6 +324,7 @@ class CreateLesson extends React.Component {
   }
 
   createLesson = () => {
+    return
     var lesson = {
       lessonsDay: [],
       discount: this.state.lessonType.toUpperCase()+'-'+this.state.lessonSubType.toUpperCase()+'-'+this.state.city.toUpperCase()+'-'+this.state.recurenceBegin.day()+'-'+this.state.timeBegin.hour()+'-'+this.state.recurenceBegin.year(),

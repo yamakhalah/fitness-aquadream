@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import moment from 'moment'
 import { sendMail, FROM, OPEN_LESSON } from '../mailer'
 import { ApolloError } from 'apollo-server';
+import LessonDay from '../models/lessonDay';
 
 moment.locale('fr')
 
@@ -26,7 +27,7 @@ export default {
         const lessons = await lessonModel.find({ 
           'status': ["WAITING_BEGIN", "ON_GOING"],
           'classicDate': { $lte: today}
-        }).exec()
+        }).sort({ recurenceBegin: 1, name: 1}).exec()
         return lessons
       }catch(error){
         console.log(error)
@@ -65,9 +66,31 @@ export default {
       }
     },
 
-    updateLesson: async(parent, { id, users, lessonsDay, lessonType, lessonSubType, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened }, { models: { lessonModel }}, info) => {
-      const lesson = await lessonModel.updateLesson(id, { users, lessonsDay, lessonType, lessonSubType, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened })
-      return lesson
+    updateLesson: async(parent, { id, name, comment, spotLeft, spotTotal, pricing, recurenceBegin, recurenceEnd }, { models: { lessonModel }}, info) => {
+      var lesson = await lessonModel.findOne({ _id: id })
+      const spotLeftChange = spotLeft - lesson.spotLeft
+      const spotTotalChange = spotTotal - lesson.spotTotal
+      lesson.name = name
+      lesson.comment = comment
+      lesson.spotLeft = spotLeft
+      lesson.spotTotal = spotTotal
+      lesson.pricing = pricing,
+      lesson.recurenceBegin = recurenceBegin,
+      lesson.recurenceEnd = recurenceEnd
+      const newLesson = await lessonModel.findOneAndUpdate(
+        { _id: id },
+        { name: lesson.name, comment: lesson.comment, spotLeft: lesson.spotLeft, spotTotal: lesson.spotTotal, pricing: lesson.pricing, recurenceBegin: lesson.recurenceBegin, recurenceEnd: lesson.recurenceEnd },
+        { new: true } 
+      )
+      for(const id of newLesson.lessonsDay) {
+        const lessonDay = await lessonDayModel.findOne({ _id: id })
+        lessonDay.hour.begin = moment(newLesson.recurenceBegin).format('HH:mm')
+        lessonDay.hour.end = moment(newLesson.recurenceEnd).format('HH:mm')
+        lessonDay.spotLeft += spotLeftChange
+        lessonDay.spotTotal += spotTotalChange
+        const newLessonDay = await lessonDayModel.updateLessonDay(lessonDay.id, lessonDay)
+      }
+      return newLesson
     },
 
     deleteLesson: async(parent, { id }, { models: { lessonModel }}, info) => {
