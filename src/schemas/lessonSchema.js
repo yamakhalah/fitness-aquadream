@@ -77,7 +77,7 @@ export default gql`
   extend type Mutation {
     createLesson(lessonsDay: [ID!]!, lessonType: ID!, lessonSubType: ID!, discount: String!, name: String!, comment: String!, address: AddressInput!, pricing: PricingInput!, totalMonth: Int!, totalLessons: Int!, classicDate: String!, priorityDate: String!, recurenceBegin: String!, recurenceEnd: String!, spotLeft: Int!, spotTotal: Int!, mainType: String!, dateType: String!, isOpened: Boolean!): Lesson!
     createLessonAndLessonsDay(lesson: LessonInput!, lessonsDay: [LessonDayInput!]!): Boolean
-    updateLesson(id: ID!, users: [ID!]!, lessonsDay: [ID!]!, lessonType: ID!, lessonSubType: ID!, discount: String!, name: String!, comment: String!, address: AddressInput, pricing: PricingInput, totalMonth: Int!, totalLessons: Int!, classicDate: String!, priorityDate: String!, recurenceBegin: String!, recurenceEnd: String!, spotLeft: Int!, spotTotal: Int!, mainType: String!, dateType: String!, isOpened: Boolean!): Lesson!
+    updateLesson(id: ID!, name: String!, comment: String!, spotLeft: Int!, spotTotal: Int!, pricing: PricingInput!, recurenceBegin: String!, recurenceEnd: String!): Lesson!
     deleteLesson(id: ID!): Lesson!
     openLesson(id:  ID!): Lesson!
     cancelLesson(id: ID!):  Boolean!

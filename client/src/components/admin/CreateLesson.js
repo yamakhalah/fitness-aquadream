@@ -208,20 +208,40 @@ class CreateLesson extends React.Component {
   }
 
   handleDateChange = (event, id) => {
-    this.setState({
-      [id]: moment(event, 'DD/MM/YYYY')
-    })
     switch(id) {
       case 'recurenceBegin':
+        this.setState({
+          [id]: moment(event, 'DD/MM/YYYY').hour(this.state.timeBegin.hour()).minute(this.state.timeBegin.minute())
+        })
         this.refreshTotalLessons(event, undefined)
         this.refreshTotalMonth(event, undefined)
         this.setState({ selectedDayDate: event.getDay()})
         break
       case 'recurenceEnd':
+        this.setState({
+          [id]: moment(event, 'DD/MM/YYYY').hour(this.state.timeEnd.hour()).minute(this.state.timeEnd.minute())
+        })
         this.refreshTotalLessons(undefined, event)
         this.refreshTotalMonth(undefined, event)
         break
+      case 'timeBegin':
+        var date = moment(event)
+        this.setState({
+          [id]: moment(date, 'DD/MM/YYYY'),
+          'recurenceBegin': this.state.recurenceBegin.hour(date.hour()).minute(date.minute()),
+        })
+        break
+      case 'timeEnd':
+      var date = moment(event)
+      this.setState({
+        [id]: moment(date, 'DD/MM/YYYY'),
+        'recurenceEnd': this.state.recurenceEnd.hour(date.hour()).minute(date.minute()),
+      })
+      break
       default:
+        this.setState({
+          [id]: moment(event, 'DD/MM/YYYY')
+        })
         break
     }
   }
@@ -304,6 +324,7 @@ class CreateLesson extends React.Component {
   }
 
   createLesson = () => {
+    return
     var lesson = {
       lessonsDay: [],
       discount: this.state.lessonType.toUpperCase()+'-'+this.state.lessonSubType.toUpperCase()+'-'+this.state.city.toUpperCase()+'-'+this.state.recurenceBegin.day()+'-'+this.state.timeBegin.hour()+'-'+this.state.recurenceBegin.year(),

@@ -143,6 +143,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
     "AQUA_BIKING": [],
     "AQUA_BOXING": [],
     "AQUA_FITNESS": [],
+    "AQUA_GYM": [],
     "AQUA_RELAXATION": [],
     "AQUA_SIRENE": [],
     "AQUA_ZUMBA": [],
@@ -168,7 +169,8 @@ const LessonPicker = ({ handleChangeCallback }) => {
   const handleListItemClick = (key, index) => {
     var lessonsByDay = [[], [], [], [], [], [], []]
     for(const lesson of lessonsBySubType[key]) {
-      lessonsByDay[moment(lesson.recurenceBegin).weekday()].push(lesson)
+      const weekday = moment(lesson.recurenceBegin).weekday()
+      lessonsByDay[weekday].push(lesson)
     }
     setSelectedType([index,key])
     setSelectedLessonsByDay(lessonsByDay)

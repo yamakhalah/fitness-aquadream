@@ -100,3 +100,77 @@ export const CANCEL_LESSON = gql`
     cancelLesson(id: $id)
   }
 `
+
+export const UPDATE_LESSON = gql`
+  mutation updateLesson($id: ID!, $name: String!, $comment: String!, $spotLeft: Int!, $spotTotal: Int!, $pricing: PricingInput!, $recurenceBegin: String!, $recurenceEnd: String!){
+    updateLesson(id: $id, name: $name, comment: $comment, spotLeft: $spotLeft, spotTotal: $spotTotal, pricing: $pricing, recurenceBegin: $recurenceBegin, recurenceEnd: $recurenceEnd){
+      id
+      lessonType{
+        id
+        name
+        simpleName
+        compatibilities{
+          id
+        }
+      }
+      lessonSubType{
+        id
+        name
+        simpleName
+      }
+      lessonsDay{
+        id
+        lesson{
+          id
+        }
+        teacher{
+          id
+          user{
+            id
+            firstName
+            lastName
+          }
+        }
+        dayDate
+        hour{
+          begin 
+          end
+        }
+        spotLeft
+        spotTotal
+        isCanceled
+      }
+      discount
+      name
+      status
+      comment
+      address{
+        street
+        city
+        postalCode
+      }
+      pricing{
+        unitPrice
+        unitPrice2X
+        unitPrice3X
+        monthlyPrice
+        monthlyPrice2X
+        monthlyPrice3X
+        totalPrice
+        totalPrice2X
+        totalPrice3X
+      }
+      totalMonth
+      totalLessons
+      classicDate
+      priorityDate
+      recurenceBegin
+      recurenceEnd
+      spotLeft
+      spotTotal
+      mainType
+      dateType
+      isOpened
+    }
+  }
+`
