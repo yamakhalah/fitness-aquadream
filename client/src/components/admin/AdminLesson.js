@@ -366,7 +366,7 @@ class AdminLesson extends React.Component {
                 <TableCell>{dateToDayString(lesson.recurenceBegin)}</TableCell>
                 <TableCell>{moment(lesson.recurenceBegin).format('DD/MM/YYYY')}</TableCell>
                 <TableCell>{moment(lesson.recurenceEnd).format('DD/MM/YYYY')}</TableCell>
-                <TableCell>{moment(lesson.lessonsDay[0].hour.begin, 'HH:mm').format('HH:mm')} à {moment(lesson.lessonsDay[0].hour.end, 'HH:mm').format('HH:mm')}</TableCell>
+                <TableCell>{moment(lesson.recurenceBegin).format('HH:mm')} à {moment(lesson.recurenceEnd).format('HH:mm')}</TableCell>
                 <TableCell>{lesson.totalLessons}</TableCell> 
                 <TableCell>{lesson.spotLeft}</TableCell>
                 <TableCell>{lesson.spotTotal}</TableCell>
