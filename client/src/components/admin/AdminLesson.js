@@ -163,6 +163,7 @@ class AdminLesson extends React.Component {
       fetchPolicy: 'cache-and-network'
     })
     .subscribe(({data, loading, error }) => {
+      console.log(data)
       if(error){
         this.setState({ loading: false})
         this.showSnackMessage('Erreur durant le chargement de vos données', 'error')
@@ -285,6 +286,8 @@ class AdminLesson extends React.Component {
       this.setState({
         loading: true,
       })
+      console.log('PRINT RECURENCE')
+      console.log(this.state.selectedLesson)
       this.props.client.mutate({
         mutation: UPDATE_LESSON,
         variables: {
