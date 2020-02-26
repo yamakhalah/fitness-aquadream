@@ -163,6 +163,7 @@ class AdminLesson extends React.Component {
       fetchPolicy: 'cache-and-network'
     })
     .subscribe(({data, loading, error }) => {
+      console.log(data)
       if(error){
         this.setState({ loading: false})
         this.showSnackMessage('Erreur durant le chargement de vos données', 'error')
@@ -285,6 +286,8 @@ class AdminLesson extends React.Component {
       this.setState({
         loading: true,
       })
+      console.log('PRINT RECURENCE')
+      console.log(this.state.selectedLesson)
       this.props.client.mutate({
         mutation: UPDATE_LESSON,
         variables: {
@@ -366,7 +369,7 @@ class AdminLesson extends React.Component {
                 <TableCell>{dateToDayString(lesson.recurenceBegin)}</TableCell>
                 <TableCell>{moment(lesson.recurenceBegin).format('DD/MM/YYYY')}</TableCell>
                 <TableCell>{moment(lesson.recurenceEnd).format('DD/MM/YYYY')}</TableCell>
-                <TableCell>{moment(lesson.lessonsDay[0].hour.begin, 'HH:mm').format('HH:mm')} à {moment(lesson.lessonsDay[0].hour.end, 'HH:mm').format('HH:mm')}</TableCell>
+                <TableCell>{moment(lesson.recurenceBegin).format('HH:mm')} à {moment(lesson.recurenceEnd).format('HH:mm')}</TableCell>
                 <TableCell>{lesson.totalLessons}</TableCell> 
                 <TableCell>{lesson.spotLeft}</TableCell>
                 <TableCell>{lesson.spotTotal}</TableCell>
