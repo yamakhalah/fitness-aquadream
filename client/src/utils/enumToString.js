@@ -24,6 +24,8 @@ export function lessonSubTypeToString(type) {
       return 'Perfectionnement de la nage'
     case 'AQUA_SIRENE':
       return 'Aqua sirène'
+    case 'AQUA_GYM':
+      return 'Aqua gym'
     case 'INITIATION_PLONGEE':
       return 'Initiation plongée'
     case 'INITIATION_WATERPOLO':
