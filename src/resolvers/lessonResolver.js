@@ -1,7 +1,8 @@
 import lessonModel from '../models/lesson'
 import lessonDayModel from '../models/lessonDay'
+import teacherModel from '../models/teacher'
 import userModel from '../models/user'
-import mongoose from 'mongoose'
+import mongoose, { mongo } from 'mongoose'
 import moment from 'moment'
 import { sendMail, FROM, OPEN_LESSON } from '../mailer'
 import { ApolloError } from 'apollo-server';
@@ -35,8 +36,8 @@ export default {
     }
   },
   Mutation: {
-    createLesson: async(parent, { lessonsDay, lessonType, lessonSubType, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened }, { models: { lessonModel }}, info) => {
-      const lesson = await lessonModel.create({ lessonsDay, lessonType, lessonSubType, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened })
+    createLesson: async(parent, { lessonsDay, lessonType, lessonSubType, teacher, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened }, { models: { lessonModel }}, info) => {
+      const lesson = await lessonModel.create({ lessonsDay, lessonType, lessonSubType, teacher, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened })
       return lesson
     },
 
@@ -66,8 +67,11 @@ export default {
       }
     },
 
-    updateLesson: async(parent, { id, name, comment, spotLeft, spotTotal, pricing, recurenceBegin, recurenceEnd }, { models: { lessonModel }}, info) => {
-      var lesson = await lessonModel.findOne({ _id: id })
+    updateLesson: async(parent, { id, name, comment, spotLeft, spotTotal, pricing, recurenceBegin, recurenceEnd, teacher }, { models: { lessonModel }}, info) => {
+      const session = await mongoose.startSession()
+      session.startTransaction()
+      try{
+      var lesson = await lessonModel.findOne({ _id: id }).session(session)
       const spotLeftChange = spotLeft - lesson.spotLeft
       const spotTotalChange = spotTotal - lesson.spotTotal
       lesson.name = name
@@ -77,25 +81,52 @@ export default {
       lesson.pricing = pricing,
       lesson.recurenceBegin = recurenceBegin,
       lesson.recurenceEnd = recurenceEnd
+      lesson.teacher = teacher
       const newLesson = await lessonModel.findOneAndUpdate(
         { _id: id },
-        { name: lesson.name, comment: lesson.comment, spotLeft: lesson.spotLeft, spotTotal: lesson.spotTotal, pricing: lesson.pricing, recurenceBegin: lesson.recurenceBegin, recurenceEnd: lesson.recurenceEnd },
+        { name: lesson.name, comment: lesson.comment, spotLeft: lesson.spotLeft, spotTotal: lesson.spotTotal, pricing: lesson.pricing, recurenceBegin: lesson.recurenceBegin, recurenceEnd: lesson.recurenceEnd, teacher: lesson.teacher },
         { new: true } 
-      )
+      ).session(session)
       for(const id of newLesson.lessonsDay) {
-        const lessonDay = await lessonDayModel.findOne({ _id: id })
+        var lessonDay = await lessonDayModel.findOne({ _id: id }).session(session)
         lessonDay.hour.begin = moment(newLesson.recurenceBegin).format('HH:mm')
         lessonDay.hour.end = moment(newLesson.recurenceEnd).format('HH:mm')
         lessonDay.spotLeft += spotLeftChange
         lessonDay.spotTotal += spotTotalChange
-        const newLessonDay = await lessonDayModel.updateLessonDay(lessonDay.id, lessonDay)
+        lessonDay.teacher = teacher
+        const newLessonDay = await lessonDayModel.updateLessonDay(lessonDay.id, lessonDay, session)
       }
+      await session.commitTransaction()
+      session.endSession()
+      console.log(newLesson)
       return newLesson
+      }catch(error){
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        throw new ApolloError('Error')
+      }
     },
 
     deleteLesson: async(parent, { id }, { models: { lessonModel }}, info) => {
-      const lesson = await lessonModel.deleteLesson(id)
-      return lesson
+      const session = await mongoose.startSession()
+      const opts = { session }
+      session.startTransaction()  
+      try {
+        const lesson = await lessonModel.findById(id).session(session)
+        for(const lessonDay of lesson.lessonsDay) {
+          const cLessonDay = await lessonDayModel.findOneAndDelete({ '_id': lessonDay }).session(session)
+        }
+        const tmp = await lessonModel.findOneAndDelete({ _id: id }).session(session)
+        await session.commitTransaction()
+        session.endSession()
+        return tmp
+      } catch(error) {
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        throw new ApolloError('Error')
+      }
     },
 
     openLesson: async(parent, { id }, { models: { lessonModel }}, info) => {
@@ -105,9 +136,9 @@ export default {
       const users = []
       session.startTransaction()
       try {
-        const lesson = await lessonModel.findById({ _id: id })
+        const lesson = await lessonModel.findById({ _id: id }).session(session)
         for(const userID of lesson.users) {
-          const user = await userModel.findById({ _id: userID })
+          const user = await userModel.findById({ _id: userID }).session(session)
           users.push(user)
         }
         lesson.spotLeft = lesson.spotTotal
@@ -123,7 +154,7 @@ export default {
       }catch(error) {
         await session.abortTransaction()
         session.endSession()
-        return lesson
+        throw new ApolloError('Error')
       }
     },
 
@@ -185,25 +216,51 @@ export default {
       const lessonDay = await lessonModel.removeUser(id, user)
       return lessonDay
     },
+
+    putTeacherInLesson: async(parent, args, { models: { lessonModel }}, info) => {
+      try{
+      const lessons = await lessonModel.find()
+      var updated = []
+      for(const lesson of lessons) {
+        const lessonDay = await lessonDayModel.findById(lesson.lessonsDay[0]._id)
+        const updatedLesson = await lessonModel.findOneAndUpdate(
+          { _id: lesson._id },
+          { teacher: lessonDay.teacher._id },
+          { new: true}
+        )
+        updated.push(updatedLesson)
+      }
+      return updated
+      }catch(error){
+        console.log(error)
+      }
+    }
   },
   Lesson: {
     lessonsDay: async ({ lessonsDay }, args, { models: { lessonDayModel }}, info) => {
       if(lessonsDay === undefined) return null
+      /*
       var lessonsList = []
       lessonsDay.forEach(element => {
         var object = lessonDayModel.findById({ _id: element}).exec()
         lessonsList.push(object)
       });
+      */
+     var lessonsList = await lessonDayModel.find({
+       _id: {
+         $in: lessonsDay.map((o) => { return mongoose.Types.ObjectId(o)})
+       }
+     })
       return lessonsList
     },
 
     users: async ({ users }, args, { models: { userModel }}, info) => {
       if(users === undefined) return null
-      var usersList = []
-      users.forEach(element => {
-        var object = userModel.findById({ _id: element}).exec()
-        usersList.push(object)
-      });
+      var usersList = await userModel.find({
+        _id: {
+          $in: users.map((o) => { return mongoose.Types.ObjectId(o)})
+        }
+      }) 
       return usersList
     },
 
@@ -218,5 +275,11 @@ export default {
       const object = await lessonSubTypeModel.findById({ _id: lessonSubType }).exec()
       return object
     },
+
+    teacher: async({ teacher }, args, { models: { teacherModel }}, info) => {
+      if(teacher === undefined) return null
+      const object = await teacherModel.findById({ _id: teacher }).exec()
+      return object
+    }
   }
 }

@@ -16,6 +16,7 @@ import App from './App';
 import { ThemeProvider } from '@material-ui/styles';
 import theme from './style/theme/default'
 import * as serviceWorker from './serviceWorker';
+import { toIdValue } from 'apollo-utilities';
 
 const cache = new InMemoryCache()
 

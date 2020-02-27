@@ -160,37 +160,30 @@ export const GET_LESSONS_WAITING_OR_GOING_FULL = gql`
   query getLessonsWaitingOrGoing{
     lessonsWaitingOrGoing{
       id
+      users{
+        id
+      }
       lessonType{
         id
         name
         simpleName
-        compatibilities{
-          id
-        }
       }
       lessonSubType{
         id
         name
         simpleName
       }
+      teacher{
+        id
+        user{
+          id
+          firstName
+          lastName
+        }
+      }
       lessonsDay{
         id
-        lesson{
-          id
-        }
-        teacher{
-          id
-          user{
-            id
-            firstName
-            lastName
-          }
-        }
         dayDate
-        hour{
-          begin 
-          end
-        }
         spotLeft
         spotTotal
         isCanceled

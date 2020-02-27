@@ -25,6 +25,7 @@ export default gql`
     lessonsDay: [LessonDay!]!
     lessonType: LessonType!
     lessonSubType: LessonSubType!
+    teacher: Teacher!
     discount: String!
     name: String!
     comment: String!
@@ -49,6 +50,7 @@ export default gql`
     lessonsDay: [ID!]!
     lessonType: ID!
     lessonSubType: ID!
+    teacher: ID!
     discount: String!
     name: String!
     comment: String!
@@ -75,11 +77,12 @@ export default gql`
   }
 
   extend type Mutation {
+    putTeacherInLesson: [Lesson!]!
     createLesson(lessonsDay: [ID!]!, lessonType: ID!, lessonSubType: ID!, discount: String!, name: String!, comment: String!, address: AddressInput!, pricing: PricingInput!, totalMonth: Int!, totalLessons: Int!, classicDate: String!, priorityDate: String!, recurenceBegin: String!, recurenceEnd: String!, spotLeft: Int!, spotTotal: Int!, mainType: String!, dateType: String!, isOpened: Boolean!): Lesson!
     createLessonAndLessonsDay(lesson: LessonInput!, lessonsDay: [LessonDayInput!]!): Boolean
-    updateLesson(id: ID!, name: String!, comment: String!, spotLeft: Int!, spotTotal: Int!, pricing: PricingInput!, recurenceBegin: String!, recurenceEnd: String!): Lesson!
+    updateLesson(id: ID!, name: String!, comment: String!, spotLeft: Int!, spotTotal: Int!, pricing: PricingInput!, recurenceBegin: String!, recurenceEnd: String!, teacher: ID!): Lesson!
     deleteLesson(id: ID!): Lesson!
-    openLesson(id:  ID!): Lesson!
+    openLesson(id: ID!): Lesson!
     cancelLesson(id: ID!):  Boolean!
     removeLessonDay(id: ID!, lessonDay: ID!): Lesson!
     addUserToLesson(id: ID!, user: ID!): Lesson!

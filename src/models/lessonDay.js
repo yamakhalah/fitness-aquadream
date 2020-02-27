@@ -31,8 +31,12 @@ const LessonDaySchema = new Schema({
   isCanceled: { type: Boolean, required: true, default: false}
 })
 
-LessonDaySchema.statics.updateLessonDay = function(id, lesson) {
-  return LessonDay.findOneAndUpdate({'_id': id}, lesson, { new: true })
+LessonDaySchema.statics.updateLessonDay = function(id, lesson, session) {
+  if(session) {
+    return LessonDay.findOneAndUpdate({'_id': id}, lesson, { new: true }).session(session)
+  }else{
+    return LessonDay.findOneAndUpdate({'_id': id}, lesson, { new: true })
+  }
 }
 
 LessonDaySchema.statics.deleteLessonDay = function(id) {

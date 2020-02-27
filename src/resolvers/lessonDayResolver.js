@@ -150,11 +150,11 @@ export default {
   LessonDay: {
     users: async({ users }, args, { models: { userModel }}, info) => {
       if(users === undefined) return null
-      var usersList = []
-      users.forEach(element => {
-        var object = userModel.findById({ _id: element }).exec()
-        usersList.push(object)
-      });
+      var usersList = await userModel.find({
+        _id: {
+          $in: users.map((o) => { return mongoose.Types.ObjectId(o)})
+        }
+      }) 
       return usersList
     },
 

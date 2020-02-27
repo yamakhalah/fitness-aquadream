@@ -1,4 +1,4 @@
-const { USER, LESSON_DAY, ADDRESS, LESSON, LESSON_TYPE, LESSON_SUB_TYPE } = require( './dbName');
+const { USER, LESSON_DAY, ADDRESS, LESSON, LESSON_TYPE, LESSON_SUB_TYPE, TEACHER } = require( './dbName');
 
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
@@ -24,6 +24,11 @@ const LessonSchema = new Schema({
     ref: LESSON_SUB_TYPE,
     required: true
   }],
+  teacher: {
+    type: Schema.Types.ObjectId,
+    ref: TEACHER,
+    required: true
+  },
   discount: { type: String, required: true },
   name: { type: String, required: true }, 
   comment: { type: String, required: true },
@@ -58,7 +63,7 @@ const LessonSchema = new Schema({
 })
 
 LessonSchema.statics.create = function(data, opts) {
-const lesson = new Lesson({ lessonsDay: data.lessonsDay, lessonType: data.lessonType, lessonSubType: data.lessonSubType, discount: data.discount, address: data.address, pricing: data.pricing, totalLessons: data.totalLessons, totalMonth: data.totalMonth, classicDate: data.classicDate, priorityDate: data.priorityDate, recurenceBegin: data.recurenceBegin, recurenceEnd: data.recurenceEnd, spotLeft: data.spotLeft, spotTotal: data.spotTotal, lessonType: data.lessonType, lessonSubType: data.lessonSubType, mainType: data.mainType, dateType: data.dateType, name: data.name, comment: data.comment, isOpened: data.isOpened })
+const lesson = new Lesson({ lessonsDay: data.lessonsDay, lessonType: data.lessonType, lessonSubType: data.lessonSubType, teacher: data.teacher, discount: data.discount, address: data.address, pricing: data.pricing, totalLessons: data.totalLessons, totalMonth: data.totalMonth, classicDate: data.classicDate, priorityDate: data.priorityDate, recurenceBegin: data.recurenceBegin, recurenceEnd: data.recurenceEnd, spotLeft: data.spotLeft, spotTotal: data.spotTotal, lessonType: data.lessonType, lessonSubType: data.lessonSubType, mainType: data.mainType, dateType: data.dateType, name: data.name, comment: data.comment, isOpened: data.isOpened })
 return lesson.save(opts)
 },
 
