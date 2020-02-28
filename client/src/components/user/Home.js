@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   },
   cancelButton: {
     color: '#C0392B'
-  }
+  },
 }))
 
 const Home = () => {

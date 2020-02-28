@@ -44,7 +44,7 @@ export default {
         throw new AuthenticationError(INVALID_CREDENTIALS);
       }
 
-      const token = jwt.sign({ id: user.id }, process.env.HASH, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user.id }, process.env.HASH, { expiresIn: '1d' });
 
       return {
         token, user

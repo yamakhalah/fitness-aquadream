@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
-import { Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
+import { CircularProgress, Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
 import { ExpandMore, Delete, Edit } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
 import { CustomSnackBar } from '../global/CustomSnackBar'
@@ -73,7 +73,14 @@ const styles = theme => ({
 
   maxWidth: {
     width: '100%'
-  }
+  },
+
+  buttonProgress: {
+    color: 'green',
+    position: 'absolute',
+    top: '50%',
+    left: '50%'
+  },
 })
 
 class AdminLessonDay extends React.Component {
@@ -89,24 +96,27 @@ class AdminLessonDay extends React.Component {
       openDeleteDialog: false,
       selectedLessonDay: null,
       selectedIndex: -1,
-      message: ''
+      message: '',
+      loading: true,
     }
   }
 
   componentDidMount() {
     var today = moment().toISOString(true)
-    this.props.client.query({
+    this.props.client.watchQuery({
       query: GET_LESSONS_DAY_FROM_TODAY,
+      fetchPolicy: 'cache-and-network',
       variables: {
         today: today
       }
     })
-    .then(result => {
-      var lessonsDay = this.sortLessonsDay(result.data.lessonsDayFromToday)
-      this.setState({ lessonsDay: lessonsDay })
-    })
-    .catch(error => {
-      this.showSnackMessage('Erreur lors de la récupération des cours', 'error')
+    .subscribe(({ data, loading, error}) => {
+      if(error) {
+        this.showSnackMessage('Erreur lors de la récupération des cours', 'error')
+      }else if (data){
+        var lessonsDay = this.sortLessonsDay(data.lessonsDayFromToday)
+        this.setState({ lessonsDay: lessonsDay, loading: false })
+      }
     })
 
     this.props.client.query({
@@ -281,6 +291,9 @@ class AdminLessonDay extends React.Component {
 
   render() {
     const { classes } = this.props
+    if(this.state.loading) {
+      return <CircularProgress size={150} className={classes.buttonProgress} />
+    }
     return(
       <div>
         <Container component="main" maxWidth="xl" className={classes.root}>

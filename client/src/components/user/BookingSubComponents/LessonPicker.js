@@ -123,6 +123,9 @@ const useStyles = makeStyles(theme => ({
   },
   gridData: {
   
+  },
+  greenIcon: {
+    color: theme.palette.primary.main
   }
 }))
 
@@ -323,19 +326,19 @@ const LessonPicker = ({ handleChangeCallback }) => {
                                   {lesson.isOpened ? (
                                     <div key={lesson.id}>
                                       <Tooltip title="Plus d'informations">
-                                        <IconButton onClick={() => handleInfoModal(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => handleInfoModal(lesson)}>
                                           <Info />
                                         </IconButton>
                                       </Tooltip>
                                     {contains(bookedLessons, lesson) ? (
                                       <Tooltip title="Retirer le cours">
-                                        <IconButton onClick={() => removeBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => removeBookedLesson(lesson)}>
                                           <Remove />
                                         </IconButton>
                                       </Tooltip>
                                     ):(
                                       <Tooltip title="S'inscrire au cours">
-                                        <IconButton onClick={() => addBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => addBookedLesson(lesson)}>
                                           <Add />
                                         </IconButton>
                                       </Tooltip>
@@ -344,19 +347,19 @@ const LessonPicker = ({ handleChangeCallback }) => {
                                   ):(
                                     <div>
                                       <Tooltip title="Plus d'informations">
-                                        <IconButton onClick={() => handleInfoModal(lesson)}>
+                                        <IconButton  className={classes.greenIcon} onClick={() => handleInfoModal(lesson)}>
                                           <Info />
                                         </IconButton>
                                       </Tooltip>
                                     {contains(preBookedLessons, lesson) ? (
                                       <Tooltip title="Retirer le cours">
-                                        <IconButton onClick={() => removePreBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => removePreBookedLesson(lesson)}>
                                           <Remove />
                                         </IconButton>
                                       </Tooltip>
                                     ):(
                                       <Tooltip title="Se pré-inscrire au cours">
-                                        <IconButton onClick={() => addPreBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => addPreBookedLesson(lesson)}>
                                           <LowPriority />
                                         </IconButton>
                                       </Tooltip>
