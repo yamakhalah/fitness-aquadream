@@ -1,12 +1,13 @@
-import React, { Fragment } from 'react'
-import { withStyles } from '@material-ui/core/styles';
-import { withRouter } from 'react-router-dom'
-import { withApollo } from 'react-apollo'
+import React, { Fragment, useEffect, useState } from 'react'
+import { useTheme, makeStyles } from '@material-ui/core/styles'
+import { useRouter } from 'react-router-dom'
+import { useQuery, useApolloClient } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
-import { CircularProgress, Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
-import { ExpandMore, Delete, Edit } from '@material-ui/icons'
+import { TablePagination, TableFooter, CircularProgress, Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
+import { ExpandMore, Delete, Edit, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
 import { CustomSnackBar } from '../global/CustomSnackBar'
+import PropTypes from 'prop-types';
 import { GET_LESSONS_DAY_FROM_TODAY } from '../../database/query/lessonDayQuery'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { UPDATE_LESSON_DAY, CANCEL_LESSON_DAY } from '../../database/mutation/lessonDayMutation'
@@ -16,7 +17,14 @@ import moment from 'moment'
 
 moment.locale('fr')
 
-const styles = theme => ({
+const styles2 = makeStyles(theme => ({
+  root: {
+    flexShrink: 0,
+    marginLeft: theme.spacing(2.5),
+  },
+}))
+
+const styles = makeStyles(theme => ({
   root: {
     marginTop: 25,
     backgroundColor: 'white',
@@ -81,88 +89,131 @@ const styles = theme => ({
     top: '50%',
     left: '50%'
   },
-})
+}))
 
-class AdminLessonDay extends React.Component {
-  constructor(props){
-    super(props)
-    this.state = {
-      teachers: [],
-      lessonsDay: [],
-      errorVariant: 'error',
-      errorMessage: '',
-      openSnack: false,
-      openEditDialog: false,
-      openDeleteDialog: false,
-      selectedLessonDay: null,
-      selectedIndex: -1,
-      message: '',
-      loading: true,
-    }
-  }
+function TablePaginationActions(props) {
 
-  componentDidMount() {
-    var today = moment().toISOString(true)
-    this.props.client.watchQuery({
-      query: GET_LESSONS_DAY_FROM_TODAY,
-      fetchPolicy: 'cache-and-network',
-      variables: {
-        today: today
-      }
-    })
-    .subscribe(({ data, loading, error}) => {
-      if(error) {
-        this.showSnackMessage('Erreur lors de la récupération des cours', 'error')
-      }else if (data){
-        var lessonsDay = this.sortLessonsDay(data.lessonsDayFromToday)
-        this.setState({ lessonsDay: lessonsDay, loading: false })
-      }
-    })
+  const theme = useTheme();
+  const classes = styles2()
+  const { count, page, rowsPerPage, onChangePage } = props;
 
-    this.props.client.query({
-      query: GET_TEACHERS
-    }).then(result => {
-      this.setState({ teachers: result.data.teachers })
-    })
-    .catch(error => {
-      this.showSnackMessage('Erreur lors de la récupération des professeurs', 'error')
-    })
-  }
+  const handleFirstPageButtonClick = event => {
+    onChangePage(event, 0);
+  };
 
-  handleSnackClose = () => {
-    this.setState({ openSnack: false })
+  const handleBackButtonClick = event => {
+    onChangePage(event, page - 1);
+  };
+
+  const handleNextButtonClick = event => {
+    onChangePage(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = event => {
+    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <div className={classes.root}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === 'rtl' ? <LastPage /> : <FirstPage />}
+      </IconButton>
+      <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
+        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === 'rtl' ? <FirstPage /> : <LastPage />}
+      </IconButton>
+    </div>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onChangePage: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
+
+export default function AdminLessonDay(){
+  const classes = styles()
+  const [today, setToday] = React.useState(moment().toISOString(true))
+  const [client, setClient] = React.useState(useApolloClient())
+  const [teachers, setTeachers] = React.useState([])
+  const [lessonsDay, setLessonsDay] = React.useState([])
+  const [errorVariant, setErrorVariant] = React.useState('error')
+  const [errorMessage, setErrorMessage] = React.useState('')
+  const [openSnack, setOpenSnack] = React.useState(false)
+  const [openEditDialog, setOpenEditDialog] = React.useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
+  const [selectedLessonDay, setSelectedLessonDay] = React.useState(null)
+  const [selectedIndex, setSelectedIndex] = React.useState(-1)
+  const [message, setMessage] = React.useState('')
+  const [dialogLoading, setDialogLoading] = React.useState(false)
+  const [page, setPage] = React.useState(0)
+  const [rowsPerPage, setRowsPerPage] = React.useState(50)
+  
+  const { loading, error, data, fetchMore } = useQuery(
+    GET_LESSONS_DAY_FROM_TODAY,
+    {
+    fetchPolicy: 'cache-and-network',
+    variables: { 
+      today: today,
+      offset: 0,
+      limit: 100
+    },
+    onCompleted: (newData) => { setLessonsDay(newData.lessonsDayFromToday)}
+  })
+  
+  const { loadTeacher, errorTeacher, dataTeacher } = useQuery(
+    GET_TEACHERS,
+  {
+    fetchPolicy: 'cache-and-network',
+    onCompleted: (newData) => { setTeachers(newData.teachers) }
+  })
+  
+  const showSnackMessage = (message, type) => {
+    setErrorMessage(message)
+    setErrorVariant(type)
+    setOpenSnack(true)
   }
   
-  showSnackMessage = (message, type) => {
-    this.setState({
-      errorMessage: message,
-      errorVariant: type,
-      openSnack: true
-    })
-  }
-  
-  handleSnackClose = () => {
-    this.setState({ openSnack: false })
+  const handleSnackClose = () => {
+    setOpenSnack(false)
   }
 
-  handleDialogChange = (event) => {
-    event.persist()
-    var lessonDay = this.state.selectedLessonDay
+  const handleDialogChange = (event) => {
+    var lessonDay = {...selectedLessonDay}
     switch(event.target.name) {
       case 'teacher':
         lessonDay.teacher.id = event.target.value
-        this.setState({ selectedLessonDay: lessonDay })
+        setSelectedLessonDay(lessonDay)
         return
       case 'spotTotal':
-        lessonDay.spotTotal = event.target.value
-        this.setState({ selectedLessonDay: lessonDay })
+        lessonDay.spotTotal = Number(event.target.value)
+        setSelectedLessonDay(lessonDay)
         return
       case 'spotLeft':
-        lessonDay.spotLeft = event.target.value
-        this.setState({ selectedLessonDay: lessonDay })
+        lessonDay.spotLeft = Number(event.target.value)
+        setSelectedLessonDay(lessonDay)
         return
       case 'message':
-        this.setState({ message: event.target.value })
+        setMessage(event.target.value)
         return
       default:
        console.log('UNEXCEPTED BEHAVIOR')
@@ -170,62 +221,73 @@ class AdminLessonDay extends React.Component {
     }
   }
 
-  handleDialogDateChange = (event, id) => {
-    var lessonDay = this.state.selectedLessonDay
+  const handleDialogDateChange = (event, id) => {
+    var lessonDay = {...selectedLessonDay}
     switch(id) {
-      case 'timeBegin':
+      case 'begin':
         lessonDay.hour.begin = moment(event).format('HH:mm')
-        this.setState({ selectedLessonDay: lessonDay })
+        console.log(lessonDay.hour)
+        setSelectedLessonDay(lessonDay)
         return
-      case 'timeEnd':
+      case 'end':
         lessonDay.hour.end = moment(event).format('HH:mm')
-        this.setState({ selectedLessonDay: lessonDay })
+        setSelectedLessonDay(lessonDay)
         return
     }
   }
 
-  sortLessonsDay = (lessonsDay) => {
+  const sortLessonsDay = (lessonsDay) => {
     return lessonsDay.sort((a, b) => Date.parse(a.dayDate) - Date.parse(b.dayDate))
   }
 
+  const handleChangePage = (event, newPage) => {
+    if(newPage > page) {
+      fetchMore({
+        variables: { 
+          today: today,
+          offset: data.lessonsDayFromToday.length
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if(!fetchMoreResult) return prev
+          return Object.assign({}, prev, { 
+            lessonsDayFromToday: [...prev.lessonsDayFromToday, ...fetchMoreResult.lessonsDayFromToday]
+          })
+        }
+      })
+    }
+    setPage(newPage)
+  };
 
-  openEditDialog = (lessonDay) => {
-    this.setState({ 
-      selectedLessonDay: lessonDay,
-      openEditDialog: true
-    })
+  const handleEditDialog = (lessonDay) => {
+    setSelectedLessonDay(lessonDay)
+    setOpenEditDialog(true)
   }
 
-  closeEditDialog = () => {
-    this.setState({ 
-      openEditDialog: false
-    })
+  const closeEditDialog = () => {
+    setOpenEditDialog(false)
   }
 
-  openDeleteDialog = (lessonDay, index) => {
-    this.setState({ 
-      selectedLessonDay: lessonDay,
-      selectedIndex: index,
-      openDeleteDialog: true
-    })
+  const handleDeleteDialog = (lessonDay, index) => {
+    setSelectedLessonDay(lessonDay)
+    setSelectedIndex(index)
+    setOpenDeleteDialog(true)
   }
 
-  closeDeleteDialog = () => {
-    this.setState({ 
-      openDeleteDialog: false
-    })
+  const closeDeleteDialog = () => {
+    setOpenDeleteDialog(false)
   }
 
-  modifyLessonDay = () => {
-    var lessonDay = this.state.selectedLessonDay
-    var users = this.state.selectedLessonDay.users
+  const modifyLessonDay = () => {
+    setDialogLoading(true)
+    var lessonDay = selectedLessonDay
+    var users = selectedLessonDay.users
     var tmp = []
     users.forEach(element => {
       tmp.push(element.id)
     });
     lessonDay.users = tmp
     
-    this.props.client.mutate({
+    client.mutate({
       mutation: UPDATE_LESSON_DAY,
       variables: {
         id: lessonDay.id,
@@ -240,25 +302,28 @@ class AdminLessonDay extends React.Component {
       }
     })
     .then(result => {
-      this.closeDialog()
-      this.showSnackMessage('Le cours a bien été modifié', 'success')
+      closeEditDialog()
+      setDialogLoading(false)
+      showSnackMessage('Le cours a bien été modifié', 'success')
     })
     .catch(error => {
-      this.closeDialog()
-      this.showSnackMessage('Une erreur est survenue durant la modification', 'error')
+      closeEditDialog()
+      setDialogLoading(false)
+      showSnackMessage('Une erreur est survenue durant la modification', 'error')
     })
   }
 
-  deleteLessonDay = () => {
-    var lessonDay = this.state.selectedLessonDay
-    var users = this.state.selectedLessonDay.users
+  const deleteLessonDay = () => {
+    setDialogLoading(true)
+    var lessonDay = selectedLessonDay
+    var users = selectedLessonDay.users
     var tmp = []
     users.forEach(element => {
       tmp.push({ id: element.id, firstName: element.firstName, lastName: element.lastName, email: element.email })
     });
     lessonDay.users = tmp
 
-    this.props.client.mutate({
+    client.mutate({
       mutation: CANCEL_LESSON_DAY,
       variables: {
         id: lessonDay.id,
@@ -270,29 +335,31 @@ class AdminLessonDay extends React.Component {
         spotLeft: lessonDay.spotLeft,
         spotTotal: lessonDay.spotTotal,
         isCanceled: true,
-        message: this.state.message
+        message: message
       }
     })
     .then(result => {
-      var lessonsDay = this.state.lessonsDay
-      lessonsDay[this.state.selectedIndex].isCanceled = false
-      this.setState({ 
-        lessonsDay: lessonsDay,
-        message: ''
-      })
-      this.closeDeleteDialog()
-      this.showSnackMessage('Le cours a bien été annulé', 'success')
+      var cLessonsDay = {...lessonsDay}
+      cLessonsDay[selectedIndex].isCanceled = true
+      setLessonsDay(lessonsDay)
+      setMessage('')
+      closeDeleteDialog()
+      setDialogLoading(false)
+      showSnackMessage('Le cours a bien été annulé', 'success')
     })
     .catch(error => {
-      this.closeDeleteDialog()
-      this.showSnackMessage('Une erreur est survenue durant la modification', 'error')
+      console.log(error)
+      closeDeleteDialog()
+      setDialogLoading(false)
+      showSnackMessage('Une erreur est survenue durant la modification', 'error')
     })
   }
 
-  render() {
-    const { classes } = this.props
-    if(this.state.loading) {
+    if(loading || dialogLoading) {
       return <CircularProgress size={150} className={classes.buttonProgress} />
+    }
+    if(error){
+      return <p>ERROR</p>
     }
     return(
       <div>
@@ -317,7 +384,10 @@ class AdminLessonDay extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.lessonsDay.map((lessonDay, index) => (
+              {(rowsPerPage > 0
+                ? lessonsDay.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : lessonsDay
+                ).map((lessonDay, index) => (
                 <Fragment key={lessonDay.id}>
                   <TableRow className={classes.row}>
                     <TableCell component="th" scope="row">{lessonDay.lesson.name}</TableCell>
@@ -352,13 +422,13 @@ class AdminLessonDay extends React.Component {
                     <TableCell>
                       {!lessonDay.isCanceled &&
                       <Tooltip title="Supprimer le cours">
-                        <IconButton className={classes.redIcon} onClick={this.openDeleteDialog.bind(this, lessonDay, index)}>
+                        <IconButton className={classes.redIcon} onClick={() => handleDeleteDialog(lessonDay, index)}>
                           <Delete />
                         </IconButton>
                       </Tooltip>
                       }
                       <Tooltip title="Modifier le cours">
-                        <IconButton className={classes.greenIcon} onClick={this.openEditDialog.bind(this, lessonDay, index)}>
+                        <IconButton className={classes.greenIcon} onClick={() => handleEditDialog(lessonDay, index)}>
                           <Edit />
                         </IconButton>
                       </Tooltip>
@@ -367,9 +437,28 @@ class AdminLessonDay extends React.Component {
                 </Fragment>
               ))}
             </TableBody>
+            <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[rowsPerPage, { label: 'All', value: -1 }]}
+                colSpan={3}
+                count={lessonsDay.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true,
+                }}
+                onChangePage={handleChangePage}
+                //onChangeRowsPerPage={handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+              />
+            </TableRow>
+          </TableFooter>
           </Table>
         </Container>
-        <Dialog open={this.state.openEditDialog}>
+        {selectedLessonDay && (
+        <Dialog open={openEditDialog}>
           <DialogTitle>Modifier le cours</DialogTitle>
           <DialogContent>
           <Container component="main" maxWidth="xl" className={classes.container}>
@@ -380,7 +469,7 @@ class AdminLessonDay extends React.Component {
                   id="name"
                   label="Nom"
                   type="text"
-                  value={this.state.selectedLessonDay ? this.state.selectedLessonDay.lesson.name : ''}
+                  value={selectedLessonDay.lesson.name}
                   disabled
                 />
               </Grid>
@@ -390,15 +479,15 @@ class AdminLessonDay extends React.Component {
                   <Select
                     labelId="teacher"
                     id="teacher"
-                    value={this.state.selectedLessonDay ? this.state.selectedLessonDay.teacher.id : ''}
+                    value={selectedLessonDay.teacher.id}
                     name="teacher"
                     label="Professeur"
-                    onChange={event => this.handleDialogChange(event)}
+                    onChange={event => handleDialogChange(event)}
                   >
                     <MenuItem disabled>
-                      Professeur
+                    {selectedLessonDay ? (selectedLessonDay.teacher.user.firstName+' '+selectedLessonDay.teacher.user.lastName) : ''}
                     </MenuItem>
-                    {this.state.teachers.map(teacher =>               
+                    {teachers.map(teacher =>               
                       <MenuItem key={teacher.id} value={teacher.id}>{teacher.user.firstName} {teacher.user.lastName}</MenuItem>
                     )}
                   </Select>
@@ -408,13 +497,13 @@ class AdminLessonDay extends React.Component {
               <Grid item xs={6} md={6}>
                 <KeyboardTimePicker
                   required
-                  name="timeBegin"
+                  name="begin"
                   margin="normal"
-                  id="timeBegin"
+                  id="begin"
                   label="Heure de début"
                   ampm={false}
-                  value={this.state.selectedLessonDay ? moment(this.state.selectedLessonDay.hour.begin, 'HH:mm') : moment()}
-                  onChange={event => this.handleDialogDateChange(event , 'timeBegin')}
+                  value={moment(selectedLessonDay.hour.begin, 'HH:mm')}
+                  onChange={event => handleDialogDateChange(event , 'begin')}
                   KeyboardButtonProps={{
                     'aria-label': 'Sélectionner Heure'
                   }}
@@ -423,13 +512,13 @@ class AdminLessonDay extends React.Component {
               <Grid item xs={6} md={6}>
               <KeyboardTimePicker
                   required
-                  name="timeEnd"
+                  name="end"
                   margin="normal"
-                  id="timeEnd"
+                  id="end"
                   label="Heure de fin"
                   ampm={false}
-                  value={this.state.selectedLessonDay ? moment(this.state.selectedLessonDay.hour.end, 'HH:mm') : moment()}
-                  onChange={event => this.handleDialogDateChange(event, 'timeEnd')}
+                  value={moment(selectedLessonDay.hour.end, 'HH:mm')}
+                  onChange={event => handleDialogDateChange(event, 'end')}
                   KeyboardButtonProps={{
                     'aria-label': 'Sélectionner Heure'
                   }}
@@ -442,9 +531,9 @@ class AdminLessonDay extends React.Component {
                   name="spotLeft"
                   id="spotLeft"
                   label="Places restantes"
-                  type="text"
-                  value={this.state.selectedLessonDay ? this.state.selectedLessonDay.spotLeft : 0}
-                  onChange={event => this.handleDialogChange(event)}
+                  type="number"
+                  value={selectedLessonDay.spotLeft}
+                  onChange={event => handleDialogChange(event)}
                 />
               </Grid>
               <Grid item xs={6} md={6}>
@@ -453,24 +542,25 @@ class AdminLessonDay extends React.Component {
                   name="spotTotal"
                   id="spotTotal"
                   label="Places totales"
-                  type="text"
-                  value={this.state.selectedLessonDay ? this.state.selectedLessonDay.spotTotal : 0}
-                  onChange={event => this.handleDialogChange(event)}
+                  type="number"
+                  value={selectedLessonDay ? selectedLessonDay.spotTotal : 0}
+                  onChange={event => handleDialogChange(event)}
                 />
               </Grid>
             </Grid>
             </Container>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.closeEditDialog.bind(this)}>
+            <Button onClick={closeEditDialog}>
               Annuler 
             </Button>
-            <Button color="primary" onClick={this.modifyLessonDay.bind(this)}>
+            <Button color="primary" onClick={modifyLessonDay}>
               Confirmer
             </Button>
           </DialogActions>
         </Dialog>
-        <Dialog open={this.state.openDeleteDialog}>
+        )}
+        <Dialog open={openDeleteDialog}>
           <DialogTitle>Annuler le cours</DialogTitle>
           <DialogContent>
             <Typography>Ecrivez un message à envoyer aux clients </Typography>
@@ -481,15 +571,15 @@ class AdminLessonDay extends React.Component {
               id="message"
               multiline
               required
-              value={this.state.message}
-              onChange={event => this.handleDialogChange(event)}
+              value={message}
+              onChange={event => handleDialogChange(event)}
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.closeDeleteDialog.bind(this)}>
+            <Button onClick={closeDeleteDialog}>
               Annuler 
             </Button>
-            <Button color="primary" onClick={this.deleteLessonDay.bind(this)}>
+            <Button color="primary" onClick={deleteLessonDay}>
               Confirmer
             </Button>
           </DialogActions>
@@ -499,19 +589,17 @@ class AdminLessonDay extends React.Component {
             vertical: 'bottom',
             horizontal: 'left'
           }}
-          open={this.state.openSnack}
+          open={openSnack}
           autoHideDuration={5000}
-          onClose={this.handleSnackClose}
+          onClose={handleSnackClose}
         >
           <CustomSnackBar
-            onClose={this.handleSnackClose}
-            variant={this.state.errorVariant}
-            message={this.state.errorMessage}
+            onClose={handleSnackClose}
+            variant={errorVariant}
+            message={errorMessage}
           />
         </Snackbar>
       </div>
     )
   }
-}
-
-export default withApollo(withRouter(withStyles(styles)(AdminLessonDay)))
+//export default withApollo(withRouter(withStyles(styles)(AdminLessonDay)))

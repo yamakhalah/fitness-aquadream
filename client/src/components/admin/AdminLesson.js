@@ -694,7 +694,6 @@ class AdminLesson extends React.Component {
                   native: true,
                 }}
                 onChangePage={this.handleChangePage}
-                //onChangeRowsPerPage={this.handleChangeRowsPerPage}
                 ActionsComponent={TablePaginationActions}
               />
             </TableRow>
