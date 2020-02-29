@@ -96,6 +96,7 @@ const useStyles = makeStyles(theme => ({
   },
   tableCell: {
     textAlign: 'center',
+    padding: 10
   },
   card: {
     width: '100%',
@@ -109,6 +110,7 @@ const useStyles = makeStyles(theme => ({
     padding: 0
   },
   cellTime: {
+
     color: 'white',
     backgroundColor: theme.palette.primary.main,
     padding: 6,

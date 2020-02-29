@@ -4,7 +4,7 @@ import Loader from '../global/Loader.js'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient, useQuery } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
-import { Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step } from '@material-ui/core';
+import { Fab, Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step } from '@material-ui/core';
 import { GET_USER_BY_ID } from '../../database/query/userQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_SESSION } from '../../database/query/payementQuery'
@@ -64,6 +64,13 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  fab: {
+    position: 'fixed',
+    color: '#FFFFFF',
+    bottom: theme.spacing(5),
+    right: theme.spacing(5),
+    zIndex: 9999
+  }
 }))
 
 export default function Booking() {
@@ -195,6 +202,19 @@ export default function Booking() {
   else
   return (
     <React.Fragment>
+      {activeStep === 0 && (
+      <Fab 
+        variant="extender"
+        size="ssmall"
+        color="secondary"
+        aria-label="Commander"
+        className={classes.fab}
+        disabled={bookedLessons.length === 0 && preBookedLessons.length === 0}
+        onClick={handleNext}
+      >
+        Commander
+      </Fab>
+      )}
       <CssBaseline />
       <main className={classes.layout}>
         <Paper className={classes.paper}>

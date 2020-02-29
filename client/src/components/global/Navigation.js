@@ -38,6 +38,7 @@ const useStyles = makeStyles(theme => ({
   },
   menuButton: {
     marginRight: 36,
+    color: '#FFFFFF'
   },
   hide: {
     display: 'none',
@@ -53,6 +54,8 @@ const useStyles = makeStyles(theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
+    backgroundColor:theme.palette.secondary.main,
+    color: '#FFFFFF'
   },
   drawerClose: {
     transition: theme.transitions.create('width', {
@@ -64,6 +67,8 @@ const useStyles = makeStyles(theme => ({
     [theme.breakpoints.up('sm')]: {
       width: theme.spacing(9) + 1,
     },
+    backgroundColor:theme.palette.secondary.main,
+    color: '#FFFFFF'
   },
   toolbar: {
     display: 'flex',
@@ -78,6 +83,12 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     color: '#FFFFFF'
+  },
+  white: {
+    color: '#FFFFFF'
+  },
+  list: {
+    paddingTop: 0,
   }
 }));
 
@@ -134,48 +145,48 @@ export default function Navigation(props) {
       <List className="drawer">
         <Link to="/createLesson" className="leftNavItem">
           <Tooltip title="Créer un cours">
-            <ListItem button key="createLesson">
-              <ListItemIcon><Add /></ListItemIcon>
+            <ListItem button key="createLesson" className={classes.white}>
+              <ListItemIcon className={classes.white}><Add /></ListItemIcon>
               <ListItemText>Créer un cours</ListItemText>
             </ListItem>
           </Tooltip>
         </Link>
         <Link to="/adminSubscription" className="leftNavItem">
           <Tooltip title="Gérer les abonnements">
-            <ListItem button key="adminSubscription">
-              <ListItemIcon><Payment /></ListItemIcon>
+            <ListItem button key="adminSubscription" className={classes.white}>
+              <ListItemIcon className={classes.white}><Payment /></ListItemIcon>
               <ListItemText>Abonnements</ListItemText>
             </ListItem>
           </Tooltip>
         </Link>
         <Link to="/adminLesson" className="leftNavItem">
         <Tooltip title="Gérer vos cours">
-          <ListItem button key="adminLesson">
-            <ListItemIcon><DateRange /></ListItemIcon>
+          <ListItem button key="adminLesson" className={classes.white}>
+            <ListItemIcon className={classes.white}><DateRange /></ListItemIcon>
             <ListItemText>Cours</ListItemText>
           </ListItem>
         </Tooltip>
         </Link>
         <Link to="/adminLessonDay" className="leftNavItem">
           <Tooltip title="Gérer les cours quotidiens">
-            <ListItem button key="adminLessonDay">
-              <ListItemIcon><Today /></ListItemIcon>
+            <ListItem button key="adminLessonDay" className={classes.white}>
+              <ListItemIcon className={classes.white}><Today /></ListItemIcon>
               <ListItemText>Cours Journaliers</ListItemText>
             </ListItem>
           </Tooltip>
         </Link>
         <Link to="/adminUser" className="leftNavItem">
           <Tooltip title="Gérer les utilisateurs">
-            <ListItem button key="adminUser">
-              <ListItemIcon><People /></ListItemIcon>
+            <ListItem button key="adminUser" className={classes.white}>
+              <ListItemIcon className={classes.white}><People /></ListItemIcon>
               <ListItemText>Utilisateurs</ListItemText>
             </ListItem>
           </Tooltip>
         </Link>
         <Link to="/adminCredit" className="leftNavItem">
           <Tooltip title="Gérer les crédits">
-            <ListItem button key="adminCredit">
-              <ListItemIcon><Euro /></ListItemIcon>
+            <ListItem button key="adminCredit" className={classes.white}>
+              <ListItemIcon className={classes.white}><Euro /></ListItemIcon>
               <ListItemText>Crédits</ListItemText>
             </ListItem>
           </Tooltip>
@@ -190,8 +201,8 @@ export default function Navigation(props) {
       <h3 className="center">Prof</h3>
       <List>
         <Tooltip title="Gérer votre calendrier">
-          <ListItem disabled={true} button key="teacherCalendar">
-            <ListItemIcon><Home /></ListItemIcon>
+          <ListItem disabled={true} button key="teacherCalendar" className={classes.white}>
+            <ListItemIcon className={classes.white}><Home /></ListItemIcon>
             <ListItemText>Créer un cours</ListItemText>
           </ListItem>
         </Tooltip>
@@ -245,11 +256,11 @@ export default function Navigation(props) {
           }}
         >
           <div className={classes.toolbar}>
-            <IconButton onClick={toggleDrawer}>
+            <IconButton onClick={toggleDrawer} style={{color:'#FFFFFF'}}>
               {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
             </IconButton>
           </div>
-          <List>
+          <List className={classes.list}>
             {adminDrawer}
             {teacherDrawer}
             <Divider/>
@@ -257,31 +268,31 @@ export default function Navigation(props) {
             <Link to="/" className="leftNavItem">
               <Tooltip title="Accueil">
                 <ListItem button key="home">
-                  <ListItemIcon><Home /></ListItemIcon>
-                  <ListItemText>Accueil</ListItemText>
+                  <ListItemIcon className={classes.white}><Home /></ListItemIcon>
+                  <ListItemText className={classes.white}>Accueil</ListItemText>
                 </ListItem>
               </Tooltip>
             </Link>
             <Link to="/subscription" className="leftNavItem">
               <Tooltip title="Abonnements">
-                <ListItem button key="subscription">
-                  <ListItemIcon><Payment /></ListItemIcon>
+                <ListItem button key="subscription" className={classes.white}>
+                  <ListItemIcon className={classes.white}><Payment /></ListItemIcon>
                   <ListItemText>Abonnements</ListItemText>
                 </ListItem>
               </Tooltip>
             </Link>
             <Link to="/credit" className="leftNavItem">
               <Tooltip title="Crédits">
-                <ListItem button key="credit">
-                  <ListItemIcon><Euro /></ListItemIcon>
+                <ListItem button key="credit" className={classes.white}>
+                  <ListItemIcon className={classes.white}><Euro /></ListItemIcon>
                   <ListItemText>Crédits</ListItemText>
                 </ListItem>
               </Tooltip>
             </Link>
             <Link to="/booking" className="leftNavItem">
               <Tooltip title="Réserver un cours">
-                <ListItem button key="reservation">
-                  <ListItemIcon><ShoppingCart /></ListItemIcon>
+                <ListItem button key="reservation" className={classes.white}>
+                  <ListItemIcon className={classes.white}><ShoppingCart /></ListItemIcon>
                   <ListItemText>Réservation</ListItemText>
                 </ListItem>
               </Tooltip>
