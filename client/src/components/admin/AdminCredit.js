@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Loader from '../global/Loader'
 import { useQuery, useMutation } from  'react-apollo'
@@ -51,8 +51,10 @@ export default function AdminCredit(props) {
   const [credits, setCredits] = React.useState([]);
   const [editOpen, setEditOpen] = React.useState(false)
   const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const [dialogLoading, setDialogLoading] = React.useState(false)
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [selectedCredit, setSelectedCredit] = React.useState(null)
+  const [selectedIndex, setSelectedIndex] = React.useState(null)
   const [openSnack, setOpenSnack] =  React.useState(null)
   const [errorMessage, setErrorMessage] = React.useState('')
   const [errorVariant, setErrorVariant] = React.useState('error')
@@ -61,6 +63,9 @@ export default function AdminCredit(props) {
     INVALIDATE_CREDIT,
     {
       onCompleted: (result) => {
+        var cCredits = [...credits]
+        cCredits.splice(selectedIndex, 1)
+        setCredits(cCredits)
         showSnackMessage("Le crédit a bien  été invalidé", "success")
         closeDeleteDialog()
       },
@@ -73,6 +78,9 @@ export default function AdminCredit(props) {
     UPDATE_CREDIT,
     {
       onCompleted: (result) => {
+        var cCredits = [...credits]
+        cCredits[selectedIndex] = selectedCredit
+        setCredits(cCredits)
         showSnackMessage("Le crédit a bien  été modifié", "success")
         closeEditDialog()
       },
@@ -83,8 +91,16 @@ export default function AdminCredit(props) {
     }
   )
 
-  const openEditDialog = (credit) => {
+  const { loading, error, data, fetchMore } = useQuery(
+    GET_CREDITS_VALIDITY, 
+    {
+      onCompleted: (newData) => { setCredits(newData.creditsValidity)}
+    }
+  )
+
+  const openEditDialog = (credit, index) => {
     setSelectedCredit(credit)
+    setSelectedIndex(index)
     setValidityEnd(moment(credit.validityEnd))
     setEditOpen(true)
   }
@@ -93,8 +109,9 @@ export default function AdminCredit(props) {
     setEditOpen(false)
   }
 
-  const openDeleteDialog = (credit) => {
+  const openDeleteDialog = (credit, index) => {
     setSelectedCredit(credit)
+    setSelectedIndex(index)
     setDeleteOpen(true)
   }
 
@@ -117,9 +134,7 @@ export default function AdminCredit(props) {
     return credits.sort((a,b) => Date.parse(a.validityEnd) - Date.parse(b.validityEnd))
   }
 
-  const { loading, error, data } = useQuery(GET_CREDITS_VALIDITY)
-
-  if (loading) return (
+  if (loading || dialogLoading) return (
     <div className={classes.loader}>
       <Loader />
     </div>
@@ -151,7 +166,7 @@ export default function AdminCredit(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortCredits(data.creditsValidity).map(credit => (
+            {sortCredits(credits).map((credit, index) => (
               <TableRow key={credit.id}>
                 <TableCell component="th" scope="row">{credit.user.firstName} {credit.user.lastName}</TableCell>
                 <TableCell>{credit.lessonDay.lesson.lessonType.simpleName}</TableCell>
@@ -161,13 +176,13 @@ export default function AdminCredit(props) {
                 <TableCell>
                   {!credit.isUsed &&
                       <Tooltip title="Modifier le crédit">
-                        <IconButton className={classes.greenIcon} onClick={openEditDialog.bind(this, credit)}>
+                        <IconButton className={classes.greenIcon} onClick={openEditDialog.bind(this, credit, index)}>
                           <Edit />
                         </IconButton>
                       </Tooltip>
                       }
                       <Tooltip title="Invalider le crédit">
-                        <IconButton className={classes.redIcon} onClick={openDeleteDialog.bind(this, credit)}>
+                        <IconButton className={classes.redIcon} onClick={openDeleteDialog.bind(this, credit, index)}>
                           <Delete />
                         </IconButton>
                       </Tooltip>
@@ -211,8 +226,12 @@ export default function AdminCredit(props) {
                     label="Date de validité"
                     format="dd/MM/yyyy"
                     minDate={moment()}
-                    value={validityEnd}
-                    onChange={event => setValidityEnd(moment(event, 'DD/MM/YYYY'))}
+                    value={selectedCredit ? selectedCredit.validityEnd : moment()}
+                    onChange={event => {
+                      var credit = {...selectedCredit}
+                      credit.validityEnd = moment(event, 'DD/MM/YYYY').toISOString(true)
+                      setSelectedCredit(credit)
+                    }}
                     KeyboardButtonProps={{
                       'aria-label': 'Sélectionner date'
                     }}
@@ -233,7 +252,7 @@ export default function AdminCredit(props) {
                 user: selectedCredit.user.id,
                 lessonDay: selectedCredit.lessonDay.id,
                 isUsed: selectedCredit.isUsed,
-                validityEnd: validityEnd.toISOString(true)
+                validityEnd: selectedCredit.validityEnd
               },
               refetchQueries: [{ query:  GET_CREDITS_VALIDITY }]
             })

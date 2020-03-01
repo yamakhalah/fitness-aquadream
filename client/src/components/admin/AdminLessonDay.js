@@ -171,14 +171,15 @@ export default function AdminLessonDay(){
   const { loading, error, data, fetchMore } = useQuery(
     GET_LESSONS_DAY_FROM_TODAY,
     {
-    fetchPolicy: 'cache-and-network',
-    variables: { 
-      today: today,
-      offset: 0,
-      limit: 100
-    },
-    onCompleted: (newData) => { setLessonsDay(newData.lessonsDayFromToday)}
-  })
+      fetchPolicy: 'cache-and-network',
+      variables: { 
+        today: today,
+        offset: 0,
+        limit: 100
+      },
+      onCompleted: (newData) => { setLessonsDay(newData.lessonsDayFromToday)}
+    }
+  )
   
   const { loadTeacher, errorTeacher, dataTeacher } = useQuery(
     GET_TEACHERS,

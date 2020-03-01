@@ -44,7 +44,7 @@ export function CANCEL_LESSON_DAY(user, lessonDay, message) {
 export function OPEN_LESSON(user, lesson) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
   '<p> Nous vous informons que l\'abonnement '+ lesson.name +' débutant le '+moment(lesson.recurenceBegin).format('DD/MM/YYYY')+' est maintenant ouvert. </p>'+
-  '<p> Vous pouvez dès à présent aller réserver une place pour ce cours via la page de réservation sur www.aquadream-temploux.be </p>'+
+  '<p> Vous pouvez dès à présent aller réserver une place pour ce cours via la page de réservation sur www.app.aquadream-temploux.be/booking </p>'+
   '<p> Dépechez vous, nous ne réservons pas de place mais vous êtes bien entendu prévenu(e) en avance ! </p>'+
   '<p>Cordialement,</p>'+
   '<p>L\'équipe Aquadream</p>'+

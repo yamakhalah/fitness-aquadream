@@ -31,6 +31,9 @@ export const OPEN_LESSON = gql`
         name
         simpleName
       }
+      users{
+        id
+      }
       lessonsDay{
         id
         lesson{

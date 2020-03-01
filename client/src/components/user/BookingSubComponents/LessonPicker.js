@@ -71,8 +71,11 @@ const useStyles = makeStyles(theme => ({
     display: 'inline',
     color: 'white'
   },
+  /*
   lessons: {
+    backgroundColor: theme.palette.secondaryLight.main,
   },
+  */
   lessonPaper: {
     backgroundColor: theme.palette.aquawhite.main,
     padding: theme.spacing(1),
@@ -268,9 +271,10 @@ const LessonPicker = ({ handleChangeCallback }) => {
       <Grid container>
         <Grid item xs={2} sm={2}>
           <List className={classes.list}>
-            {Object.keys(lessonsBySubType).map((key ,index) => {
-              return(
-                <div key={key}>
+            {Object.keys(lessonsBySubType).map((key ,index) => (
+              <div key={key}>
+              {lessonsBySubType[key].length > 0 && (
+                <div>
                   <ListItem classes={{ selected: classes.pickerListItem }} alignItems="flex-start" selected={selectedType[0]=== index} onClick={event => handleListItemClick(key, index)}>
                     <ListItemText
                       className={classes.listItem}
@@ -290,8 +294,9 @@ const LessonPicker = ({ handleChangeCallback }) => {
                   </ListItem>
                   <Divider />
                 </div>
-              )
-            })}
+              )}
+              </div>
+            ))}
           </List>
         </Grid>
         <Grid item xs={10} sm={10} className={classes.lessons}>

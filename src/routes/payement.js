@@ -15,6 +15,7 @@ const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
 moment.locale('fr')
 
 const createSubscription = async (data) => {
+  console.log('DATA INCOMING', data)
   const paymentID = data.id
   const session = await mongoose.startSession()
   session.startTransaction()
@@ -39,10 +40,13 @@ const createSubscription = async (data) => {
         webhookUrl: process.env.MOLLIE_WEBHOOK_SUBSCRIPTION_URL
       })
 
+      console.log('MOLLIE SUB OK')
+
       const mandate = await mollieClient.customers_mandates.get(
         subscription.mandateId,
         { customerId: subscription.customerId }
       ) 
+      console.log('MANDATE GET OK')
       //SET PAYMENT
       const dataPayment = {
         mollieCustomerID: payment.customerId,
@@ -54,6 +58,7 @@ const createSubscription = async (data) => {
       }
       //ADD PAYEMENT TO DB
       const graphqlPayement = await payementModel.create(dataPayment, opts)
+      console.log('GRAPHQL PAYMENT OK')
       //SET SUBSCRIPTION
       var lessonsID = []
       for(const lesson of payment.metadata.lessons){
@@ -63,6 +68,7 @@ const createSubscription = async (data) => {
           var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
         }
       }
+      console.log('USER ADD TO LESSON')
       const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
       const validityEnd = validityBegin.clone().add(payment.metadata.subDuration, 'M')
       const dataSubscription = {
@@ -79,12 +85,22 @@ const createSubscription = async (data) => {
       }
 
       const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
+      console.log('GRAPHQL SUBSCRIPTION OK')
       const updatedGraphqlPayement = await payementModel.findOneAndUpdate(
         { id: graphqlPayement.id },
         { subscription: graphqlSubscription.id },
         { new: true }
       ).session(session)
+      if(payment.metadata.yearlyTax > 0) {
+        var graphqlUser = await userModel.findOneAndUpdate(
+          { _id: payment.metadata.userID },
+          { mollieCustomerID: payment.customerId, paidYearlyTax: true },
+          { new: true }
+        ).session(session)
+      }
+      console.log('UPDATE USER OK')
       const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
+      console.log('READY TO COMMIT')
       await session.commitTransaction()
       session.endSession()
       return true
@@ -98,12 +114,19 @@ const createSubscription = async (data) => {
       return true
     }
   }catch(error){
-    console.log(error)
-    await session.abortTransaction()
-    session.endSession()
-    const dPayment = await mollieClient.payments.cancel(paymentID)
-    const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payement.customerId })
-    return true
+    try{
+      console.log('CATCH ERROR')
+      console.log(error)
+      await session.abortTransaction()
+      session.endSession()
+      //const dPayment = await mollieClient.payments.cancel(paymentID)
+      const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payement.customerId })
+      return true
+    }catch(errorBis) {
+      console.log('CATCH ERROR BIS')
+      console.log(errorBis)
+      return true
+    }
   }
 }
 
@@ -112,10 +135,12 @@ export async function checkout(req, res, next){
   if(isAccepted) {
     res.sendStatus(200)
   }else{
-    res.sendStatus(402)
+    res.sendStatus(200)
   }
 }
 
 export async function subscription(req, res, next){
+  console.log('SUBSCRIPTION')
+  console.log(req)
   res.sendStatus(200)
 }

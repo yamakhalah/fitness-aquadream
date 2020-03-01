@@ -1,3 +1,12 @@
+import aquabike from '../style/img/aquabike1.jpg'
+import aquaboxing from '../style/img/aquaboxing.jpg'
+import aquafitness from '../style/img/aquafitness.jpg'
+import aquagym from '../style/img/aquagym.jpg'
+import aquarelaxation from '../style/img/aquarelaxation.jpg'
+import aquasirene from '../style/img/aquasirene.jpg'
+import bebenageur from '../style/img/bebenageur.jpg'
+import prenat from '../style/img/prenat.jpg'
+import defaultIMG from '../style/img/classic1.jpg'
 
 export function lessonTypeToString(type) {
   switch(type) {
@@ -46,5 +55,44 @@ export function lessonSubTypeToString(type) {
       return 'Ostéopathie de l\'eau'
     case 'POST_NATAL_AQUATIQUE':
       return 'Post-natal aquatique'
+  }
+}
+
+export function lessonSubTypeToIMG(type) {
+  switch(type) {
+    case 'JARDIN_AQUATIQUE':
+      return defaultIMG
+    case 'ACCOUTUMANCE_A_EAU':
+      return defaultIMG
+    case 'BEBE_NAGEUR':
+      return bebenageur
+    case 'APPRENTISSAGE_NAGE':
+      return defaultIMG
+    case 'PERFECTIONNEMENT_NAGE':
+      return defaultIMG
+    case 'AQUA_SIRENE':
+      return aquasirene
+    case 'AQUA_GYM':
+      return aquagym
+    case 'INITIATION_PLONGEE':
+      return defaultIMG
+    case 'INITIATION_WATERPOLO':
+      return defaultIMG
+    case 'AQUA_BIKING':
+      return aquabike
+    case 'AQUA_FITNESS':
+      return aquafitness
+    case 'AQUA_RELAXATION':
+      return aquarelaxation
+    case 'AQUA_ZUMBA':
+      return defaultIMG
+    case 'AQUA_BOXING':
+      return aquaboxing
+    case 'PREPARATION_PRENATALE':
+      return prenat
+    case 'OSTEOPATHIE_EAU':
+      return defaultIMG
+    case 'POST_NATAL_AQUATIQUE':
+      return defaultIMG
   }
 }

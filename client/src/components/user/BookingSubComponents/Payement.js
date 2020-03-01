@@ -46,6 +46,7 @@ const Payement = (props: PayementProps) => {
     if(props.match.params.reference === 'prebooked'){
       setSuccess(true)
       setPreBooked(true)
+      setLoading(false)
     }else if(props.match.params.reference !== 'null'){
       client.query({
         query: GET_MOLLIE_CHECKOUT_RESULT,
