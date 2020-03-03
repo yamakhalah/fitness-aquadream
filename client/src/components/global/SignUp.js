@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, Checkbox, Link, Grid, Box, FormControl, InputLabel, MenuItem, Select, Typography, CssBaseline, Container, FormControlLabel } from '@material-ui/core';
-import emailjs from 'emailjs-com'
 import Copyright from './Copyright'
 import Snackbar from '@material-ui/core/Snackbar'
 import { withStyles } from '@material-ui/core/styles';
