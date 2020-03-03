@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Loader from '../global/Loader'
 import { useQuery, useMutation } from  'react-apollo'
@@ -9,7 +9,6 @@ import { Delete, Edit } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import DateFnsUtils from '@date-io/date-fns'
-import { lessonTypeToString, lessonSubTypeToString } from '../../utils/enumToString'
 import moment from 'moment'
 
 moment.locale('fr')
@@ -51,14 +50,12 @@ export default function AdminCredit(props) {
   const [credits, setCredits] = React.useState([]);
   const [editOpen, setEditOpen] = React.useState(false)
   const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [dialogLoading, setDialogLoading] = React.useState(false)
-  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [dialogLoading,] = React.useState(false)
   const [selectedCredit, setSelectedCredit] = React.useState(null)
   const [selectedIndex, setSelectedIndex] = React.useState(null)
   const [openSnack, setOpenSnack] =  React.useState(null)
   const [errorMessage, setErrorMessage] = React.useState('')
   const [errorVariant, setErrorVariant] = React.useState('error')
-  const [validityEnd, setValidityEnd] = React.useState(moment())
   const [invalidateCredit] = useMutation(
     INVALIDATE_CREDIT,
     {
@@ -101,7 +98,6 @@ export default function AdminCredit(props) {
   const openEditDialog = (credit, index) => {
     setSelectedCredit(credit)
     setSelectedIndex(index)
-    setValidityEnd(moment(credit.validityEnd))
     setEditOpen(true)
   }
 

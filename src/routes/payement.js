@@ -15,7 +15,6 @@ const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
 moment.locale('fr')
 
 const createSubscription = async (data) => {
-  console.log('DATA INCOMING', data)
   const paymentID = data.id
   const session = await mongoose.startSession()
   session.startTransaction()
@@ -40,13 +39,10 @@ const createSubscription = async (data) => {
         webhookUrl: process.env.MOLLIE_WEBHOOK_SUBSCRIPTION_URL
       })
 
-      console.log('MOLLIE SUB OK')
-
       const mandate = await mollieClient.customers_mandates.get(
         subscription.mandateId,
         { customerId: subscription.customerId }
       ) 
-      console.log('MANDATE GET OK')
       //SET PAYMENT
       const dataPayment = {
         mollieCustomerID: payment.customerId,
@@ -58,7 +54,6 @@ const createSubscription = async (data) => {
       }
       //ADD PAYEMENT TO DB
       const graphqlPayement = await payementModel.create(dataPayment, opts)
-      console.log('GRAPHQL PAYMENT OK')
       //SET SUBSCRIPTION
       var lessonsID = []
       for(const lesson of payment.metadata.lessons){
@@ -70,7 +65,7 @@ const createSubscription = async (data) => {
       }
       console.log('USER ADD TO LESSON')
       const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
-      const validityEnd = validityBegin.clone().add(payment.metadata.subDuration, 'M')
+      const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')
       const dataSubscription = {
         payement: graphqlPayement.id,
         user: payment.metadata.userID,

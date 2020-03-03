@@ -78,6 +78,7 @@ export default {
             totalMonthly: orderResume.totalMonthly,
             total: orderResume.total,
             startDate: moment(orderResume.recurenceBegin).format('YYYY-MM-DD'),
+            endDate: moment(orderResume.recurenceEnd).format('YYYY-MM-DD'),
             lessons: lessonsID,
             reference: ref,
             yearlyTax: orderResume.yearlyTax

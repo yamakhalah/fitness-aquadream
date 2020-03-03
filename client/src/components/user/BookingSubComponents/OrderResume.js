@@ -62,6 +62,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
       var total = 0
       var totalMonth = 0
       var closestRecurenceBegin = moment(bookedLessons[0].recurenceBegin)
+      var closestRecurenceEnd = moment(bookedLessons[0].recurenceEnd)
       var lBookedLessonsDiscount = {
         "X1": [],
         "X2": [],
@@ -73,8 +74,12 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
           highestMonth = lesson.totalMonth
         }
         var recurenceBegin = moment(lesson.recurenceBegin)
+        var recurenceEnd = moment(lesson.recurenceEnd)
         if(recurenceBegin.isSameOrBefore(closestRecurenceBegin)) {
           closestRecurenceBegin = recurenceBegin
+        }
+        if(recurenceEnd.isSameOrAfter(closestRecurenceEnd)) {
+          closestRecurenceEnd = recurenceEnd
         }
         lesson.lessonType.compatibilities.forEach(compatibility => {
           bookedLessons.forEach(lessonBis => {
@@ -126,7 +131,8 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         tax = 35
       }
       var orderResume = {
-        recurenceBegin: closestRecurenceBegin.toISOString(),
+        recurenceBegin: closestRecurenceBegin.toISOString(true),
+        recurenceEnd: closestRecurenceEnd.toISOString(true),
         subDuration: highestMonth,
         total: total,
         totalMonthly: totalMonth,

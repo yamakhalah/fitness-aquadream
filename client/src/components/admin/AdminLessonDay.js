@@ -1,6 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment } from 'react'
 import { useTheme, makeStyles } from '@material-ui/core/styles'
-import { useRouter } from 'react-router-dom'
 import { useQuery, useApolloClient } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import { TablePagination, TableFooter, CircularProgress, Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
@@ -152,8 +151,8 @@ TablePaginationActions.propTypes = {
 
 export default function AdminLessonDay(){
   const classes = styles()
-  const [today, setToday] = React.useState(moment().toISOString(true))
-  const [client, setClient] = React.useState(useApolloClient())
+  const [today,] = React.useState(moment().toISOString(true))
+  const [client,] = React.useState(useApolloClient())
   const [teachers, setTeachers] = React.useState([])
   const [lessonsDay, setLessonsDay] = React.useState([])
   const [errorVariant, setErrorVariant] = React.useState('error')
@@ -166,7 +165,7 @@ export default function AdminLessonDay(){
   const [message, setMessage] = React.useState('')
   const [dialogLoading, setDialogLoading] = React.useState(false)
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(50)
+  const [rowsPerPage,] = React.useState(50)
   
   const { loading, error, data, fetchMore } = useQuery(
     GET_LESSONS_DAY_FROM_TODAY,
@@ -236,10 +235,11 @@ export default function AdminLessonDay(){
         return
     }
   }
-
+/*
   const sortLessonsDay = (lessonsDay) => {
     return lessonsDay.sort((a, b) => Date.parse(a.dayDate) - Date.parse(b.dayDate))
   }
+*/
 
   const handleChangePage = (event, newPage) => {
     if(newPage > page) {
