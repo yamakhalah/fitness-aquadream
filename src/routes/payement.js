@@ -27,7 +27,8 @@ const createSubscription = async (data) => {
         customerId: payment.customerId,
         amount: {
           currency: 'EUR',
-          value: String(payment.metadata.totalMonthly)+'.00'
+          //value: String(payment.metadata.totalMonthly)+'.00'
+          value: '1.00'
         },
         times: payment.metadata.subDuration-1,
         interval: '1 month',
