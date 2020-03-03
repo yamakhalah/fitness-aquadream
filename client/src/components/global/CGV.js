@@ -1,5 +1,5 @@
 import React from 'react'
-import { Document } from 'react-pdf/dist/entry.webpack'
+import { MobilePDFReader } from 'reactjs-pdf-reader'
 import { Container } from '@material-ui/core'
 import CGV from '../../utils/docs/CGV.pdf'
 
@@ -7,18 +7,15 @@ export default function CGVReader() {
   const [pageNumber, setPageNumber] = React.useState(0)
   const [numPages, setNumPages] = React.useState(0)
 
-  onDocumentLoadSuccess = ({ numPages }) => {
+  const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages)
   }
 
   return(
     <Container component="main" maxWidth="xl">
-      <Document
-          file={CGV}
-          onLoadSuccess={onDocumentLoadSuccess}
-        >
-          <Page pageNumber={pageNumber} />
-      </Document>
+      <div style={{overflow:'scroll',height:600}}>
+        <MobilePDFReader url={CGV} isShowHeader={false} isShowFooter={false}/>
+      </div>
     </Container>
   )
 }

@@ -236,16 +236,41 @@ class SignUp extends React.Component {
                 />
               </Grid>
               <Grid item xs={12} className={classes.controlCheck}>
-                <FormControlLabel
-                  control={<Checkbox value={this.state.confirmRules} color="primary" />}
-                  label="J'accepte les CGU et le ROI."
-                />
+                <label style={{flexDirection: 'row', alignItems: 'center', display: 'flex'}}>
+                  <Checkbox
+                      name="test"
+                      style={{width: 'auto', display: 'inline-block', color: '#000000'}}
+                      checked={this.props.checked}
+                      onCheck={this.props.onCheck}
+                  />
+                  <Link href="/cgv" target="_blank" onClick={event => event.pevent}>
+                    J'ai lu et j'accepte les CGU
+                  </Link>
+                </label>
               </Grid>
               <Grid item xs={12} className={classes.controlCheck}>
-                <FormControlLabel
-                  control={<Checkbox value={this.state.confirmHealth} color="primary" />}
-                  label="J'ai l'autorisation de mon médecin pour pratiquer ces sports"
-                />
+                <label style={{flexDirection: 'row', alignItems: 'center', display: 'flex'}}>
+                  <Checkbox
+                      name="test"
+                      style={{width: 'auto', display: 'inline-block', color: '#000000'}}
+                      checked={this.props.checked}
+                      onCheck={this.props.onCheck}
+                  />
+                  <Link href="/roi" target="_blank" onClick={event => event.pevent}>
+                    J'ai lu et j'accepte le ROI
+                  </Link>
+                </label>
+              </Grid>
+              <Grid item xs={12} className={classes.controlCheck}>
+              <label style={{flexDirection: 'row', alignItems: 'center', display: 'flex'}}>
+                  <Checkbox
+                      name="test"
+                      style={{width: 'auto', display: 'inline-block'}}
+                      checked={this.props.checked}
+                      onCheck={this.props.onCheck}
+                  />
+                    J'ai l'autorisation de mon médecin pour pratiquer ces sports
+                </label>
               </Grid>
             </Grid>
             <Button

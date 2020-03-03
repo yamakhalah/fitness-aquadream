@@ -65,8 +65,7 @@ export default {
         const molliePayment = await mollieClient.payments.create({
           amount: {
             currency: 'EUR',
-            //value: String(orderResume.totalMonthly+orderResume.yearlyTax)+'.00'
-            value: '0.05'
+            value: String(orderResume.totalMonthly+orderResume.yearlyTax)+'.00'
           },
           description: 'Première échéance abonnement et taxe annuelle (si non payée)',
           redirectUrl: process.env.MOLLIE_REDIRECT_URL+'/'+ref,
