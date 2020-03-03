@@ -34,6 +34,11 @@ const styles = theme => ({
   },
   controlCheck: {
     textAlign: 'left'
+  },
+  active: {
+    "&:active": {
+      color: "black !important"
+    }
   }
 });
 
@@ -242,7 +247,7 @@ class SignUp extends React.Component {
                       checked={this.props.checked}
                       onCheck={this.props.onCheck}
                   />
-                  <Link href="/cgv" target="_blank" onClick={event => event.pevent}>
+                  <Link className={classes.active} href="/cgv" target="_blank" onClick={event => event.pevent}>
                     J'ai lu et j'accepte les CGU
                   </Link>
                 </label>
@@ -255,9 +260,11 @@ class SignUp extends React.Component {
                       checked={this.props.checked}
                       onCheck={this.props.onCheck}
                   />
-                  <Link href="/roi" target="_blank" onClick={event => event.pevent}>
+                  <Typography>
+                  <Link className={classes.active} href="/roi" target="_blank" onClick={event => event.pevent}>
                     J'ai lu et j'accepte le ROI
                   </Link>
+                  </Typography>
                 </label>
               </Grid>
               <Grid item xs={12} className={classes.controlCheck}>
