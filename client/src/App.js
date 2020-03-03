@@ -30,6 +30,8 @@ import Payement from './components/user/BookingSubComponents/Payement'
 import Home from './components/user/Home'
 import Subscription from './components/user/Subscription'
 import NotFound from './components/global/404'
+import CGVReader from './components/global/CGV'
+import ROIReader from './components/global/ROI'
 
 const drawerWidth = 240;
 
@@ -142,6 +144,8 @@ export default function App(props) {
               <Route component={Login} path="/login" />
               <Route component={SignUp} path="/signup71470504" />
               <Route component={Reset} path="/reset" />
+              <Route component={CGVReader} path="/cgv" />
+              <Route component={ROIReader} path="/roi" />
               <Route path="/recovery" />
               <Route  component={NotFound} path="*" />
             </Switch>

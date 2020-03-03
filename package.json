@@ -48,6 +48,7 @@
     "nodemailer": "^6.4.1",
     "nodemon": "^1.19.4",
     "promise": "^8.0.3",
+    "react-pdf": "^4.1.0",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
