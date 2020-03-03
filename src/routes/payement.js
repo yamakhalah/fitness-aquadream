@@ -64,8 +64,9 @@ const createSubscription = async (data) => {
           var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
         }
       }
+      console.log('USER ADD TO LESSON')
       const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
-      const validityEnd = validityBegin.clone().add(payment.metadata.subDuration, 'M')
+      const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')
       const dataSubscription = {
         payement: graphqlPayement.id,
         user: payment.metadata.userID,
@@ -80,12 +81,22 @@ const createSubscription = async (data) => {
       }
 
       const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
+      console.log('GRAPHQL SUBSCRIPTION OK')
       const updatedGraphqlPayement = await payementModel.findOneAndUpdate(
         { id: graphqlPayement.id },
         { subscription: graphqlSubscription.id },
         { new: true }
       ).session(session)
+      if(payment.metadata.yearlyTax > 0) {
+        var graphqlUser = await userModel.findOneAndUpdate(
+          { _id: payment.metadata.userID },
+          { mollieCustomerID: payment.customerId, paidYearlyTax: true },
+          { new: true }
+        ).session(session)
+      }
+      console.log('UPDATE USER OK')
       const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
+      console.log('READY TO COMMIT')
       await session.commitTransaction()
       session.endSession()
       return true
@@ -99,12 +110,19 @@ const createSubscription = async (data) => {
       return true
     }
   }catch(error){
-    console.log(error)
-    await session.abortTransaction()
-    session.endSession()
-    const dPayment = await mollieClient.payments.cancel(paymentID)
-    const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payement.customerId })
-    return true
+    try{
+      console.log('CATCH ERROR')
+      console.log(error)
+      await session.abortTransaction()
+      session.endSession()
+      //const dPayment = await mollieClient.payments.cancel(paymentID)
+      const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payement.customerId })
+      return true
+    }catch(errorBis) {
+      console.log('CATCH ERROR BIS')
+      console.log(errorBis)
+      return true
+    }
   }
 }
 
@@ -113,10 +131,12 @@ export async function checkout(req, res, next){
   if(isAccepted) {
     res.sendStatus(200)
   }else{
-    res.sendStatus(402)
+    res.sendStatus(200)
   }
 }
 
 export async function subscription(req, res, next){
+  console.log('SUBSCRIPTION')
+  console.log(req)
   res.sendStatus(200)
 }

@@ -5,11 +5,12 @@ import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import { MuiPickersUtilsProvider, KeyboardDatePicker, KeyboardTimePicker } from '@material-ui/pickers'
-import { TextField, TablePagination, TableFooter, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
-import { MeetingRoom, ExpandMore, Edit, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons'
+import { FormControl, InputLabel, Select, MenuItem, TextField, TablePagination, TableFooter, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
+import { MeetingRoom, ExpandMore, Edit, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight, Delete } from '@material-ui/icons'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS } from '../../database/query/lessonQuery'
-import { OPEN_LESSON, UPDATE_LESSON } from '../../database/mutation/lessonMutation'
+import { OPEN_LESSON, UPDATE_LESSON, CANCEL_LESSON, DELETE_LESSON } from '../../database/mutation/lessonMutation'
+import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import DateFnsUtils from '@date-io/date-fns'
 import frLocale from "date-fns/locale/fr";
@@ -77,6 +78,9 @@ const styles = theme => ({
     top: '50%',
     left: '50%'
   },
+  bold: {
+    fontWeight: 'bold'
+  }
 })
 
 function TablePaginationActions(props) {
@@ -143,8 +147,10 @@ class AdminLesson extends React.Component {
     super(props)
     this.state = {
       lessons: [],
+      teachers: [],
       openLessonDialog: false,
       editLessonDialog: false,
+      deleteLessonDialog: false,
       loading: true,
       selectedLesson:  null,
       selectedIndex: null,
@@ -163,11 +169,11 @@ class AdminLesson extends React.Component {
       fetchPolicy: 'cache-and-network'
     })
     .subscribe(({data, loading, error }) => {
-      console.log(data)
       if(error){
+        console.log(error)
         this.setState({ loading: false})
         this.showSnackMessage('Erreur durant le chargement de vos données', 'error')
-      }else{
+      }else if(data){
         var lessons = data.lessonsWaitingOrGoing
         lessons.forEach((element, index) => {
           lessons[index].lessonsDay = this.sortLessonsDay(element.lessonsDay)
@@ -175,6 +181,17 @@ class AdminLesson extends React.Component {
         var sortedLessons = this.sortLessons(lessons)
         this.setState({ lessons: sortedLessons, loading: false })
       }
+    })
+
+    this.props.client.query({
+      query: GET_TEACHERS
+    })
+    .then(result => {
+      this.setState({ teachers: result.data.teachers })
+    })
+    .catch(error => {
+      console.log(error)
+      this.showSnackMessage('Erreur durant le chargement des professeurs', 'error')
     })
     
   }
@@ -249,7 +266,6 @@ class AdminLesson extends React.Component {
   }
 
   openEditDialog = (lesson, index) => {
-    console.log(lesson)
     this.setState({ 
       selectedLesson: lesson,
       selectedIndex: index,
@@ -257,9 +273,18 @@ class AdminLesson extends React.Component {
     })
   }
 
-  closeEditDialog = () => {
+  closeDialog = () => {
     this.setState({ 
-      editLessonDialog: false
+      editLessonDialog: false,
+      deleteLessonDialog: false
+    })
+  }
+
+  openDeleteDialog = (lesson, index) => {
+    this.setState({ 
+      selectedLesson: lesson,
+      selectedIndex: index,
+      deleteLessonDialog: true
     })
   }
 
@@ -286,8 +311,6 @@ class AdminLesson extends React.Component {
       this.setState({
         loading: true,
       })
-      console.log('PRINT RECURENCE')
-      console.log(this.state.selectedLesson)
       this.props.client.mutate({
         mutation: UPDATE_LESSON,
         variables: {
@@ -308,11 +331,19 @@ class AdminLesson extends React.Component {
             totalPrice3X: this.state.selectedLesson.pricing.totalPrice3X
           },
           recurenceBegin: this.state.selectedLesson.recurenceBegin,
-          recurenceEnd: this.state.selectedLesson.recurenceEnd
-        }
+          recurenceEnd: this.state.selectedLesson.recurenceEnd,
+          teacher: this.state.selectedLesson.teacher.id
+        },
+        refetchQueries: [
+          {
+            query: GET_LESSONS_WAITING_OR_GOING_FULL
+          },
+          {
+            query: GET_LESSONS
+          }
+        ]
       })
       .then(result => {
-        console.log(result)
         this.setState({ 
           editLessonDialog: false,
           loading: false,
@@ -329,6 +360,42 @@ class AdminLesson extends React.Component {
         this.showSnackMessage('Erreur lors de la modification du cours', 'error')
       })
     }
+  }
+
+  deleteLesson = () => {
+    this.setState({ loading: true })
+    this.props.client.mutate({
+      mutation: DELETE_LESSON,
+      variables: {
+        id: this.state.selectedLesson.id
+      },
+      refetchQueries: [
+        {
+          query: GET_LESSONS_WAITING_OR_GOING_FULL
+        },
+        {
+          query: GET_LESSONS
+        }
+      ]
+    })
+    .then(result => {
+      var tmp = this.state.lessons
+      var index = tmp.map(x => {
+        return x.id;
+      }).indexOf(this.state.selectedLesson.id);
+      
+      tmp.splice(index, 1);
+      this.setState({
+        deleteLessonDialog: false,
+        loading: false,
+        lessons: tmp
+      })
+      this.showSnackMessage('Le cours a bien été supprimé', 'success')
+    })
+    .catch(error => {
+      console.log(error)
+      this.showSnackMessage('Erreur lors de la supression du cours', 'error')
+    })
   }
 
   render() {
@@ -349,12 +416,12 @@ class AdminLesson extends React.Component {
               <TableCell>Jour</TableCell>
               <TableCell>Date de début</TableCell>
               <TableCell>Date de fin</TableCell>
-              <TableCell>Heure</TableCell>
+              <TableCell style={{width: '10%'}}>Heure</TableCell>
               <TableCell>Nombre de cours</TableCell>
               <TableCell>Places restantes</TableCell>
               <TableCell>Places disponibles</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell style={{width: '10%'}}>Actions</TableCell>
+              <TableCell style={{width: '15%'}}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -389,6 +456,13 @@ class AdminLesson extends React.Component {
                     <Edit />
                   </IconButton>
                 </Tooltip>
+                { lesson.users.length === 0 && (
+                <Tooltip title="Supprimer le cours">
+                  <IconButton onClick={this.openDeleteDialog.bind(this, lesson, index)}>
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
+                )}
                 </TableCell>    
               </TableRow>
               <TableRow className={classes.row}>
@@ -404,62 +478,124 @@ class AdminLesson extends React.Component {
                   <ExpansionPanelDetails>
                   <Container component="main" maxWidth="xl" className={classes.container}>
                     <Grid container spacing={2}>
-                      <Grid item xs={4} sm={4}>
-                        <Typography>
-                          Type de cours:
-                        </Typography>
-                        <Typography>
-                          Sous titre:
-                        </Typography>
-                        <Typography>
-                          Discount ID 
-                        </Typography>
-                        <Typography>
-                          Adresse:
-                        </Typography>
-                        <Typography>
-                          Prix unitaire:
-                        </Typography>
-                        <Typography>
-                          Prix unitaire dégressif:
-                        </Typography>
-                        <Typography>
-                          Prix total:
-                        </Typography>
-                        <Typography>
-                          Prix total dégressif:
-                        </Typography>
-                        <Typography>
-                          Commentaire:
+                      <Grid item xs={3} sm={3}>
+                        <Typography className={classes.bold}>
+                          Addresse:
                         </Typography>
                       </Grid>
-                      <Grid item xs={8} sm={8}>
+                      <Grid item xs={9} sm={9}>
+                        <Typography>
+                          {lesson.address.street} {lesson.address.postalCode} {lesson.address.city} 
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={3} sm={3}>
+                        <Typography className={classes.bold}>
+                          Type de cours:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={3} sm={3}>
                         <Typography>
                           {lesson.lessonType.simpleName} 
                         </Typography>
+                      </Grid>
+                      <Grid item xs={3} sm={3}>
+                        <Typography className={classes.bold}>
+                          Sous titre:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={3} sm={3}>
                         <Typography>
                           {lesson.lessonSubType.simpleName} 
                         </Typography>
-                        <Typography>
-                          {lesson.discount} 
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix unitaire:
                         </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.address.street} {lesson.address.postalCode} {lesson.address.city}
+                          {lesson.pricing.unitPrice}€
                         </Typography>
-                        <Typography>
-                          {lesson.pricing.unitPrice} €
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix mensuel:
                         </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.unitPrice2X} €
+                          {lesson.pricing.monthlyPrice}€
                         </Typography>
-                        <Typography>
-                          {lesson.pricing.totalPrice} €
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix total:
                         </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.totalPrice2X} €
+                          {lesson.pricing.totalPrice}€
                         </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix unitaire 2X:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.comment}
+                          {lesson.pricing.unitPrice2X}€
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix mensuel 2X:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography>
+                          {lesson.pricing.monthlyPrice2X}€
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix total 2X:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography>
+                          {lesson.pricing.totalPrice2X}€
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix unitaire 3X:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography>
+                          {lesson.pricing.unitPrice3X}€
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix mensuel 3X:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography>
+                          {lesson.pricing.monthlyPrice3X}€
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography className={classes.bold}>
+                          Prix total 3X:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sm={2}>
+                        <Typography>
+                          {lesson.pricing.totalPrice3X}€
                         </Typography>
                       </Grid>
                       <Grid item className={classes.title} xs={12} >
@@ -502,7 +638,7 @@ class AdminLesson extends React.Component {
                         <Fragment key={index}>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
                           <Typography>
-                              {lessonDay.teacher.user.firstName} {lessonDay.teacher.user.lastName}
+                              {lesson.teacher.user.firstName} {lesson.teacher.user.lastName}
                           </Typography>
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
@@ -512,7 +648,7 @@ class AdminLesson extends React.Component {
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
                             <Typography>
-                              {moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')} à {moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')} 
+                              {moment(lesson.recurenceBegin).format('HH:mm')} à {moment(lesson.recurenceEnd).format('HH:mm')} 
                             </Typography>
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
@@ -558,7 +694,6 @@ class AdminLesson extends React.Component {
                   native: true,
                 }}
                 onChangePage={this.handleChangePage}
-                //onChangeRowsPerPage={this.handleChangeRowsPerPage}
                 ActionsComponent={TablePaginationActions}
               />
             </TableRow>
@@ -582,6 +717,22 @@ class AdminLesson extends React.Component {
           </Button> 
         </DialogActions>
       </Dialog>
+        <Dialog
+          open={this.state.deleteLessonDialog}
+        >
+          <DialogTitle>Supprimer le cours</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Êtes-vous sûr de vouloir supprimer ce cours ?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.closeDialog.bind(this)} color="default" disabled={this.state.loading}>
+              Annuler           
+            </Button>
+            <Button onClick={this.deleteLesson.bind(this)} color="primary" disabled={this.state.loading}>
+              Confirmer           
+            </Button> 
+          </DialogActions>
+        </Dialog>
       <Dialog open={this.state.editLessonDialog}>
         <DialogTitle>Modifier le cours</DialogTitle>
         <DialogContent>
@@ -733,12 +884,38 @@ class AdminLesson extends React.Component {
                     }}
                   />
               </Grid>
+              <Grid item xs={4} md={4} />
+              <Grid item xs={6} md={6}>
+              <FormControl required variant="outlined" className={classes.formControl}>
+                <InputLabel id="lessonType">Professeur</InputLabel>
+                  <Select
+                    labelId="teacher"
+                    id="teacher"
+                    value={this.state.selectedLesson ? this.state.selectedLesson.teacher  : null}
+                    name="teacher"
+                    label="Professeur"
+                    labelWidth={80}
+                    onChange={event => {
+                      var selectedLesson = this.state.selectedLesson
+                      selectedLesson.teacher = event.target.value
+                      this.setState({ selectedLesson: selectedLesson })
+                    }}
+                  >
+                    <MenuItem value={this.state.selectedLesson ? this.state.selectedLesson.teacher : '' } disabled>
+                      {this.state.selectedLesson ? (this.state.selectedLesson.teacher.user.firstName+' '+this.state.selectedLesson.teacher.user.lastName) : ''}
+                    </MenuItem>
+                    {this.state.teachers.map(teacher =>               
+                      <MenuItem key={teacher.id} value={teacher}>{teacher.user.firstName} {teacher.user.lastName}</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
           </ MuiPickersUtilsProvider>
           </Container>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.handleClose.bind(this)} color="default" disabled={this.state.loading}>
+          <Button onClick={this.closeDialog.bind(this)} color="default" disabled={this.state.loading}>
             Annuler           
           </Button>
           <Button onClick={this.handleButtonConfirm.bind(this)} color="primary" disabled={this.state.loading}>

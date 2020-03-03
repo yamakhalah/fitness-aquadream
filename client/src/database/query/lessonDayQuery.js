@@ -1,8 +1,8 @@
 import { gql } from 'apollo-boost'
 
 export const GET_LESSONS_DAY_FROM_TODAY = gql`
-  query getLessonsDayFromToday($today: String!){
-    lessonsDayFromToday(today: $today){
+  query getLessonsDayFromToday($today: String! $offset: Int, $limit: Int){
+    lessonsDayFromToday(today: $today, offset: $offset, limit: $limit){
       id
       lesson{
         id

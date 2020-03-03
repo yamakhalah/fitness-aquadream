@@ -71,8 +71,11 @@ const useStyles = makeStyles(theme => ({
     display: 'inline',
     color: 'white'
   },
+  /*
   lessons: {
+    backgroundColor: theme.palette.secondaryLight.main,
   },
+  */
   lessonPaper: {
     backgroundColor: theme.palette.aquawhite.main,
     padding: theme.spacing(1),
@@ -96,6 +99,7 @@ const useStyles = makeStyles(theme => ({
   },
   tableCell: {
     textAlign: 'center',
+    padding: 10
   },
   card: {
     width: '100%',
@@ -109,6 +113,7 @@ const useStyles = makeStyles(theme => ({
     padding: 0
   },
   cellTime: {
+
     color: 'white',
     backgroundColor: theme.palette.primary.main,
     padding: 6,
@@ -123,6 +128,9 @@ const useStyles = makeStyles(theme => ({
   },
   gridData: {
   
+  },
+  greenIcon: {
+    color: theme.palette.primary.main
   }
 }))
 
@@ -263,9 +271,10 @@ const LessonPicker = ({ handleChangeCallback }) => {
       <Grid container>
         <Grid item xs={2} sm={2}>
           <List className={classes.list}>
-            {Object.keys(lessonsBySubType).map((key ,index) => {
-              return(
-                <div key={key}>
+            {Object.keys(lessonsBySubType).map((key ,index) => (
+              <div key={key}>
+              {lessonsBySubType[key].length > 0 && (
+                <div>
                   <ListItem classes={{ selected: classes.pickerListItem }} alignItems="flex-start" selected={selectedType[0]=== index} onClick={event => handleListItemClick(key, index)}>
                     <ListItemText
                       className={classes.listItem}
@@ -285,8 +294,9 @@ const LessonPicker = ({ handleChangeCallback }) => {
                   </ListItem>
                   <Divider />
                 </div>
-              )
-            })}
+              )}
+              </div>
+            ))}
           </List>
         </Grid>
         <Grid item xs={10} sm={10} className={classes.lessons}>
@@ -323,19 +333,19 @@ const LessonPicker = ({ handleChangeCallback }) => {
                                   {lesson.isOpened ? (
                                     <div key={lesson.id}>
                                       <Tooltip title="Plus d'informations">
-                                        <IconButton onClick={() => handleInfoModal(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => handleInfoModal(lesson)}>
                                           <Info />
                                         </IconButton>
                                       </Tooltip>
                                     {contains(bookedLessons, lesson) ? (
                                       <Tooltip title="Retirer le cours">
-                                        <IconButton onClick={() => removeBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => removeBookedLesson(lesson)}>
                                           <Remove />
                                         </IconButton>
                                       </Tooltip>
                                     ):(
                                       <Tooltip title="S'inscrire au cours">
-                                        <IconButton onClick={() => addBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => addBookedLesson(lesson)}>
                                           <Add />
                                         </IconButton>
                                       </Tooltip>
@@ -344,19 +354,19 @@ const LessonPicker = ({ handleChangeCallback }) => {
                                   ):(
                                     <div>
                                       <Tooltip title="Plus d'informations">
-                                        <IconButton onClick={() => handleInfoModal(lesson)}>
+                                        <IconButton  className={classes.greenIcon} onClick={() => handleInfoModal(lesson)}>
                                           <Info />
                                         </IconButton>
                                       </Tooltip>
                                     {contains(preBookedLessons, lesson) ? (
                                       <Tooltip title="Retirer le cours">
-                                        <IconButton onClick={() => removePreBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => removePreBookedLesson(lesson)}>
                                           <Remove />
                                         </IconButton>
                                       </Tooltip>
                                     ):(
                                       <Tooltip title="Se pré-inscrire au cours">
-                                        <IconButton onClick={() => addPreBookedLesson(lesson)}>
+                                        <IconButton className={classes.greenIcon} onClick={() => addPreBookedLesson(lesson)}>
                                           <LowPriority />
                                         </IconButton>
                                       </Tooltip>

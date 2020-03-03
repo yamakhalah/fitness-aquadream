@@ -12,7 +12,6 @@ import { GET_LESSON_TYPES } from '../../database/query/lessonTypeQuery'
 import { GET_LESSON_SUB_TYPES } from '../../database/query/lessonSubTypeQuery'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { CREATE_LESSON_AND_LESSONS_DAY } from '../../database/mutation/lessonMutation'
-import { GET_LESSONS, GET_LESSONS_WAITING_OR_GOING } from '../../database/query/lessonQuery'
 import DateFnsUtils from '@date-io/date-fns'
 import frLocale from "date-fns/locale/fr";
 import moment from 'moment'
@@ -208,6 +207,7 @@ class CreateLesson extends React.Component {
   }
 
   handleDateChange = (event, id) => {
+    var date = moment(event)
     switch(id) {
       case 'recurenceBegin':
         this.setState({
@@ -225,18 +225,16 @@ class CreateLesson extends React.Component {
         this.refreshTotalMonth(undefined, event)
         break
       case 'timeBegin':
-        var date = moment(event)
         this.setState({
           [id]: moment(date, 'DD/MM/YYYY'),
           'recurenceBegin': this.state.recurenceBegin.hour(date.hour()).minute(date.minute()),
         })
         break
       case 'timeEnd':
-      var date = moment(event)
-      this.setState({
-        [id]: moment(date, 'DD/MM/YYYY'),
-        'recurenceEnd': this.state.recurenceEnd.hour(date.hour()).minute(date.minute()),
-      })
+        this.setState({
+          [id]: moment(date, 'DD/MM/YYYY'),
+          'recurenceEnd': this.state.recurenceEnd.hour(date.hour()).minute(date.minute()),
+        })
       break
       default:
         this.setState({
@@ -324,9 +322,9 @@ class CreateLesson extends React.Component {
   }
 
   createLesson = () => {
-    return
     var lesson = {
       lessonsDay: [],
+      teacher: this.state.teacher,
       discount: this.state.lessonType.toUpperCase()+'-'+this.state.lessonSubType.toUpperCase()+'-'+this.state.city.toUpperCase()+'-'+this.state.recurenceBegin.day()+'-'+this.state.timeBegin.hour()+'-'+this.state.recurenceBegin.year(),
       address: {
         street: this.state.street,
@@ -344,6 +342,7 @@ class CreateLesson extends React.Component {
         totalPrice2X: Number(this.state.totalPrice2X),
         totalPrice3X: Number(this.state.totalPrice3X)
       },
+
       totalMonth: Number(this.state.totalMonth),
       totalLessons: Number(this.state.totalLessons),
       classicDate: this.state.classicDate.toISOString(true),

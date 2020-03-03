@@ -140,7 +140,7 @@ export default function App(props) {
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminCredit} path="/adminCredit" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminSubscription} path="/adminSubscription" />
               <Route component={Login} path="/login" />
-              <Route component={SignUp} path="/signup" />
+              <Route component={SignUp} path="/signup71470504" />
               <Route component={Reset} path="/reset" />
               <Route path="/recovery" />
               <Route  component={NotFound} path="*" />

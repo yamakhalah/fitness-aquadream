@@ -5,10 +5,9 @@ import localizer from 'react-big-calendar/lib/localizers/globalize'
 import globalize from 'globalize'
 import Snackbar from '@material-ui/core/Snackbar'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
-import { useApolloClient, useQuery, useMutation } from 'react-apollo'
+import { makeStyles } from '@material-ui/core/styles'
+import { useApolloClient, useQuery } from 'react-apollo'
 import { CustomSnackBar } from '../global/CustomSnackBar'
-import { useHistory } from 'react-router-dom'
 import { Grid, Typography, Button, Container, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core'
 import { GET_ACTIVE_LESSONS_DAY_FOR_USER } from '../../database/query/lessonDayQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
@@ -17,8 +16,6 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 require('globalize/lib/cultures/globalize.culture.fr')
 
 moment.locale('fr')
-
-const globalizeLocalizer = localizer(globalize)
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(5) 
@@ -31,19 +28,18 @@ const useStyles = makeStyles(theme => ({
   },
   cancelButton: {
     color: '#C0392B'
-  }
+  },
 }))
 
 const Home = () => {
   const classes = useStyles()
-  const [client, setClient] = React.useState(useApolloClient())
-  const [user, setUser] = React.useState(useApolloClient().readQuery({query: GET_AUTHENTIFICATION}).Authentification)
+  const [client,] = React.useState(useApolloClient())
+  const [user,] = React.useState(useApolloClient().readQuery({query: GET_AUTHENTIFICATION}).Authentification)
   const [loading, setLoading] = React.useState(true)
   const [lessonsDay, setLessonsDay] = React.useState([])
   const [selectedLessonDay, setSelectedLessonDay] = React.useState(null)
   const [events, setEvents] = React.useState([])
   const [views, setViews] = React.useState([])
-  const [localizer, setLocalizer] = React.useState(momentLocalizer(moment))
   const [infoModal, setInfoModal] = React.useState(false)
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')

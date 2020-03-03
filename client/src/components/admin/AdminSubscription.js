@@ -38,7 +38,7 @@ export default function AdminSubscription() {
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
 
-  const { load, error, data } = useQuery(GET_SUBSCRIPTIONS, { fetchPolicy: 'network-policy' })
+  const { load, error, data } = useQuery(GET_SUBSCRIPTIONS, { fetchPolicy: 'network-only' })
 
   useEffect(() => {
     if(data) {
@@ -132,7 +132,9 @@ export default function AdminSubscription() {
                   <TableCell>{subscriptionData.subscription.total}</TableCell>
                   <TableCell>{subscriptionData.subscription.totalMonth}</TableCell>
                   <TableCell>{subscriptionData.mollieSubscription.status}</TableCell>
-                  <TableCell>a</TableCell>
+                  <TableCell>
+                    a
+                  </TableCell>
               </TableRow>
             ))}
           </TableBody>

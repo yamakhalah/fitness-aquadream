@@ -79,27 +79,20 @@ export default {
             totalMonthly: orderResume.totalMonthly,
             total: orderResume.total,
             startDate: moment(orderResume.recurenceBegin).format('YYYY-MM-DD'),
+            endDate: moment(orderResume.recurenceEnd).format('YYYY-MM-DD'),
             lessons: lessonsID,
-            reference: ref
+            reference: ref,
+            yearlyTax: orderResume.yearlyTax
           },
           sequenceType: 'first',
           customerId: user.mollieCustomerID,
           restrictPaymentMethodsToCountry: 'BE'
         }) 
-        var graphqlUser = {}
-        if(orderResume.yearlyTax > 0) {
-          graphqlUser = await userModel.findOneAndUpdate(
-            { _id: user.id },
-            { mollieCustomerID: user.mollieCustomerID, paidYearlyTax: true },
-            { new: true }
-          )
-        } else{
-          graphqlUser = await userModel.findOneAndUpdate(
-            { _id: user.id },
-            { mollieCustomerID: user.mollieCustomerID },
-            { new: true }
-          )
-        }
+        var graphqlUser = await userModel.findOneAndUpdate(
+          { _id: user.id },
+          { mollieCustomerID: user.mollieCustomerID },
+          { new: true }
+        )
         for(const lesson of preBookedLessons) {
           const preBookedLesson = lessonModel.addUser(lesson.id, user.id, null)
         }

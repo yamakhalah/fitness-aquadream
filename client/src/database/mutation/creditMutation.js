@@ -17,8 +17,8 @@ export const INVALIDATE_CREDIT = gql`
 `
 
 export const UPDATE_CREDIT = gql`
-  mutation updateCredit($id: ID!, $user: ID!, $lesson_day: ID!, $isUsed: Boolean!, $validityEnd: String!){
-    updateCredit(id: $id, user: $user, lesson_day: $lesson_day, isUsed: $isUsed, validityEnd: $validityEnd) {
+  mutation updateCredit($id: ID!, $user: ID!, $lessonDay: ID!, $isUsed: Boolean!, $validityEnd: String!){
+    updateCredit(id: $id, user: $user, lessonDay: $lessonDay, isUsed: $isUsed, validityEnd: $validityEnd) {
       id
     }
   }

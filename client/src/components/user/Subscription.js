@@ -8,7 +8,7 @@ import { ExpandMore, Money } from '@material-ui/icons'
 import { GET_SUBSCRIPTIONS_FOR_USER } from '../../database/query/subscriptionQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
-import defaultIMG from '../../style/img/classic1.jpg'
+import { lessonSubTypeToIMG } from '../../utils/enumToString'
 import moment from 'moment'
 import { borderRadius } from '@material-ui/system';
 
@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     height: '80vh'
   },
   root: {
-    padding: theme.spacing(5) 
+    padding: theme.spacing(2) 
   },
   img: {
   },
@@ -30,8 +30,8 @@ const useStyles = makeStyles(theme => ({
 
   },
   typoTitle: {
-    marginTop: 50,
-    marginBottom: 50
+    marginTop: 25,
+    marginBottom: 25
   },
   typoSubTitle: {
     marginTop: 15,
@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: 30
   },
   cover: {
-    paddingTop: '20.25%', // 16:9,
+    paddingTop: '40%', // 16:9,
     marginTop:'30'
   },
   expansionPanel: {
@@ -161,7 +161,7 @@ export default function Subscription(props) {
                 <div className={classes.img}>
                   <CardMedia
                     className={classes.cover}
-                    image={defaultIMG}
+                    image={lessonSubTypeToIMG(subscriptionData.subscription.lessons[0].lessonSubType.name)}
                     title="Image"
                   />
                 </div>

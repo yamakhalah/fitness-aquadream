@@ -21,10 +21,10 @@ export default {
       return lessonsDay
     },
 
-    lessonsDayFromToday: async (parent, { today }, { models: { lessonDayModel }}, info) => {
+    lessonsDayFromToday: async (parent, { today, offset, limit }, { models: { lessonDayModel }}, info) => {
       const lessonsDay = await lessonDayModel.find({
         dayDate: { $gte: today }
-      })
+      }).skip(offset).limit(limit).sort({ dayDate: 1 })
       return lessonsDay
     },
 
@@ -73,15 +73,15 @@ export default {
         for(var i = 0; i < users.length; i++) {
           usersID.push(users[i].id)
         }
-        const lessonDay = await lessonDayModel.updateLessonDay(id, { lesson, teacher, usersID, dayDate, hour, spotLeft, spotTotal, isCanceled }, opts)
+        const lessonDay = await lessonDayModel.updateLessonDay(id, { lesson, teacher, usersID, dayDate, hour, spotLeft, spotTotal, isCanceled }, session)
         if(!lessonDay) {
           throw new ApolloError()
         }
         var validityEnd = moment(dayDate).add(1, 'y')
         var credits = []
         for(var i = 0; i < users.length; i++) {
-          const credit = await creditModel.create(users[i].id, id, validityEnd.toISOString(), opts)
-          const tmp = await userModel.addCredit(users[i].id, credit.id, opts)
+          const credit = await creditModel.create({user: users[i].id, lessonDay: id, validityEnd: validityEnd.toISOString()}, opts)
+          const tmp = await userModel.addCredit(users[i].id, credit.id, session)
           if(!credit) {
             throw new ApolloError()
           }
@@ -150,11 +150,11 @@ export default {
   LessonDay: {
     users: async({ users }, args, { models: { userModel }}, info) => {
       if(users === undefined) return null
-      var usersList = []
-      users.forEach(element => {
-        var object = userModel.findById({ _id: element }).exec()
-        usersList.push(object)
-      });
+      var usersList = await userModel.find({
+        _id: {
+          $in: users.map((o) => { return mongoose.Types.ObjectId(o)})
+        }
+      }) 
       return usersList
     },
 
