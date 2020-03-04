@@ -89,7 +89,7 @@ const client = new ApolloClient({
     }),
     requestLink,
     new HttpLink({
-      uri: process.env.REACT_APP_URI,
+      uri: 'https://www.app.aquadream-temploux.be/graphql',
       credentials: 'include'
     })
   ]),

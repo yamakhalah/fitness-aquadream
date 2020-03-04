@@ -304,7 +304,7 @@ class SignUp extends React.Component {
                       cchecked={this.props.confirmHealth}
                       onChange={event => this.handleCheck(event)}
                   />
-                    J'ai l'autorisation de mon médecin pour pratiquer ces sports
+                    J'ai l'autorisation de mon médecin pour pratiquer ces sports et je m'engage à fournir, avant les premiers cours, un certificat d'aptitude d'un médecin
                 </label>
               </Grid>
             </Grid>
