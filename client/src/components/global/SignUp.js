@@ -36,9 +36,17 @@ const styles = theme => ({
     textAlign: 'left'
   },
   active: {
-    "&:active": {
+    "&:hover": {
       color: "black !important"
-    }
+    },
+    "&:visited": {
+      color: "black !important",
+      textDecoration: "none"
+    },
+    "&:active": {
+      color: "black !important",
+      textDecoration: 'none'
+    },
   }
 });
 
@@ -57,6 +65,7 @@ class SignUp extends React.Component {
       errorVariant: 'error',
       confirmHealth: false,
       confirmRules: false,
+      confirmSales: false,
       open: false
     }
   }
@@ -71,7 +80,7 @@ class SignUp extends React.Component {
   }
 
   signUp() {
-    if(!this.state.confirmHealth || !this.state.confirmRules){
+    if(!this.state.confirmHealth || !this.state.confirmRules || !this.state.confirmSales){
       this.setState({'errorMessage': 'Merci de cocher les cases d\'autorisation'})
       this.setState({'errorVariant': 'error'})
       this.setState({'open': true})
@@ -109,6 +118,26 @@ class SignUp extends React.Component {
     })
   }
 
+  handleCheck(event) {
+    switch(event.target.name) {
+      case 'confirmRules': 
+        this.setState({
+          confirmRules: !this.state.confirmRules
+        })
+        break
+      case 'confirmSales': 
+        this.setState({
+          confirmSales: !this.state.confirmSales
+        })
+        break
+      case 'confirmHealth': 
+        this.setState({
+          confirmHealth: !this.state.confirmHealth
+        })
+        break
+    }
+  }
+
   handleClose = () => {
     this.setState({'open': false})
   }
@@ -137,7 +166,7 @@ class SignUp extends React.Component {
                   label="Prénom"
                   autoFocus
                   value={this.state.firstName}
-                  validators={['required', 'matchRegexp:^[A-zÀ-ú]+(([\',. -][A-zÀ-ú])?[A-zÀ-ú]*)*$']}
+                  validators={['required', 'matchRegexp:[a-zA-Z\u00C0-\u017F\s]+']}
                   errorMessages={['Champ requis', 'Format incorrect']}
                   onChange={event => this.handleChange(event)}
                 />
@@ -152,7 +181,7 @@ class SignUp extends React.Component {
                   name="lastName"
                   autoComplete="lname"
                   value={this.state.lastName}
-                  validators={['required', 'matchRegexp:^[A-zÀ-ú]+(([\',. -][A-zÀ-ú])?[A-zÀ-ú]*)*$']}
+                  validators={['required', 'matchRegexp:[a-zA-Z\u00C0-\u017F\s]+']}
                   errorMessages={['Champ requis', 'Format incorrect']}
                   onChange={event => this.handleChange(event)}
                 />
@@ -242,10 +271,10 @@ class SignUp extends React.Component {
               <Grid item xs={12} className={classes.controlCheck}>
                 <label style={{flexDirection: 'row', alignItems: 'center', display: 'flex'}}>
                   <Checkbox
-                      name="test"
+                      name="confirmSales"
                       style={{width: 'auto', display: 'inline-block', color: '#000000'}}
-                      checked={this.props.checked}
-                      onCheck={this.props.onCheck}
+                      checked={this.props.confirmSales}
+                      onChange={event => this.handleCheck(event)}
                   />
                   <Link className={classes.active} href="/cgv" target="_blank" onClick={event => event.pevent}>
                     J'ai lu et j'accepte les CGU
@@ -255,10 +284,10 @@ class SignUp extends React.Component {
               <Grid item xs={12} className={classes.controlCheck}>
                 <label style={{flexDirection: 'row', alignItems: 'center', display: 'flex'}}>
                   <Checkbox
-                      name="test"
+                      name="confirmRules"
                       style={{width: 'auto', display: 'inline-block', color: '#000000'}}
-                      checked={this.props.checked}
-                      onCheck={this.props.onCheck}
+                      checked={this.props.confirmRules}
+                      onChange={event => this.handleCheck(event)}
                   />
                   <Typography>
                   <Link className={classes.active} href="/roi" target="_blank" onClick={event => event.pevent}>
@@ -270,10 +299,10 @@ class SignUp extends React.Component {
               <Grid item xs={12} className={classes.controlCheck}>
               <label style={{flexDirection: 'row', alignItems: 'center', display: 'flex'}}>
                   <Checkbox
-                      name="test"
+                      name="confirmHealth"
                       style={{width: 'auto', display: 'inline-block'}}
-                      checked={this.props.checked}
-                      onCheck={this.props.onCheck}
+                      cchecked={this.props.confirmHealth}
+                      onChange={event => this.handleCheck(event)}
                   />
                     J'ai l'autorisation de mon médecin pour pratiquer ces sports
                 </label>
