@@ -4,10 +4,11 @@ import ReactDOM from 'react-dom';
 import ApolloClient, { ApolloError } from 'apollo-client'
 import { onError } from 'apollo-link-error'
 import {ApolloLink, Observable} from 'apollo-link'
+import ApolloLinkTimeout from 'apollo-link-timeout';
 import { CachePersistor, persistCache } from 'apollo-cache-persist'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloProvider } from 'react-apollo'
-import { HttpLink } from 'apollo-link-http'
+import { HttpLink, createHttpLink } from 'apollo-link-http'
 import resolver from './store/resolver'
 import typeDef from './store/typeDef'
 import getErrorMessage from './error'
@@ -50,6 +51,15 @@ const request = async (operation) => {
   } 
 }
 
+
+const timeoutLink = new ApolloLinkTimeout(100000);
+
+
+const httpLink = createHttpLink({ uri: '/graphql',
+credentials: 'include' });
+
+const timeoutHttpLink = timeoutLink.concat(httpLink);
+
 const requestLink = new ApolloLink((operation, forward) =>
   new Observable(observer => {
     let handle;
@@ -88,10 +98,7 @@ const client = new ApolloClient({
       }
     }),
     requestLink,
-    new HttpLink({
-      uri: 'https://www.app.aquadream-temploux.be/graphql',
-      credentials: 'include'
-    })
+    httpLink
   ]),
   cache: cache,
   resolvers: resolver,
@@ -101,9 +108,12 @@ const client = new ApolloClient({
     const token = localStorage.getItem('token')
     if(token) {
       operation.setContext({
+        fetchOptions: {
+          credentials: 'include',
+        },
         headers: {
-          authorization: token ? token : undefined
-        }
+           authorization: token ? token : undefined
+        },
       })
     } 
   },
