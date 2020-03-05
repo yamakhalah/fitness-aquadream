@@ -153,6 +153,9 @@ class SignUp extends React.Component {
           <Typography component="h1" variant="h5">
             Inscription
           </Typography>
+          <Typography variant="subtitle2" style={{ color: 'red'}}>
+          Des messages d'erreur apparaîtront tant que vous n'avez pas correctement remplis le formulaire. Ne vous en inquiétez pas si vous n'avez pas terminé de remplir un champ
+          </Typography>
           <ValidatorForm className={classes.form} noValidate onSubmit={this.signUp.bind(this)}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>

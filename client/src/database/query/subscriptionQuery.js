@@ -10,9 +10,6 @@ export const GET_SUBSCRIPTIONS = gql`
         firstName
         lastName
       }
-      lessonsDay{
-        id
-      }
       lessons{
         id
         lessonType{
@@ -27,7 +24,7 @@ export const GET_SUBSCRIPTIONS = gql`
         }
         recurenceBegin
         recurenceEnd
-        name
+        name  
       }
       payement{
         id

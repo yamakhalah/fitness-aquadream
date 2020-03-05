@@ -42,6 +42,10 @@ export default {
     deleteSubscription: async(parent, { id }, { models: { subscriptionModel }}, info) => {
       const graphqlSubscription = await subscriptionModel.deleteSubscription(id)
       return graphqlSubscription
+    },
+
+    changeLesson: async(parent, { oldLesson, newLesson }, { models: { subscriptionModel }}, info) => {
+      
     }
   },
   Subscription: {
