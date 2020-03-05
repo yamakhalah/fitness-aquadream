@@ -52,6 +52,19 @@ export function OPEN_LESSON(user, lesson) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function CONFIRM_SUBSCRIPTION(user) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p> Nous vous informons que votre paiement a été accepté et que votre abonnement a été crée </p>'+
+  '<p> Pour voir l\'état de votre abonnement rendez vous sur https://www.app.aquadream-temploux.be/subscription </p>'+
+  '</br></br>'+
+  '<p> Vous ne voyez pas votre commande ? Contactez paiement@aquadream-temploux.be </p>'+
+  '<p> Pour toute autre question contactez nous sur contact@aquadream-temploux.be </p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 var transport = mailer.createTransport({
   host: "ssl0.ovh.net",
   port: 587,

@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { createMollieClient } from '@mollie/api-client'
+import { sendMail, FROM, CONFIRM_SUBSCRIPTION } from '../mailer'
 import mongoose from 'mongoose'
 import payementModel from '../models/payement'
 import subscriptionModel from '../models/subscription'
@@ -63,7 +64,6 @@ const createSubscription = async (data) => {
           var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
         }
       }
-      console.log('USER ADD TO LESSON')
       const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
       const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')
       const dataSubscription = {
@@ -80,24 +80,23 @@ const createSubscription = async (data) => {
       }
 
       const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
-      console.log('GRAPHQL SUBSCRIPTION OK')
       const updatedGraphqlPayement = await payementModel.findOneAndUpdate(
         { id: graphqlPayement.id },
         { subscription: graphqlSubscription.id },
         { new: true }
       ).session(session)
+      var graphqlUser = {}
       if(payment.metadata.yearlyTax > 0) {
-        var graphqlUser = await userModel.findOneAndUpdate(
+        graphqlUser = await userModel.findOneAndUpdate(
           { _id: payment.metadata.userID },
           { mollieCustomerID: payment.customerId, paidYearlyTax: true },
           { new: true }
         ).session(session)
       }
-      console.log('UPDATE USER OK')
       const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
-      console.log('READY TO COMMIT')
       await session.commitTransaction()
       session.endSession()
+      var mail = await sendMail(FROM, user.email, 'Aquadream - Confirmation de votre abonnement', CONFIRM_SUBSCRIPTION(user))
       return true
     }else if(payment.status === 'paid' && payment.amount.value === payment.amountRefunded.value){
       await session.abortTransaction()

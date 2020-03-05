@@ -33,6 +33,20 @@ export default {
       }catch(error){
         console.log(error)
       }
+    },
+
+    lessonsWaitingOrGoingFree: async (parent, args, { models: { lessonModel }}, info) => {
+      try{
+        var today = moment().toISOString(true)
+        const lessons = await lessonModel.find({ 
+          'status': ["WAITING_BEGIN", "ON_GOING"],
+          'classicDate': { $lte: today},
+          'spotLeft': { $gt: 0}
+        }).sort({ recurenceBegin: 1, name: 1}).exec()
+        return lessons
+      }catch(error){
+        console.log(error)
+      }
     }
   },
   Mutation: {

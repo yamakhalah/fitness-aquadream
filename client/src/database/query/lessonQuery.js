@@ -156,6 +156,58 @@ export const GET_LESSONS_WAITING_OR_GOING = gql`
   }
 `
 
+export const GET_LESSONS_WAITING_OR_GOING_FREE = gql`
+  query getLessonsWaitingOrGoingFree{
+    lessonsWaitingOrGoingFree{
+      id
+      lessonType{
+        id
+        name
+        simpleName
+        compatibilities{
+          id
+        }
+      }
+      lessonSubType{
+        id
+        name
+        simpleName
+      }
+      discount
+      name
+      status
+      comment
+      address{
+        street
+        city
+        postalCode
+      }
+      pricing{
+        unitPrice
+        unitPrice2X
+        unitPrice3X
+        monthlyPrice
+        monthlyPrice2X
+        monthlyPrice3X
+        totalPrice
+        totalPrice2X
+        totalPrice3X
+      }
+      totalMonth
+      totalLessons
+      classicDate
+      priorityDate
+      recurenceBegin
+      recurenceEnd
+      spotLeft
+      spotTotal
+      mainType
+      dateType
+      isOpened
+    }
+  }
+`
+
 export const GET_LESSONS_WAITING_OR_GOING_FULL = gql`
   query getLessonsWaitingOrGoing{
     lessonsWaitingOrGoing{

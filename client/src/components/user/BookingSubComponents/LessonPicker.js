@@ -8,7 +8,7 @@ import { dateToDayString } from '../../../utils/dateTimeConverter'
 import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
 import { useApolloClient, useQuery, useMutation } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
-import { GET_LESSONS_WAITING_OR_GOING } from '../../../database/query/lessonQuery'
+import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../../database/query/lessonQuery'
 import { GET_LESSON_TYPES } from '../../../database/query/lessonTypeQuery'
 import { GET_LESSON_SUB_TYPES } from '../../../database/query/lessonSubTypeQuery'
 import { textAlign, borderRadius } from '@material-ui/system';
@@ -167,7 +167,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
 
   const initLessonPicker = (data) => {
     var lessonsDic = lessonsBySubType
-    data.lessonsWaitingOrGoing.forEach(element => {
+    data.lessonsWaitingOrGoingFree.forEach(element => {
       lessonsDic[element.lessonSubType.name].push(element)
     });
     setLessonsBySubType(lessonsDic)
@@ -250,7 +250,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
     }
   }
 
-  const { loading, error, data } = useQuery(GET_LESSONS_WAITING_OR_GOING, { fetchPolicy: 'network-only', onCompleted: initLessonPicker } ) 
+  const { loading, error, data } = useQuery(GET_LESSONS_WAITING_OR_GOING_FREE, { fetchPolicy: 'network-only', onCompleted: initLessonPicker } ) 
 
   if (loading) return (
     <div className={classes.loader}>

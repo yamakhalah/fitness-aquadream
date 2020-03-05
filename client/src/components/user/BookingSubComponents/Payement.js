@@ -48,6 +48,7 @@ const Payement = (props: PayementProps) => {
       setPreBooked(true)
       setLoading(false)
     }else if(props.match.params.reference !== 'null'){
+      setTimeout(() => {
       client.query({
         query: GET_MOLLIE_CHECKOUT_RESULT,
         variables: {
@@ -89,6 +90,8 @@ const Payement = (props: PayementProps) => {
         setPreBooked(false)
         setLoading(false)
       })
+
+    }, 2000);
     }else{
       setSuccess(false)
       setPreBooked(false)
