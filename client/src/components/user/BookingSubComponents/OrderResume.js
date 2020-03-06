@@ -214,7 +214,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
           <ListItem className={classes.listItem}>
             <ListItemText primary="Paiement annuel pour assurance" />
             <Typography variant="body2">
-              25€
+              35€
             </Typography>
           </ListItem>
         )}
