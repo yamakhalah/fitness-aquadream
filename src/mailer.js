@@ -65,6 +65,17 @@ export function CONFIRM_SUBSCRIPTION(user) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function CHANGE_SUBSCRIPTION(user, oldLesson, newLesson) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous informons que nous avons modifié un de vos abonnement suite à votre demande.</p>'+
+  '<p>Le cours '+oldLesson.name+' à '+moment(oldLesson.recurenceBegin).format('HH:mm')+' a été remplacé par '+newLesson.name+' à '+moment(newLesson.recurenceBegin).format('HH:mm')+'</p>'+
+  '<p>Si vous êtes pas à l\'origine de cette demande contactez nous via info@aquadream-temploux.be</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 var transport = mailer.createTransport({
   host: "ssl0.ovh.net",
   port: 587,

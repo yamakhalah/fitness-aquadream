@@ -95,20 +95,22 @@ export default {
 
     resetPassword: async(parent, { email }, { models: { userModel }}, info) => {
       try {
-        var user = await userModel.find({ email: email })
-        if(user.length === 0) {
+        var user = await userModel.findOne({ email: new RegExp('^'+email+'$', "i") })
+        console.log(user)
+        if(user === null) {
           return false
         }
         var password = generator.generate({
           length: 10,
           numbers: true
         })
-        var hashedPassword = bcrypt.hashSync(password, process.env.SALT)
-        user[0].password = hashedPassword
-        var newUser = await userModel.updateUser(user[0]._id, user[0])
+        var hashedPassword = bcrypt.hashSync(password, 12)
+        user.password = hashedPassword
+        var newUser = await userModel.updateUser(user._id, user)
         var mail = await sendMail(FROM, newUser.email, 'Aquadream - Mot de passe réinitialisé', RESET_MAIL({firstName: newUser.firstName, lastName: newUser.lastName, password: password}))
         return true
       }catch(error){
+        console.log(error)
         return false
       }    
     },

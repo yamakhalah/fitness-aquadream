@@ -49,6 +49,18 @@ SubscriptionSchema.statics.deleteSubscription = function(id) {
   return this.findOneAndDelete({'_id': id})
 }
 
+SubscriptionSchema.statics.changeLesson = function(id, oldLesson, newLesson, opts) {
+  return Subscription.findById(id).then(subscription => {
+    subscription.lessons.splice(oldLesson, 1)
+    subscription.lessons.push(newLesson)
+    return Subscription.findOneAndUpdate(
+      { _id: subscription._id },
+      { lessons: subscription.lessons },
+      { new: true, opts}
+    )
+  })
+}
+
 const Subscription = mongoose.model(SUBSCRIPTION, SubscriptionSchema)
 
 export default Subscription

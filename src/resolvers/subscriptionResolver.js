@@ -3,6 +3,9 @@ import payementModel from '../models/payement'
 import lessonModel from '../models/lesson'
 import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
+import mongoose from 'mongoose'
+import { ApolloError} from 'apollo-server-express'
+import { sendMail, FROM, CHANGE_SUBSCRIPTION } from '../mailer'
 
 export default {
   Query: {
@@ -44,9 +47,65 @@ export default {
       return graphqlSubscription
     },
 
-    changeLesson: async(parent, { oldLesson, newLesson }, { models: { subscriptionModel }}, info) => {
-      
+    changeLesson: async(parent, { subscription, oldLesson, newLesson }, { models: { subscriptionModel }}, info) => {
+      const session = await mongoose.startSession()
+      const opts = { session }
+      session.startTransaction()
+      try{
+        //GET SUBSCRIPTION DATA
+        var graphQLSubscription = await subscriptionModel.findById(subscription).session(session)
+        var user = await userModel.findById(graphQLSubscription.user).session(session)
+        //GET OLD LESSON DATA
+        var graphQLOldLesson = await lessonModel.findById(oldLesson).session(session)
+        //GET NEW LESSON DATA
+        var graphQLNewLesson = await lessonModel.findById(newLesson).session(session)
+
+        //REMOVE USER FROM OLD LESSONS_DAY
+        for(const lesson of graphQLOldLesson.lessonsDay){
+          var test = await lessonDayModel.removeUserDecreaseSpotLeft(lesson, user.id, opts)
+        }
+        //REMOVE USER FROM OLD LESSON
+        (await lessonModel).removeUser(graphQLOldLesson.id, user.id, opts)
+
+        //ADD USER TO NEW LESSONS_DAY
+        for(const lesson of graphQLNewLesson.lessonsDay){
+          var test = await lessonDayModel.addUserDecreaseSpotLeft(lesson, user.id, opts)
+        }
+        //ADD USER TO NEW LESSON
+        (await lessonModel).addUser(graphQLNewLesson.id, user.id, opts)
+
+        //REMOVE OLD LESSON FROM SUBSCRIPTION
+        //ADD NEW LESSON TO SUBSCRIPTIOn
+        var graphQLNewSubscription = await subscriptionModel.changeLesson(subscription, oldLesson, newLesson, opts)
+        await session.commitTransaction()
+        session.endSession()
+        //SEND EMAIL
+        var mail = await sendMail(FROM, user.email, 'Aquadream - Modification de votre abonnement', CHANGE_SUBSCRIPTION(user, graphQLOldLesson, graphQLNewLesson))
+        return true
+      }catch(error) {
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        return false
+      }
+    },
+
+    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { subscriptionModel }}, info) => {
+      //GET SUBSCRIPTION && PAYMENT DATA
+      //COMPUTE HOW MUCH CUSTOMER ALREADY PAID BASED ON RECURENCE BEGIN AND TOTAL MONTHLY
+      //GENERATE DISCOUNT FOR AMOUNT PAID
+      //CANCEL MOLLIE SUBSCRIPTION
+      //SEND EMAIL
+    },
+
+    cancelSubscriptionWithRefund: async(parent, { id }, { models: { subscriptionModel }}, info) => {
+      //GET SUBSCRIPTION && PAYMENT DATA
+      //REFUND EVERY PAYMENT LINKED TO THIS SUBSCRIPTION
+      //CANCEL MOLLIE SUBSCRIPTION
+      //SEND EMAIL
     }
+
+
   },
   Subscription: {
     payement: async({ payement }, args, { models: { payementModel }}, info) => {
