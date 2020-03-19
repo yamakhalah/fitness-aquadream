@@ -9,10 +9,11 @@ import { GET_SUBSCRIPTIONS_FOR_USER } from '../../database/query/subscriptionQue
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { lessonSubTypeToIMG } from '../../utils/enumToString'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { borderRadius } from '@material-ui/system';
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   loader: {

@@ -8,10 +8,11 @@ import { withApollo } from 'react-apollo'
 import { GET_CREDITS_FOR_USER } from '../../database/query/creditQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import img from '../../style/img/Aquadream-banner.png'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import {lessonSubTypeToString, lessonTypeToString} from '../../utils/enumToString'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const styles = theme => ({
   root: {

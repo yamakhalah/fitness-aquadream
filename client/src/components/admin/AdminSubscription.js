@@ -10,9 +10,10 @@ import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'
 import { CHANGE_LESSON } from '../../database/mutation/subscriptionMutation'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   root: {

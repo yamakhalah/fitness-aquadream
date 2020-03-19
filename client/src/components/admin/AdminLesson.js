@@ -14,9 +14,10 @@ import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import DateFnsUtils from '@date-io/date-fns'
 import frLocale from "date-fns/locale/fr";
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const styles = theme => ({
   root: {

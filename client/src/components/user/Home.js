@@ -1,5 +1,5 @@
 import React from 'react'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import Loader from '../global/Loader.js'
 import localizer from 'react-big-calendar/lib/localizers/globalize'
 import globalize from 'globalize'
@@ -16,6 +16,8 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 require('globalize/lib/cultures/globalize.culture.fr')
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
+
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(5) 

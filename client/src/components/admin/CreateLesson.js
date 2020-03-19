@@ -14,10 +14,11 @@ import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { CREATE_LESSON_AND_LESSONS_DAY } from '../../database/mutation/lessonMutation'
 import DateFnsUtils from '@date-io/date-fns'
 import frLocale from "date-fns/locale/fr";
-import moment from 'moment'
+import moment from 'moment-timezone'
 import localization from 'moment/locale/fr'
 
 moment.locale('fr', localization)
+moment.tz.setDefault('Europe/Brussels')
 
 
 const styles = theme => ({

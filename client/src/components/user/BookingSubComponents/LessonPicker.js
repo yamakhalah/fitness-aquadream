@@ -1,5 +1,5 @@
 import React from 'react'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import Loader from '../../global/Loader.js'
 import { DialogTitle, DialogContent, DialogActions, Dialog, Table, TableHead, TableRow, TableCell, TableBody, Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip, CardContent, Card, CardActions, IconButton, Divider } from '@material-ui/core'
 import { Add, Info, Remove, LowPriority, Close } from '@material-ui/icons'
@@ -14,6 +14,7 @@ import { GET_LESSON_SUB_TYPES } from '../../../database/query/lessonSubTypeQuery
 import { textAlign, borderRadius } from '@material-ui/system';
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   rootModal: {

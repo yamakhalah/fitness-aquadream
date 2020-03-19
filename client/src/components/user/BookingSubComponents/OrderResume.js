@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { List, ListItem, ListItemText, Typography, Container} from '@material-ui/core'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   root: {

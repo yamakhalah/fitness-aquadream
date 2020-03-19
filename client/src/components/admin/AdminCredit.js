@@ -9,9 +9,10 @@ import { Delete, Edit } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import DateFnsUtils from '@date-io/date-fns'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   root: {

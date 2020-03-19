@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import Loader from '../../global/Loader.js'
 import axios from 'axios'
 //import chargebee from 'chargebee'
@@ -11,6 +11,9 @@ import { useApolloClient } from 'react-apollo'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { GET_MOLLIE_CHECKOUT_RESULT } from '../../../database/query/payementQuery'
 import { GET_AUTHENTIFICATION, UPDATE_AUTHENTIFICATION } from '../../../store/authentification'
+
+moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   root: {

@@ -11,9 +11,10 @@ import { USE_CREDIT } from '../../database/mutation/creditMutation'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { Save } from '@material-ui/icons'
 import { dateToDayString } from '../../utils/dateTimeConverter'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const styles = theme => ({
   root: {

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import Loader from '../global/Loader.js'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient, useQuery } from 'react-apollo'
@@ -14,6 +14,7 @@ import OrderResume from './BookingSubComponents/OrderResume'
 import Payement from './BookingSubComponents/Payement'
 
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const useStyles = makeStyles(theme => ({
   layout: {
