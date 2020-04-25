@@ -11,6 +11,16 @@ export default {
     discounts: async (parent, args, { models: { discountModel }}, info) => {
       const discounts = await discountModel.find().exec()
       return discounts
+    },
+
+    discountByCode: async (parent, { code, user }, {  models: { discountModel }}, info) => {
+      const discount = await discountModel.findOne(
+        { 
+          discount: code,
+          user: user
+        }
+      ).exec()
+      return discount
     }
   },
   Mutation: {

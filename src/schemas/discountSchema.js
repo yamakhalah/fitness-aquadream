@@ -13,6 +13,8 @@ export default gql`
   extend type Query {
     discount(id: ID!): Discount!
     discounts: [Discount!]!
+    discountByCode(code: ID!, user: ID!): Discount
+
   }
 
   extend type Mutation {

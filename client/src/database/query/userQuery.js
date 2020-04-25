@@ -52,6 +52,9 @@ export const GET_USER_BY_ID = gql`
       }
       discounts{
         id
+        discount,
+        value
+        validityEnd
       }
       activeLessonsDay{
         id

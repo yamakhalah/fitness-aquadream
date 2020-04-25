@@ -119,6 +119,7 @@ export default {
         }
         //CANCEL MOLLIE SUBSCRIPTION
         const graphqlDiscount = await discountModel.create(discount, { opts })
+        const user = await userModel.addDiscount(sub.user._id, graphqlDiscount._id, session)
         //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
         if(sub.subType === 'LESSON') {
           for(const lesson of sub.lessons){
