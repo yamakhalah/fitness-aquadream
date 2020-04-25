@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import moment from 'moment-timezone'
-import { List, ListItem, ListItemText, Typography, Container} from '@material-ui/core'
+import { List, ListItem, ListItemText, Typography, Container, TextField, Button} from '@material-ui/core'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 
 moment.locale('fr')
@@ -11,6 +11,11 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     backgroundColor: 'theme.palette.background.paper',
     padding: theme.spacing(3),
+  },
+  discount: {
+   paddingTop: 35,
+   display: 'flex',
+   justifyContent: 'space-between'
   },
   listItem: {
     padding: theme.spacing(1,0)
@@ -43,6 +48,9 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
   const [needReRender, setNeedReRender] = React.useState(false)
   const [totalPayement, setTotalPayement] = React.useState(0)
   const [monthlyPayement, setMonthlyPayement] = React.useState([0,0,0,0,0,0,0,0,0,0,0,0])
+  const [discountAmount, setDiscountAmount] = React.useState(0)
+  const [discountCode, setDiscountCode] = React.useState('')
+  const [discounts, setDiscounts] = React.useState([])
   const [bookedLessonsDiscount, setBookedLessonsDiscount] = React.useState({
     "X1": [],
     "X2": [],
@@ -146,6 +154,11 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
     }
   }, [needReRender])
 
+  const changeDiscountCode = (event) => {
+    console.log(event.target.value)
+    setDiscountCode(event.target.value)
+  }
+
   return(
     <Container component="main" maxWidth="sm" className={classes.root}>
       <Typography variant="h4">
@@ -232,6 +245,17 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
           </Typography>
         </ListItem>
       </List>
+      <Container className={classes.discount}>
+      <TextField
+          label="Code de réduction"
+          id="reduc"
+          value={discountCode}
+          onChange={changeDiscountCode}
+      />
+      <Button variant="contained" color="primary">
+        Ajouter
+      </Button>
+      </Container>
     </Container>
   )
 }
