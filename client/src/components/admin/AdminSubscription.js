@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react'
 import Loader from '../global/Loader'
 import { makeStyles } from '@material-ui/core/styles'
-import { Snackbar, FormControl, InputLabel, Select, MenuItem, Tooltip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, TablePagination, Container, CssBaseline, Typography, Table, TableRow, TableCell, TableBody, TableHead } from '@material-ui/core'
-import { Edit, ExpandMore, ArrowForward } from '@material-ui/icons'
+import { Snackbar, FormControl, InputLabel, Select, MenuItem, Tooltip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, TablePagination, Container, CssBaseline, Typography, Table, TableRow, TableCell, TableBody, TableHead, FormLabel, RadioGroup, Radio, FormControlLabel } from '@material-ui/core'
+import { Edit, ExpandMore, ArrowForward, Delete } from '@material-ui/icons'
 import { useQuery, useMutation, useApolloClient } from  'react-apollo'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'
-import { CHANGE_LESSON } from '../../database/mutation/subscriptionMutation'
+import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT } from '../../database/mutation/subscriptionMutation'
 import moment from 'moment-timezone'
 
 moment.locale('fr')
@@ -57,9 +57,11 @@ export default function AdminSubscription() {
   const [selectedSubscriptionData, setSelectedSubscriptionData] = React.useState(null)
   const [selectedOldLesson, setSelectedOldLesson] = React.useState(null)
   const [selectedNewLesson, setSelectedNewLesson] = React.useState(null)
+  const [refundType, setRefundType] = React.useState('discount')
   const [rowsPerPage, setRowsPerPage] = React.useState(10)
   const [page, setPage] = React.useState(0)
   const [openEditDialog, setOpenEditDialog] = React.useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
   const [openSnack, setOpenSnack] = React.useState(false)
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
@@ -128,6 +130,45 @@ export default function AdminSubscription() {
       setOpenEditDialog(false)
     }
   }
+  
+  const handleDeleteDialog = (subscriptionData) => {
+    if(!openDeleteDialog) {
+      setSelectedSubscriptionData(subscriptionData)
+      setOpenDeleteDialog(true)
+    }else{
+      setOpenDeleteDialog(false)
+    }
+  }
+
+  const deleteSubscription = () => {
+    setLoading(true)
+    console.log('DELETE SUBSCRIPTION')
+    if(refundType === 'discount') {
+      client.mutate({
+        mutation: CANCEL_SUBSCRIPTION_DISCOUNT,
+        variables: {
+          id: selectedSubscriptionData.subscription.id
+        }
+      })
+      .then(result => {
+        if(result.data.cancelSubscriptionWithDiscount) {
+          showSnackMessage('L\'abonnement a bien été annulé', 'success')
+        }else{
+          showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+        }
+        setLoading(false)
+        setOpenDeleteDialog(false)
+      })
+      .catch(error => {
+        console.log(error)
+        showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+        setLoading(false)
+        setOpenDeleteDialog(false)
+      })
+    }else{
+      console.log('PAYMENT')
+    }
+  }
 
   const modifyLesson = () => {
     setLoading(true)
@@ -137,7 +178,10 @@ export default function AdminSubscription() {
         subscription: selectedSubscriptionData.subscription.id,
         oldLesson: selectedOldLesson.id,
         newLesson: selectedNewLesson.id
-      }
+      },
+      refetchQueries: [{
+        query: GET_SUBSCRIPTIONS
+      }]
     })
     .then(result => {
       if(result.data.changeLesson) {
@@ -222,6 +266,13 @@ export default function AdminSubscription() {
                           <Edit />
                         </IconButton>
                       </Tooltip>
+                      {(subscriptionData.subscription.subStatus === 'WAITING_BEGIN' || subscriptionData.subscription.subStatus === 'ON_GOING' ) && 
+                        <Tooltip title="Annuler l'abonnement">
+                          <IconButton onClick={() => handleDeleteDialog(subscriptionData)}>
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                      }
                     </TableCell>
                 </TableRow>
                 <TableRow>
@@ -294,6 +345,26 @@ export default function AdminSubscription() {
           onChangePage={handleChangePage}
         />
       </Container>
+      <Dialog open={openDeleteDialog} fullWidth={true} maxWidth='sm'>
+        <DialogTitle>Annuler l'abonnement de {selectedSubscriptionData.subscription.user.firstName} {selectedSubscriptionData.subscription.user.lastName}</DialogTitle>
+        <DialogContent>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Méthode de remboursement</FormLabel>
+            <RadioGroup aria-label="gender" name="gender1" value={refundType} onChange={ event => {setRefundType(event.target.value)}}>
+              <FormControlLabel value="discount" control={<Radio />} label="Générer un bon d'achat" />
+              <FormControlLabel value="refund" disabled control={<Radio />} label="Générer un paiement direct" />
+            </RadioGroup>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleDeleteDialog(null)} color="default" disabled={loading}>
+            Annuler           
+          </Button>
+          <Button onClick={() => deleteSubscription()} color="primary" disabled={loading}>
+            Confirmer        
+          </Button> 
+        </DialogActions>
+      </Dialog>
       <Dialog open={openEditDialog} fullWidth={true} maxWidth='md'>
         <DialogTitle>Modifier un abonnement</DialogTitle>
         <DialogContent>

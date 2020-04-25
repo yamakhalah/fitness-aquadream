@@ -5,6 +5,10 @@ moment.locale('fr')
 
 export const FROM = 'noreply@aquadream-temploux.be'
 
+export function TEST() {
+  return '<p>TEST</p>'
+}
+
 export function SIGN_UP(user) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
   '<p>Nous vous confirmons la création de votre compte sur www.aquadream-temploux.be</p></br>'+
@@ -35,6 +39,21 @@ export function CANCEL_LESSON_DAY(user, lessonDay, message) {
   '<h4>Motif:</h4>'+
   '<p>'+message+'</p>'+
   '<p>Rassurez-vous, un avoir a été émis et peut être utilisé gratuitement pendant un an pour n\'importe quel cours. Rendez vous sur l\'onglet crédit pour l\'utiliser</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+export function CANCEL_SUBSCRIPTION_DISCOUNT(discount, subscription) {
+  return '<p>Bonjour '+subscription.user.firstName+' '+subscription.user.lastName+'</p>'+
+  '<p>Nous vous informons qu\'un de vos abonnement a été annulé.</p>' +
+  '<p>Si vous aviez déjà payé un bon d\'achat d\'une valeur équivalente vous a été généré. Vous pourrez le sélectionner lors d’une prochaine réservation.</p>' +
+  '</br></br>'+
+  '<p>Montant remboursé: '+discount.value+'€</p>' +
+  '<p>Code Voucher: '+discount.discount.toString()+'€</p>' +
+  '</br></br>'+
+  '<p>Plus d\informations via l\'application Aquadream</p>' +
   '<p>Cordialement,</p>'+
   '<p>L\'équipe Aquadream</p>'+
   '</br></br>'+
@@ -93,11 +112,14 @@ export function sendMail(from, to, subject, html) {
     subject: subject,
     html: html
   }
+  console.log(content)
 
   transport.sendMail(content, (error, response) => {
     if(error) {
+      console.log(error)
       return false
     }else{
+      console.log('OK MAIL')
       return true
     }
     transport.close()
