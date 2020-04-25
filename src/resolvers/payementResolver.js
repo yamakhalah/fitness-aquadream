@@ -73,12 +73,19 @@ export default {
         //CREATE FIRST PAYEMENT
         const ref = uuid.v4()
         const lessonsID = []
+        const discountsID = []
         for(const lesson of orderResume.lessonsData){
           var elem = {
             lessonID: lesson.lesson.id,
             //lessonMonthlyPrice: lesson.lessonMonthlyPrice
           }
           lessonsID.push(elem)
+        }
+        for(const discount of orderResume.discounts){
+          var elem = {
+            discountID: discount.id
+          }
+          discountsID.push(elem)
         }
         const molliePayment = await mollieClient.payments.create({
           amount: {
@@ -98,8 +105,10 @@ export default {
             startDate: moment(orderResume.recurenceBegin).format('YYYY-MM-DD'),
             endDate: moment(orderResume.recurenceEnd).format('YYYY-MM-DD'),
             lessons: lessonsID,
+            discounts: discountsID,
             reference: ref,
             yearlyTax: orderResume.yearlyTax
+
           },
           sequenceType: 'first',
           customerId: user.mollieCustomerID,

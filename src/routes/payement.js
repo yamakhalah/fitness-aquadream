@@ -2,6 +2,7 @@ require('dotenv').config()
 import { createMollieClient } from '@mollie/api-client'
 import { sendMail, FROM, CONFIRM_SUBSCRIPTION } from '../mailer'
 import mongoose from 'mongoose'
+import discountModel from '../models/discount'
 import payementModel from '../models/payement'
 import subscriptionModel from '../models/subscription'
 import userModel from '../models/user.js'
@@ -63,6 +64,12 @@ const createSubscription = async (data) => {
         for(const lessonDay of graphqlLesson.lessonsDay) {
           var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
         }
+      }
+      for(const discount of payment.metadata.discounts) {
+        const graphqlDiscount = await discountModel.findOneAndUpdate(
+          { _id: discount.discountID },
+          { status: 'USED' }
+        ).session(session)
       }
       const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
       const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')

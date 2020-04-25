@@ -115,10 +115,12 @@ export default {
           subscription: sub._id,
           discount: crypto.randomBytes(6).toString('hex').toUpperCase(),
           value: refund,
+          status: 'NOT_USED',
           validityEnd: moment().add(1, 'years')
         }
         //CANCEL MOLLIE SUBSCRIPTION
         const graphqlDiscount = await discountModel.create(discount, { opts })
+        const user = await userModel.addDiscount(sub.user._id, graphqlDiscount._id, session)
         //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
         if(sub.subType === 'LESSON') {
           for(const lesson of sub.lessons){
