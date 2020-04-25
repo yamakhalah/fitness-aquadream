@@ -104,7 +104,7 @@ LessonSchema.statics.removeUser = function(id, user, opts) {
     return Lesson.findOneAndUpdate(
       {_id: lesson._id },
       { users: lesson.users, $inc: { spotLeft: 1 }},
-      { new: true, opts }
+      { new: true, session: opts.session }
     )
   })
 }

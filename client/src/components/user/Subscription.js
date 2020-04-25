@@ -203,23 +203,42 @@ export default function Subscription(props) {
                     <Grid item xs={4} md={4}>
                       Status: 
                     </Grid>
-                    {subscriptionData.mollieSubscription.status === 'active' ? (
+                    {subscriptionData.subscription.subStatus === 'WAITING_PAYEMENT' && 
                       <Grid item xs={8} md={8}>
-                        <div className={classes.statusOK}>
-                        Actif
+                        <div className={classes.statusKO}>
+                          Problème de paiement
                         </div>
                       </Grid>
-                    ):(
-                      <Grid item xs={8} md={8} className={classes.statusKO}>
-                        Problème
+                    }
+                    {(subscriptionData.subscription.subStatus === 'WAITING_BEGIN' || subscriptionData.subscription.subStatus === 'ON_GOING' ) && 
+                      <React.Fragment>
+                      <Grid item xs={8} md={8}>
+                        <div className={classes.statusOK}>
+                          Actif
+                        </div>
                       </Grid>
-                    )}
-                    <Grid item xs={4} md={4}>
-                      Prochain paiement: 
-                    </Grid>
-                    <Grid item xs={8} md={8}>
-                      {moment(subscriptionData.mollieSubscription.nextPaymentDate, 'YYYY-MM-DD').format('DD/MM/YYYY')}
-                    </Grid>
+                      <Grid item xs={4} md={4}>
+                        Prochain paiement: 
+                      </Grid>
+                      <Grid item xs={8} md={8}>
+                        {moment(subscriptionData.mollieSubscription.nextPaymentDate, 'YYYY-MM-DD').format('DD/MM/YYYY')}
+                      </Grid>
+                      </React.Fragment>
+                    }
+                    {subscriptionData.subscription.subStatus === 'EXPIRED' && 
+                      <Grid item xs={8} md={8}>
+                        <div className={classes.statusOK}>
+                          Terminé
+                        </div>
+                      </Grid>
+                    }
+                    {(subscriptionData.subscription.subStatus === 'CANCELED_BY_ADMIN' ||  subscriptionData.subscription.subStatus === 'CANCELED_BY_CLIENT') &&
+                      <Grid item xs={8} md={8}>
+                        <div className={classes.statusKO}>
+                         Annulé
+                        </div>
+                      </Grid>
+                    }
                   </Grid>
                   <ExpansionPanel className={classes.expansionPanel}>
                     <ExpansionPanelSummary

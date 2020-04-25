@@ -5,3 +5,9 @@ export const CHANGE_LESSON = gql`
     changeLesson(subscription: $subscription, oldLesson: $oldLesson, newLesson: $newLesson)
   }
 `
+
+export const CANCEL_SUBSCRIPTION_DISCOUNT = gql`
+  mutation cancelSubscriptionWithDiscount($id: ID!){
+    cancelSubscriptionWithDiscount(id: $id)
+  }
+`
