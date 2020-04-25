@@ -39,6 +39,24 @@ export default {
       }
     },
 
+    doNotCallAGAIN: async(parent, args, { models: { payementModel } }, info) => {
+      try {
+        const list = await payementModel.find({})
+        for(const payement of list) {
+          console.log(payement.mollieSubscriptionID)
+          const sub = await mollieClient.customers_subscriptions.update(payement.mollieSubscriptionID, {
+            customerId: payement.mollieCustomerID,
+            startDate: '2020-06-08'
+          })
+          console.log(sub)
+        }
+        return true
+      }catch(error){
+        console.log(error)
+        return false
+      }
+    },
+
     getSession: async (parent, { orderResume, preBookedLessons, user }, { models: { payementModel }}, info) => {
       try{
         //CHECK IF USER HAS MOLLIE CUSTOMER ID

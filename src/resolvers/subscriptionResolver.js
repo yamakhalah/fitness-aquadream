@@ -15,7 +15,7 @@ export default {
     },
 
     subscriptions: async (parent, args, { models: { subscriptionModel }}, info) => {
-      const graphqlSubscription = await subscriptionModel.find().exec()
+      const graphqlSubscription = await subscriptionModel.find().sort({ lastName: 1, created: 1 }).exec()
       return graphqlSubscription
     },
 

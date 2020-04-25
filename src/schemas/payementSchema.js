@@ -25,6 +25,7 @@ export default gql`
     getSession(orderResume: JSON!, user: JSON!, preBookedLessons: JSON!): JSON!
     getMollieCheckoutResult(paymentRef: String!): JSON!
     getMollieSubscriptionData(mollieCustomerID: String!, mollieSubscriptionID: String!): JSON!
+    doNotCall: Boolean!
 
   }
 
