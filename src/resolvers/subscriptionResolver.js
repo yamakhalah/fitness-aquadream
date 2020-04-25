@@ -1,3 +1,4 @@
+require('dotenv').config()
 import subscriptionModel from '../models/subscription'
 import payementModel from '../models/payement'
 import lessonModel from '../models/lesson'
@@ -5,7 +6,12 @@ import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
 import mongoose from 'mongoose'
 import { ApolloError} from 'apollo-server-express'
-import { sendMail, FROM, CHANGE_SUBSCRIPTION } from '../mailer'
+import { sendMail, FROM, CHANGE_SUBSCRIPTION, CANCEL_SUBSCRIPTION_DISCOUNT } from '../mailer'
+import { createMollieClient } from '@mollie/api-client'
+import crypto from 'crypto'
+import moment from 'moment'
+moment.locale('fr')
+const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
 
 export default {
   Query: {
@@ -90,12 +96,67 @@ export default {
       }
     },
 
-    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { subscriptionModel }}, info) => {
-      //GET SUBSCRIPTION && PAYMENT DATA
-      //COMPUTE HOW MUCH CUSTOMER ALREADY PAID BASED ON RECURENCE BEGIN AND TOTAL MONTHLY
-      //GENERATE DISCOUNT FOR AMOUNT PAID
-      //CANCEL MOLLIE SUBSCRIPTION
-      //SEND EMAIL
+    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
+      const session = await mongoose.startSession()
+      const opts = { session }
+      session.startTransaction()
+      try{
+        //GET SUBSCRIPTION && PAYMENT DATA
+        const sub = await subscriptionModel.findById(id).populate([{ path: 'payement', model: payementModel }, { path: 'lessonsDay', model: lessonDayModel }, { path: 'lessons', model: lessonModel }, { path: 'user', model: userModel } ])
+        console.log(sub)
+        const mollieSub = await mollieClient.customers_subscriptions.get(
+          sub.payement.mollieSubscriptionID,
+          { customerId: sub.payement.mollieCustomerID }
+        )
+        console.log(mollieSub)
+        //COMPUTE HOW MUCH CUSTOMER ALREADY PAID BASED ON RECURENCE BEGIN AND TOTAL MONTHLY
+        const refund = ((mollieSub.times - mollieSub.timesRemaining)+1) * Number(mollieSub.amount.value)
+        console.log('REFUND AMOUNT: '+refund)
+        //GENERATE DISCOUNT FOR AMOUNT PAID
+        const discount = {
+          user: sub.user._id,
+          subscription: sub._id,
+          discount: crypto.randomBytes(6).toString('hex').toUpperCase(),
+          value: refund,
+          validityEnd: moment().add(1, 'years')
+        }
+        //CANCEL MOLLIE SUBSCRIPTION
+        const graphqlDiscount = await discountModel.create(discount, { opts })
+        console.log(graphqlDiscount)
+        //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
+        if(sub.subType === 'LESSON') {
+          for(const lesson of sub.lessons){
+            //LESSONMODEL.removeUser
+            const dLesson = await lessonModel.removeUser(lesson._id, sub.user._id, opts)
+            for(const lessonDay of lesson.lessonsDay) {
+              const dLessonDay = await lessonDayModel.removeUserIncreaseSpotLeft(lessonDay, sub.user._id, opts)
+            }
+          }
+        } else {
+          console.log('ELSE')
+        }
+        //CANCEL SUBSCRIPTION
+        const uSub = await subscriptionModel.findOneAndUpdate(
+          { _id: sub._id },
+          { subStatus: 'CANCELED_BY_ADMIN'},
+          { new: true }
+        ).session(session)
+
+        const newMollieSub = await mollieClient.customers_subscriptions.cancel(
+          sub.payement.mollieSubscriptionID,
+          { customerId: sub.payement.mollieCustomerID, }
+        )
+        await session.commitTransaction()
+        session.endSession()
+        //SEND EMAIL
+        var mail = await sendMail(FROM, sub.user.email, CANCEL_SUBSCRIPTION_DISCOUNT(graphqlDiscount, sub, refund))
+        return true
+      }catch(error) {
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        return false
+      }
     },
 
     cancelSubscriptionWithRefund: async(parent, { id }, { models: { subscriptionModel }}, info) => {

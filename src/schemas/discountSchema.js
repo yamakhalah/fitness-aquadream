@@ -4,6 +4,7 @@ export default gql`
   type Discount {
     id: ID!
     user: User!
+    subscription: Subscription!
     discount: String!
     value: Float!
     validityEnd: String!
@@ -15,8 +16,8 @@ export default gql`
   }
 
   extend type Mutation {
-    createDiscount(user: ID!, discount: String!, value: Float!, validityEnd: String!): Discount!
-    updateDiscount(id: ID!, user: ID!, discount: String!, value: Float!, validityEnd: String!): Discount!
+    createDiscount(user: ID!, subscription: ID!, discount: String!, value: Float!, validityEnd: String!): Discount!
+    updateDiscount(id: ID!, user: ID!, subscription: ID!, discount: String!, value: Float!, validityEnd: String!): Discount!
     deleteDiscount(id: ID!): Discount!
   }
 `
