@@ -103,15 +103,12 @@ export default {
       try{
         //GET SUBSCRIPTION && PAYMENT DATA
         const sub = await subscriptionModel.findById(id).populate([{ path: 'payement', model: payementModel }, { path: 'lessonsDay', model: lessonDayModel }, { path: 'lessons', model: lessonModel }, { path: 'user', model: userModel } ])
-        console.log(sub)
         const mollieSub = await mollieClient.customers_subscriptions.get(
           sub.payement.mollieSubscriptionID,
           { customerId: sub.payement.mollieCustomerID }
         )
-        console.log(mollieSub)
         //COMPUTE HOW MUCH CUSTOMER ALREADY PAID BASED ON RECURENCE BEGIN AND TOTAL MONTHLY
         const refund = ((mollieSub.times - mollieSub.timesRemaining)+1) * Number(mollieSub.amount.value)
-        console.log('REFUND AMOUNT: '+refund)
         //GENERATE DISCOUNT FOR AMOUNT PAID
         const discount = {
           user: sub.user._id,
@@ -122,7 +119,6 @@ export default {
         }
         //CANCEL MOLLIE SUBSCRIPTION
         const graphqlDiscount = await discountModel.create(discount, { opts })
-        console.log(graphqlDiscount)
         //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
         if(sub.subType === 'LESSON') {
           for(const lesson of sub.lessons){
@@ -141,7 +137,6 @@ export default {
           { subStatus: 'CANCELED_BY_ADMIN'},
           { new: true }
         ).session(session)
-
         const newMollieSub = await mollieClient.customers_subscriptions.cancel(
           sub.payement.mollieSubscriptionID,
           { customerId: sub.payement.mollieCustomerID, }
@@ -149,7 +144,7 @@ export default {
         await session.commitTransaction()
         session.endSession()
         //SEND EMAIL
-        var mail = await sendMail(FROM, sub.user.email, CANCEL_SUBSCRIPTION_DISCOUNT(graphqlDiscount, sub, refund))
+        var mail = await sendMail(FROM, sub.user.email, CANCEL_SUBSCRIPTION_DISCOUNT(graphqlDiscount, sub))
         return true
       }catch(error) {
         console.log(error)
