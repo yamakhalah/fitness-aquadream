@@ -153,7 +153,8 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         total: (total - discountAmount),
         totalMonthly: Math.ceil(((total-discountAmount)/highestMonth)),
         yearlyTax: tax,
-        lessonsData: lessonsData
+        lessonsData: lessonsData,
+        discounts: discounts
       }
       setBookedLessonsDiscount(lBookedLessonsDiscount)
       setOrderResume(orderResume)
@@ -191,6 +192,9 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         setDiscountCode('')
       }else if(discount.value > orderResume.total){
         showSnackMessage('La valeur de ce bon d\'achat est supérieur au montant total', 'error')
+        setDiscountCode('')
+      }else if(discount.status === 'USED'){
+        showSnackMessage('Ce code a déjà été utilisé', 'error')
         setDiscountCode('')
       }else{
         var amount = discountAmount

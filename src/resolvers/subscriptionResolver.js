@@ -115,6 +115,7 @@ export default {
           subscription: sub._id,
           discount: crypto.randomBytes(6).toString('hex').toUpperCase(),
           value: refund,
+          status: 'NOT_USED',
           validityEnd: moment().add(1, 'years')
         }
         //CANCEL MOLLIE SUBSCRIPTION

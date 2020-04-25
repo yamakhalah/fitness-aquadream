@@ -21,6 +21,10 @@ const DiscountSchema = new Schema({
     type: Schema.Types.Number,
     required: true
   },
+  status: {
+    type: String,
+    required: true
+  },
   validityEnd: {
     type: Date,
     required: true
@@ -36,7 +40,7 @@ DiscountSchema.statics.deleteDiscount = function(id) {
 }
 
 DiscountSchema.statics.create = function(data, opts) {
-  const discount = new Discount({ user: data.user, subscription: data.subscription, discount: data.discount, value: data.value, validityEnd: data.validityEnd })
+  const discount = new Discount({ user: data.user, subscription: data.subscription, discount: data.discount, value: data.value, status: data.status, validityEnd: data.validityEnd })
   return discount.save(opts)
 }
 

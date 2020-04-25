@@ -24,13 +24,13 @@ export default {
     }
   },
   Mutation: {
-    createDiscount: async (parent, { user, lessonDay, value, validityEnd }, { models: { discountModel }}, info) => {
-      const discount = await discountModel.create({ user, lessonDay, value, validityEnd })
+    createDiscount: async (parent, { user, lessonDay, value, status, validityEnd }, { models: { discountModel }}, info) => {
+      const discount = await discountModel.create({ user, lessonDay, value, status, validityEnd })
       return discount
     },
 
-    updateDiscount: async (parent, { id, user, lessonDay, value, validityEnd }, { models:  { discountModel }}, info) => {
-      const discount = await discountModel.updateDiscount(id, { user, lessonDay, value, validityEnd  })
+    updateDiscount: async (parent, { id, user, lessonDay, value, status, validityEnd }, { models:  { discountModel }}, info) => {
+      const discount = await discountModel.updateDiscount(id, { user, lessonDay, value, status, validityEnd  })
       return discount
     },
 
