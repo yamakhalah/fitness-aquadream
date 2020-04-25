@@ -56,7 +56,7 @@ export default gql`
     updateSubscription(id: ID!, subscription: SubscriptionInput!): Subscription!
     deleteSubscription(id: ID!): Subscription!
     changeLesson(subscription: ID!, oldLesson: ID!, newLesson: ID!): Boolean!
-    cancelSubscriptionWithDiscount(id: ID!): Subscription
-    cancelSubscriptionWithRefund(id: ID!): Subscription
+    cancelSubscriptionWithDiscount(id: ID!): Boolean!
+    cancelSubscriptionWithRefund(id: ID!): Boolean!
   }
 `

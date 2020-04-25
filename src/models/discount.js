@@ -1,4 +1,4 @@
-const { USER, DISCOUNT } = require('./dbName')
+const { USER, DISCOUNT, SUBSCRIPTION } = require('./dbName')
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
@@ -6,6 +6,11 @@ const DiscountSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: USER,
+    required: true
+  },
+  subscription: {
+    type: Schema.Types.ObjectId,
+    ref: SUBSCRIPTION,
     required: true
   },
   discount: {
@@ -30,9 +35,9 @@ DiscountSchema.statics.deleteDiscount = function(id) {
   return Discount.findOneAndDelete({_id: id})
 }
 
-DiscountSchema.statics.create = function(data) {
-  const discount = new Discount({ user: data.user, discount: data.discount, validityEnd: data.validityEnd })
-  return discount.save()
+DiscountSchema.statics.create = function(data, opts) {
+  const discount = new Discount({ user: data.user, subscription: data.subscription, discount: data.discount, value: data.value, validityEnd: data.validityEnd })
+  return discount.save(opts)
 }
 
 const Discount = mongoose.model(DISCOUNT, DiscountSchema)
