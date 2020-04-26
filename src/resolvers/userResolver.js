@@ -3,7 +3,7 @@ import generator from 'generate-password'
 import jwt from 'jsonwebtoken'
 import { AuthenticationError } from 'apollo-server'
 import { NOT_AUTHENTICATED, INVALID_CREDENTIALS } from '../error'
-import { sendMail, RESET_MAIL, SIGN_UP, FROM } from '../mailer'
+import { sendMail, RESET_MAIL, SIGN_UP, FROM, ADMIN_MAIL } from '../mailer'
 import userModel from '../models/user'
 import subscriptionModel from '../models/subscription'
 import creditModel from '../models/credit'
@@ -50,6 +50,19 @@ export default {
         token, user
       };
     },
+
+    sendGlobalEmail: async (parent, { message }, { models: { userModel }}, info) => {
+      try{
+        const users = await userModel.find({}).exec()
+        for(const user of users) {
+          var email = await sendMail(FROM, user.email, 'Aquadream - Message de l\'équipe', ADMIN_MAIL(message))
+        }
+        return true
+      }catch(error) {
+        console.log(error)
+        return false
+      }
+    }
   },
   Mutation: {
     createUser: async(parent, { email, password, firstName, lastName, phone, gender}, { models: { userModel }}, info) => {

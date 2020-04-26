@@ -1,10 +1,11 @@
 import React from 'react'
+import Loader from '../global/Loader'
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
-import { Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
-import { GET_USERS } from '../../database/query/userQuery'
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField, Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
+import { GET_USERS, SEND_GLOBAL_EMAIL } from '../../database/query/userQuery'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { UPDATE_IS_ADMIN, UPDATE_IS_TEACHER } from '../../database/mutation/userMutation'
 import { CustomSnackBar } from '../global/CustomSnackBar'
@@ -23,6 +24,17 @@ const styles = theme => ({
 
   table: {
     marginTop: 50
+  },
+
+  button: {
+    float: 'right'
+  },
+
+  loader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '80vh'
   }
 })
 
@@ -34,6 +46,9 @@ class AdminUser extends React.Component {
       errorVariant: 'error',
       errorMessage: '',
       openSnack: false,
+      openDialog: false,
+      loading: false,
+      message: ''
     }
   }
 
@@ -46,6 +61,31 @@ class AdminUser extends React.Component {
     })
     .catch(error => {
       this.showSnackMessage('Erreur lors de la récupération des utilisateurs', 'error')
+    })
+  }
+
+  sendEmail = () => {
+    this.setState({ 
+      openDialog: false,
+      loading: true
+    })
+    this.props.client.query({
+      query: SEND_GLOBAL_EMAIL,
+      variables: {
+        message: this.state.message
+      }
+    })
+    .then(result => {
+      this.setState({
+        loading: false
+      })
+      this.showSnackMessage('Les emails ont été envoyés', 'success')
+    })
+    .catch(error => {
+      this.setState({
+        loading: false
+      })
+      this.showSnackMessage('Erreur lors de l\'envoi des emails', 'error')
     })
   }
   
@@ -116,6 +156,13 @@ class AdminUser extends React.Component {
 
   render(){
     const { classes } = this.props
+
+    if (this.state.loading) return (
+      <div className={classes.loader}>
+        <Loader />
+      </div>
+    )
+
     return(
       <div>
       <Container component="main" maxWidth="xl" className={classes.root}>
@@ -123,6 +170,7 @@ class AdminUser extends React.Component {
         <Typography component="h1" variant="h5">
           Utilisateurs
         </Typography>
+        <Button className={classes.button} color="primary" disabled={this.state.loading} onClick={() => {this.setState({ openDialog: true })}}>Envoyer un email</Button>
         <Table className={classes.table} size="small">
           <TableHead>
             <TableRow>
@@ -168,6 +216,32 @@ class AdminUser extends React.Component {
           </TableBody>
         </Table>
       </Container>
+      <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='md'>
+        <DialogTitle>Envoyer un message</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Ce message sera envoyé à tous les utilisateurs de l'application Aquadream</DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="message"
+            label="Message"
+            type="text"
+            multiline
+            rows={5}
+            fullWidth
+            value={this.state.message}
+            onChange={ event =>  {this.setState({ message: event.target.value })}}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {this.setState({ openDialog: false })}} color="default" disabled={this.state.loading}>
+            Annuler           
+          </Button>
+          <Button onClick={() => this.sendEmail()} color="primary" disabled={this.state.loading}>
+            Confirmer           
+          </Button> 
+        </DialogActions>
+      </Dialog>
       <Snackbar
         anchorOrigin={{
           vertical: 'bottom',

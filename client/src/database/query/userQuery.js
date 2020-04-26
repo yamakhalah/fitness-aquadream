@@ -101,3 +101,9 @@ export const LOGIN = gql`
       }
   }
 `
+
+export const SEND_GLOBAL_EMAIL = gql`
+  query sendGlobalEmail($message: String!) {
+    sendGlobalEmail(message: $message)
+  }
+`
