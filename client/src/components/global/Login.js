@@ -74,7 +74,8 @@ const styles = theme => ({
   },
   copyright: {
     position: 'absolute',
-    bottom: 0
+    display: 'block',
+    bottom: 10
   }
 });
 
