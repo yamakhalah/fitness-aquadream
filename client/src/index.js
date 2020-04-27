@@ -91,11 +91,21 @@ const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError, operation, forward }) => {
       if (graphQLErrors){
-        graphQLErrors.forEach(({ message, locations, path }) =>
+        graphQLErrors.forEach(({ message, locations, path }) => {
+          if(message.includes('NOT_AUTHENTICATED') || message.includes('SESSION_EXPIRED')){
+            window.localStorage.clear()
+            client.resetStore().then(() => {
+              window.location.replace('/login')
+            })
+            .catch(error => {
+              console.log(error)
+              window.location.replace('/login')
+            })
+          }
           console.error(
             `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-          ),
-        );
+          )
+        });
       //throw new ApolloError(graphQLErrors[0])
       
       }

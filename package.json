@@ -41,6 +41,7 @@
     "graphql-tools": "^4.0.6",
     "graphql-type-json": "^0.3.1",
     "jsonwebtoken": "^8.5.1",
+    "kill-port": "^1.6.0",
     "local-cors-proxy": "^1.1.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
