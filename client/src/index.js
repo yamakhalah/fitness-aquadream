@@ -92,8 +92,7 @@ const client = new ApolloClient({
     onError(({ graphQLErrors, networkError, operation, forward }) => {
       if (graphQLErrors){
         graphQLErrors.forEach(({ message, locations, path }) => {
-          console.log(message)
-          if(message === 'NOT_AUTHENTICATED' || message.includes('SESSION_EXPIRED')){
+          if(message.includes('NOT_AUTHENTICATED') || message.includes('SESSION_EXPIRED')){
             window.localStorage.clear()
             client.resetStore().then(() => {
               window.location.replace('/login')
