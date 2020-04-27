@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react'
 import moment from 'moment-timezone'
-import { List, ListItem, ListItemText, Typography, Container} from '@material-ui/core'
+import { Snackbar, List, ListItem, ListItemText, Typography, Container, TextField, Button} from '@material-ui/core'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { GET_DISCOUNT_BY_CODE } from '../../../database/query/discountQuery'
+import { CustomSnackBar } from '../../global/CustomSnackBar'
+import { useApolloClient, useQuery } from 'react-apollo'
 
 moment.locale('fr')
 moment.tz.setDefault('Europe/Brussels')
@@ -11,6 +14,11 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     backgroundColor: 'theme.palette.background.paper',
     padding: theme.spacing(3),
+  },
+  discount: {
+   paddingTop: 35,
+   display: 'flex',
+   justifyContent: 'space-between'
   },
   listItem: {
     padding: theme.spacing(1,0)
@@ -40,9 +48,16 @@ const useStyles = makeStyles(theme => ({
 const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons, fUser}) => {
   const classes = useStyles()
   const [user, setUser] = React.useState(fUser())
+  const [client, setClient] = React.useState(useApolloClient())
   const [needReRender, setNeedReRender] = React.useState(false)
   const [totalPayement, setTotalPayement] = React.useState(0)
   const [monthlyPayement, setMonthlyPayement] = React.useState([0,0,0,0,0,0,0,0,0,0,0,0])
+  const [discountAmount, setDiscountAmount] = React.useState(0)
+  const [discountCode, setDiscountCode] = React.useState('')
+  const [discounts, setDiscounts] = React.useState([])
+  const [openSnack, setOpenSnack] = React.useState(false)
+  const [errorVariant, setErrorVariant] = React.useState('error')
+  const [errorMessage, setErrorMessage] = React.useState('')
   const [bookedLessonsDiscount, setBookedLessonsDiscount] = React.useState({
     "X1": [],
     "X2": [],
@@ -99,7 +114,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
           total += lesson.pricing.totalPrice3X
         }else if(counter == 2) {
           lBookedLessonsDiscount['X2'].push(lesson)
-          total += lesson.pricing.totalPrice2X
+          total += lesson.pricing.totalPrice2X 
         }else {
           lBookedLessonsDiscount['X1'].push(lesson)
           total += lesson.pricing.totalPrice
@@ -135,18 +150,81 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         recurenceBegin: closestRecurenceBegin.toISOString(true),
         recurenceEnd: closestRecurenceEnd.toISOString(true),
         subDuration: highestMonth,
-        total: total,
-        totalMonthly: totalMonth,
+        total: (total - discountAmount),
+        totalMonthly: Math.ceil(((total-discountAmount)/highestMonth)),
         yearlyTax: tax,
-        lessonsData: lessonsData
+        lessonsData: lessonsData,
+        discounts: discounts
       }
       setBookedLessonsDiscount(lBookedLessonsDiscount)
       setOrderResume(orderResume)
       handleFinalPriceCallBack(orderResume)
     }
-  }, [needReRender])
+  }, [discounts])
+
+  const changeDiscountCode = (event) => {
+    setDiscountCode(event.target.value)
+  }
+
+  const validateDiscountCode = () => {
+    var list = discounts
+    for(const element of list) {
+      if(element.discount === discountCode) {
+        showSnackMessage('Ce code est déjà enregistré', 'error')
+        setDiscountCode('')
+        return
+      }
+    }
+    console.log(discountCode)
+    console.log(user.id)
+    client.query({
+      query: GET_DISCOUNT_BY_CODE,
+      fetchPolicy: 'network-only',
+      variables: {
+        code: discountCode,
+        user: user.id
+      }
+    })
+    .then(result => {
+      var discount = result.data.discountByCode
+      if(discount === null) {
+        showSnackMessage('Ce code n\'existe pas', 'error')
+        setDiscountCode('')
+      }else if(discount.value > orderResume.total){
+        showSnackMessage('La valeur de ce bon d\'achat est supérieur au montant total', 'error')
+        setDiscountCode('')
+      }else if(discount.status === 'USED'){
+        showSnackMessage('Ce code a déjà été utilisé', 'error')
+        setDiscountCode('')
+      }else{
+        var amount = discountAmount
+        console.log(result)
+        list.push(result.data.discountByCode)
+        setDiscountAmount(amount+discount.value)
+        setDiscounts([...list])
+        setDiscountCode('')
+        console.log(list)
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      showSnackMessage('Une erreur est survenue pendant la vérification', 'error')
+      setDiscountCode('')
+    })
+  }
+
+  const showSnackMessage = (message, type) => {
+    setErrorMessage(message)
+    setErrorVariant(type)
+    setOpenSnack(true)
+  }
+
+  const handleSnackClose = () => {
+    setOpenSnack(false)
+  }
 
   return(
+    <div>
     <Container component="main" maxWidth="sm" className={classes.root}>
       <Typography variant="h4">
         Récapitulatif
@@ -219,6 +297,21 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
             </Typography>
           </ListItem>
         )}
+        {discounts.length > 0 && (
+          <Typography className={classes.reducTitle} variant="h6">
+            Bon de réduction
+          </Typography>
+        )}
+        {discounts.map(discount => (
+          <div key={discount.id}>
+            <ListItem className={classes.listItem}>
+              <ListItemText primary={discount.discount} />
+              <Typography variant="body2">
+              -{discount.value}€
+            </Typography>
+            </ListItem>
+          </div>
+        ))}
         <ListItem className={classes.listItem}>
           <ListItemText primary="Total" />
           <Typography variant="subtitle1" className={classes.total}>
@@ -232,7 +325,34 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
           </Typography>
         </ListItem>
       </List>
+      <Container className={classes.discount}>
+      <TextField
+          label="Code de réduction"
+          id="reduc"
+          value={discountCode}
+          onChange={changeDiscountCode}
+      />
+      <Button variant="contained" color="primary" onClick={validateDiscountCode}>
+        Ajouter
+      </Button>
+      </Container>
     </Container>
+    <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={openSnack}
+        autoHideDuration={5000}
+        onClose={handleSnackClose}
+      >
+        <CustomSnackBar
+          onClose={handleSnackClose}
+          variant={errorVariant}
+          message={errorMessage}
+        />
+      </Snackbar>
+      </div>
   )
 }
 

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
 import path from 'path'
+import kill from 'kill-port'
 //const { ApolloServer, AuthenticationError }  from  'apollo-server-express'
 import { ApolloServer, AuthenticationError } from 'apollo-server-express'
 const { graphiqlExoress, graphqlExpress } = require('apollo-server-express')
@@ -147,7 +148,11 @@ if(process.env.NODE_ENV === "production") {
   })
 }
 
-
 app.listen({ port: process.env.PORT }, () => {
   console.log(`🚀 Server ready on port ${process.env.PORT}`)
+})
+
+process.on('SIGINT', function() {
+  console.log('Shutting Down From SIGINT')
+  kill(process.env.PORT, 'tcp').then(process.exit(1)).error(console.log)
 })

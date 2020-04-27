@@ -67,6 +67,13 @@ UserSchema.statics.findActiveLessonsDay = function(id) {
   return User.findById(id).populate(LESSON_DAY).then(user => user.activeLessonsDay)
 }
 
+UserSchema.statics.addDiscount = function(id, discount, session) {
+  return User.findById(id).then(user => {
+    user.discounts.push(discount)
+    return User.findOneAndUpdate({ _id: user._id }, { discounts: user.discounts }, { new: true}).session(session)
+  })
+}
+
 UserSchema.statics.addCredit = function(id, credit, session) {
   return User.findById(id).then(user => {
     user.credits.push(credit)
@@ -110,6 +117,8 @@ UserSchema.statics.removeActiveLessonDay = function(id, lessonDay) {
     return User.findOneAndUpdate({ _id: user._id }, { $pull: { activeLessonsDay: lessonDay }}, { new: true })
   })
 }
+
+
 
 UserSchema.statics.create = function(data) {
   const user = new User({ email: data.email , password: data.password, firstName: data.firstName, lastName: data.lastName, phone: data.phone, gender: data.gender, isAdmin: false, isTeacher: false })

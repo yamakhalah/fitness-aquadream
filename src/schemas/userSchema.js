@@ -44,6 +44,7 @@ export default  gql`
     user(id: ID!): User!
     users: [User!]!
     login(email: String!, password: String!): Authentification!
+    sendGlobalEmail(message: String!): Boolean!
   }
 
   extend type Mutation {

@@ -18,6 +18,7 @@ import { ThemeProvider } from '@material-ui/styles';
 import theme from './style/theme/default'
 import * as serviceWorker from './serviceWorker';
 import { toIdValue } from 'apollo-utilities';
+require('dotenv').config()
 
 const cache = new InMemoryCache()
 
@@ -55,8 +56,14 @@ const request = async (operation) => {
 const timeoutLink = new ApolloLinkTimeout(100000);
 
 
-const httpLink = createHttpLink({ uri: '/graphql',
-credentials: 'include' });
+var httpLink = null 
+console.log('NODE_ENV: ',process.env.NODE_ENV)
+if(process.env.NODE_ENV === 'production') {
+  httpLink = createHttpLink({ uri: '/graphql', credentials: 'include' });
+}else{
+  httpLink = createHttpLink({ uri: 'http://localhost:4000/graphql', credentials: 'include' });
+}
+
 
 const timeoutHttpLink = timeoutLink.concat(httpLink);
 
@@ -84,11 +91,21 @@ const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError, operation, forward }) => {
       if (graphQLErrors){
-        graphQLErrors.forEach(({ message, locations, path }) =>
+        graphQLErrors.forEach(({ message, locations, path }) => {
+          if(message.includes('NOT_AUTHENTICATED') || message.includes('SESSION_EXPIRED')){
+            window.localStorage.clear()
+            client.resetStore().then(() => {
+              window.location.replace('/login')
+            })
+            .catch(error => {
+              console.log(error)
+              window.location.replace('/login')
+            })
+          }
           console.error(
             `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-          ),
-        );
+          )
+        });
       //throw new ApolloError(graphQLErrors[0])
       
       }

@@ -52,6 +52,9 @@ export const GET_USER_BY_ID = gql`
       }
       discounts{
         id
+        discount,
+        value
+        validityEnd
       }
       activeLessonsDay{
         id
@@ -96,5 +99,11 @@ export const LOGIN = gql`
           isTeacher
         }
       }
+  }
+`
+
+export const SEND_GLOBAL_EMAIL = gql`
+  query sendGlobalEmail($message: String!) {
+    sendGlobalEmail(message: $message)
   }
 `
