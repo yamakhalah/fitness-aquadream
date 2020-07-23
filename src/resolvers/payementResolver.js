@@ -46,7 +46,7 @@ export default {
           console.log(payement.mollieSubscriptionID)
           const sub = await mollieClient.customers_subscriptions.update(payement.mollieSubscriptionID, {
             customerId: payement.mollieCustomerID,
-            startDate: '2020-06-08'
+            startDate: '2022-06-08'
           })
           console.log(sub)
         }
