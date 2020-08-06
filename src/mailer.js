@@ -95,6 +95,27 @@ export function CHANGE_SUBSCRIPTION(user, oldLesson, newLesson) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function ADMIN_PRE_BOOKING(user, subscription, checkout) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous informons que notre équipe vous a réservé une place pour un cours</p>'+
+  '<p>Afin de valider votre abonnement, merci de cliquer sur le lien ci-dessous afin de payer celui-ci. Si vous ne payez pas, les cours ne seront pas accessibles.</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+export function ADMIN_DISCOUNT(user, discount) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous informons que notre équipe vous a généré un bon d\achat utilisable pendant 1 an</p>'+
+  '<p>Ce bon, d\'une valeur de '+discount.value+'€ peut être utilisé durant la réservation d\'un cours dans le champs prévu à cet effet.</p>'+
+  '<p>Code à utiliser: '+discount.discount+'</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 export function ADMIN_MAIL(message) {
   return '<p>Bonjour,</p>'+
   '<p>Ceci est un message de la part de l\'équipe d\'Aquadream:</p>' +

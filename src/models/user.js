@@ -92,9 +92,6 @@ UserSchema.statics.removeCredit = function(id, credit) {
 }
 
 UserSchema.statics.addSubscription = function(id, subscription, opts) {
-  console.log(id)
-  console.log(subscription)
-  console.log(opts)
   return User.findById(id).then(user => {
     user.subscriptions.push(subscription)
     return User.findOneAndUpdate(
@@ -102,6 +99,17 @@ UserSchema.statics.addSubscription = function(id, subscription, opts) {
       { subscriptions: user.subscriptions },
       { new: true }
     ).session(opts.session)
+  })
+}
+
+UserSchema.statics.removeSubscription = function(id, subscription, opts) {
+  return User.findById(id).then(user => {
+    user.subscriptions.splice(subscription, 1)
+    return User.findOneAndUpdate(
+      { _id: user._id },
+      { subscriptions: user.subscriptions },
+      { new: true, session: opts.session }
+    )
   })
 }
 

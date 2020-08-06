@@ -96,6 +96,93 @@ export default {
       }
     },
 
+    /*
+    cancelAllSubscriptionsWithDiscount: async(parent, { }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
+      const graphqlSubscription = await subscriptionModel.find().sort({ lastName: 1, created: 1 }).exec()
+      try{
+        var session = await mongoose.startSession()
+        var opts = { session }
+        session.startTransaction()
+        var counter = 0
+        for(const test of graphqlSubscription) {
+          console.log(test.subStatus)
+          if(test.subStatus !== 'CANCELED_BY_ADMIN'){
+          console.log('NEW SUB '+test._id)
+          var id = test._id
+          //GET SUBSCRIPTION && PAYMENT DATA
+          console.log('GET SUB')
+          const sub = await subscriptionModel.findById(id).populate([{ path: 'payement', model: payementModel }, { path: 'lessonsDay', model: lessonDayModel }, { path: 'lessons', model: lessonModel }, { path: 'user', model: userModel } ])
+          console.log('GET MOLLIE SUB')
+          const mollieSub = await mollieClient.customers_subscriptions.get(
+            sub.payement.mollieSubscriptionID,
+            { customerId: sub.payement.mollieCustomerID }
+          )
+          //COMPUTE HOW MUCH CUSTOMER ALREADY PAID BASED ON RECURENCE BEGIN AND TOTAL MONTHLY
+          const refund = ((mollieSub.times - mollieSub.timesRemaining)+1) * Number(mollieSub.amount.value)
+          //GENERATE DISCOUNT FOR AMOUNT PAID
+          const discount = {
+            user: sub.user._id,
+            subscription: sub._id,
+            discount: crypto.randomBytes(6).toString('hex').toUpperCase(),
+            value: refund,
+            status: 'NOT_USED',
+            validityEnd: moment().add(1, 'years')
+          }
+          //CANCEL MOLLIE SUBSCRIPTION
+          console.log('CREATE DISCOUNT')
+          const graphqlDiscount = await discountModel.create(discount, opts)
+          console.log('ADD DISCOUNT TO USER')
+          var user = await userModel.addDiscount(sub.user._id, graphqlDiscount._id, session)
+          console.log('OK')
+          //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
+          if(sub.subType === 'LESSON') {
+            console.log('LOOP')
+            for(const lesson of sub.lessons){
+              console.log('REMOVE USER FROM LESSON')
+              //LESSONMODEL.removeUser
+              const dLesson = await lessonModel.removeUser(lesson._id, sub.user._id, opts)
+              console.log('REMOVE USER FROM LESSON DAY')
+              for(const lessonDay of lesson.lessonsDay) {
+                const dLessonDay = await lessonDayModel.removeUserIncreaseSpotLeft(lessonDay, sub.user._id, opts)
+              }
+            }
+          } else {
+            console.log('ELSE')
+          }
+          //CANCEL SUBSCRIPTION
+          console.log('CANCEL SUBSCRIPTION')
+          const uSub = await subscriptionModel.findOneAndUpdate(
+            { _id: sub._id },
+            { subStatus: 'CANCELED_BY_ADMIN'},
+            { new: true }
+          ).session(session)
+          try{
+          const newMollieSub = await mollieClient.customers_subscriptions.cancel(
+            sub.payement.mollieSubscriptionID,
+            { customerId: sub.payement.mollieCustomerID, }
+          )
+          }catch(error){
+            console.log('LOW LEVEL ERROR')
+          }
+          console.log('OK DISCOUNT')
+          counter++
+          console.log(counter)
+        }
+        }
+        console.log('END AND COMMIT')
+        await session.commitTransaction()
+        await session.endSession()
+      }catch(error) {
+        console.log('HIGH LEVEL ERROR')
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        return false
+      }
+      return true
+    },
+    */
+
     cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
       const session = await mongoose.startSession()
       const opts = { session }

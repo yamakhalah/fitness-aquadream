@@ -27,7 +27,7 @@ export default {
       if (!me) {
         throw new AuthenticationError(NOT_AUTHENTICATED)
       }
-      const users = await userModel.find().exec()
+      const users = await userModel.find().sort([['firstName',1],['lastName',1]]).exec()
       return users
     },
 

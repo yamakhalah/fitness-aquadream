@@ -11,7 +11,6 @@ const DiscountSchema = new Schema({
   subscription: {
     type: Schema.Types.ObjectId,
     ref: SUBSCRIPTION,
-    required: true
   },
   discount: {
     type: Schema.Types.String,

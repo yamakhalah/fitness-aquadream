@@ -111,9 +111,10 @@ LessonSchema.statics.removeUser = function(id, user, opts) {
 
 LessonSchema.statics.removeLessonDay = function(id, lessonDay) {
   return Lesson.findById(id).then(lesson => {
+    lesson.lessonsDay.splice(lessonDay, 1)
     return Lesson.findOneAndUpdate(
       {_id: lesson._id },
-      { $pull: { lessonsDay: lessonDay }},
+      { lessonsDay: lesson.lessonsDay },
       { new: true }
     )
   })

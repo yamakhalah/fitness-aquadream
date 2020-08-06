@@ -4,8 +4,8 @@ import Loader from '../global/Loader.js'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient, useQuery } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
-import { Fab, Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step } from '@material-ui/core';
-import { GET_USER_BY_ID } from '../../database/query/userQuery'
+import { InputLabel, Select, MenuItem, Fab, Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step } from '@material-ui/core';
+import { GET_USER_BY_ID, GET_USERS } from '../../database/query/userQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_SESSION } from '../../database/query/payementQuery'
 import { PRE_SUBSCRIBE_TO_LESSONS } from '../../database/mutation/paymentMutation'
@@ -71,6 +71,13 @@ const useStyles = makeStyles(theme => ({
     bottom: theme.spacing(5),
     right: theme.spacing(5),
     zIndex: 9999
+  },
+  adminBlock: { 
+    color: 'red',
+    paddingBottom: 50,
+  },
+  maxWidth: {
+    minWidth: '100%'
   }
 }))
 
@@ -87,6 +94,9 @@ export default function Booking() {
   const [totalPrice, setTotalPrice] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
   const [nextButtonDisable, setNextButtonDisable] = React.useState(true)
+  const [adminMode, setAdminMode] = React.useState(false)
+  const [adminUserSelected, setAdminUserSelected] = React.useState(null)
+  const [adminUserList, setAdminUserList] = React.useState([])
 
   const Authentification = useQuery(GET_AUTHENTIFICATION)
 
@@ -100,6 +110,7 @@ export default function Booking() {
         }
       })
       .then(result => {
+        setAdminMode(result.data.user.isAdmin)
         setUser(result.data.user)
         setLoading(false)
       })
@@ -107,7 +118,20 @@ export default function Booking() {
         console.log(error)
       })
     }
-  }, [Authentification.data, Authentification.loading, loading])
+
+    if(adminMode) {
+      client.query({
+        query: GET_USERS,
+        fetchPolicy: 'cache-first',
+      })
+      .then(result => {
+        setAdminUserList(result.data.users)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    }
+  }, [Authentification.data, Authentification.loading, loading, adminMode])
 
   function getStepContent(step) {
     switch(step) {
@@ -201,11 +225,13 @@ export default function Booking() {
       <Loader />
     </div>
   )
+  /*
   else if(true) return (
     <div className={classes.loader}>
       <h2>En raison du COVID-19 il n'est pour l'instant pas possible de réserver des cours. Info: contact@aquadream-temploux.be</h2>
     </div>
   )
+  */
   else
   return (
     <React.Fragment>
@@ -225,6 +251,41 @@ export default function Booking() {
       <CssBaseline />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
+          {user.isAdmin && (
+            <div className={classes.adminBlock}>
+              <Typography component="h1" variant="h4" align="center">
+                MODE ADMINISTRATEUR
+              </Typography>
+              <Typography component="body1" align="center">
+                Sélectionnez un utilisateur. Une fois sélectionné ajoutez les abonnements nécessaires et continuez jusqu'à la fin du formulaire
+              </Typography>
+                <Grid container spacing={2} className={classes.button}>
+                  <Grid item xs={4} />
+                  <Grid item xs={1}>
+                    <InputLabel id="user">Client</InputLabel>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Select
+                      labelId="user"
+                      id="user"
+                      value={adminUserSelected}
+                      name="user"
+                      label="Client"
+                      labelWidth={100}
+                      className={classes.maxWidth}
+                      onChange={event => setAdminUserSelected(event.target.value)}
+                    >
+                      <MenuItem disabled>
+                        Client
+                      </MenuItem>
+                      {adminUserList.map(userItem =>               
+                        <MenuItem key={userItem.id} value={userItem.id}>{userItem.firstName} {userItem.lastName} - {userItem.email}</MenuItem>
+                      )}
+                    </Select>
+                  </Grid>
+                </Grid>
+            </div>
+          )}
           <Typography component="h1" variant="h4" align="center">
             Réservation
           </Typography>
