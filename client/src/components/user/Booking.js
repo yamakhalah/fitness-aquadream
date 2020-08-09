@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react'
 import moment from 'moment-timezone'
 import Loader from '../global/Loader.js'
+import { CustomSnackBar } from '../global/CustomSnackBar'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useApolloClient, useQuery } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
-import { InputLabel, Select, MenuItem, Fab, Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step } from '@material-ui/core';
+import { Snackbar, InputLabel, Select, MenuItem, Fab, Grid, CssBaseline, Paper, Button, Typography, Stepper, StepLabel, Step } from '@material-ui/core';
 import { GET_USER_BY_ID, GET_USERS } from '../../database/query/userQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_SESSION } from '../../database/query/payementQuery'
 import { PRE_SUBSCRIBE_TO_LESSONS } from '../../database/mutation/paymentMutation'
+import { ADMIN_CREATE_SUBSCRIPTION } from '../../database/mutation/subscriptionMutation.js'
 import LessonPicker from './BookingSubComponents/LessonPicker'
 import OrderResume from './BookingSubComponents/OrderResume'
 import Payement from './BookingSubComponents/Payement'
@@ -97,6 +99,9 @@ export default function Booking() {
   const [adminMode, setAdminMode] = React.useState(false)
   const [adminUserSelected, setAdminUserSelected] = React.useState(null)
   const [adminUserList, setAdminUserList] = React.useState([])
+  const [errorVariant, setErrorVariant] = React.useState('error')
+  const [errorMessage, setErrorMessage] = React.useState('')
+  const [openSnack, setOpenSnack] = React.useState(false)
 
   const Authentification = useQuery(GET_AUTHENTIFICATION)
 
@@ -150,19 +155,46 @@ export default function Booking() {
   }
 
   const checkout = () => {
+    console.log(adminUserSelected)
     client.query({
       query: GET_SESSION,
       variables: {
         orderResume: orderResume,
         preBookedLessons: preBookedLessons,
-        user: user
+        user: adminMode ? adminUserSelected : user,
+        admin: adminMode
       }
     })
-    .then(result => {      
-      window.location = result.data.getSession._links.checkout.href
+    .then(result => {    
+      if(adminMode){
+        client.mutate({
+          mutation: ADMIN_CREATE_SUBSCRIPTION,
+          variables: {
+            payment: result.data.getSession
+          }
+        })
+        .then(result => {
+          console.log(result.data.adminCreateSubscription)
+          if(result.data.adminCreateSubscription){
+            showSnackMessage("L'abonnement a bien été crée !", "success")
+          }else{
+            showSnackMessage("Une erreur a eu lieu lors de la création de l'abonnement !", "error")
+          }
+          reset()
+        })
+        .catch(error => {
+          console.log(error)
+          showSnackMessage("Une erreur a eu lieu lors de la création de l'abonnement !", "error")
+          reset()
+        })
+      } else { 
+        window.location = result.data.getSession._links.checkout.href
+      }
     })
     .catch(error => {
       console.log(error)
+      showSnackMessage("Une erreur a eu lieu lors de la création de la session de paiement !", "error")
+      reset()
     })
   }
 
@@ -220,6 +252,26 @@ export default function Booking() {
     setActiveStep(activeStep-1)
   }
 
+  const handleSnackClose = () => {
+    setOpenSnack(false)
+  }
+  
+  const showSnackMessage = (message, type) => {
+    setErrorMessage(message)
+    setErrorVariant(type)
+    setOpenSnack(true)
+  }
+
+  const reset = () => {
+    setActiveStep(0)
+    setBookedLessons([])
+    setPreBookedLessons([])
+    setOrderResume({})
+    setTotalPrice(0)
+    setNextButtonDisable(true)
+    setLoading(false)
+  }
+
   if(loading) return (
     <div className={classes.loader}>
       <Loader />
@@ -256,7 +308,7 @@ export default function Booking() {
               <Typography component="h1" variant="h4" align="center">
                 MODE ADMINISTRATEUR
               </Typography>
-              <Typography component="body1" align="center">
+              <Typography component="p" align="center">
                 Sélectionnez un utilisateur. Une fois sélectionné ajoutez les abonnements nécessaires et continuez jusqu'à la fin du formulaire
               </Typography>
                 <Grid container spacing={2} className={classes.button}>
@@ -279,7 +331,7 @@ export default function Booking() {
                         Client
                       </MenuItem>
                       {adminUserList.map(userItem =>               
-                        <MenuItem key={userItem.id} value={userItem.id}>{userItem.firstName} {userItem.lastName} - {userItem.email}</MenuItem>
+                        <MenuItem key={userItem.id} value={userItem}>{userItem.firstName} {userItem.lastName} - {userItem.email}</MenuItem>
                       )}
                     </Select>
                   </Grid>
@@ -338,6 +390,21 @@ export default function Booking() {
           </React.Fragment>
         </Paper>
       </main>
+      <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left'
+          }}
+          open={openSnack}
+          autoHideDuration={5000}
+          onClose={handleSnackClose}
+        >
+          <CustomSnackBar
+            onClose={handleSnackClose}
+            variant={errorVariant}
+            message={errorMessage}
+          />
+        </Snackbar>
     </React.Fragment>
   )
 }

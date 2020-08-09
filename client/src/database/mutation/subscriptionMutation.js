@@ -11,3 +11,9 @@ export const CANCEL_SUBSCRIPTION_DISCOUNT = gql`
     cancelSubscriptionWithDiscount(id: $id)
   }
 `
+
+export const ADMIN_CREATE_SUBSCRIPTION = gql`
+  mutation adminCreateSubscription($payment: JSON!){
+    adminCreateSubscription(payment: $payment)
+  }
+`

@@ -57,8 +57,9 @@ export default {
       }
     },
 
-    getSession: async (parent, { orderResume, preBookedLessons, user }, { models: { payementModel }}, info) => {
+    getSession: async (parent, { orderResume, preBookedLessons, user, admin }, { models: { payementModel }}, info) => {
       try{
+        console.log(user)
         //CHECK IF USER HAS MOLLIE CUSTOMER ID
         if(user.mollieCustomerID.length === 0){
           //IF NO CUSTOMER CREATE THE CUSTOMER
@@ -107,8 +108,8 @@ export default {
             lessons: lessonsID,
             discounts: discountsID,
             reference: ref,
-            yearlyTax: orderResume.yearlyTax
-
+            yearlyTax: orderResume.yearlyTax,
+            admin: admin
           },
           sequenceType: 'first',
           customerId: user.mollieCustomerID,

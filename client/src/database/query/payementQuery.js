@@ -1,8 +1,8 @@
 import { gql } from 'apollo-boost'
 
 export const GET_SESSION = gql`
-  query getSession($orderResume: JSON!, $preBookedLessons: JSON!, $user: JSON!) {
-    getSession(orderResume: $orderResume, preBookedLessons: $preBookedLessons, user: $user) 
+  query getSession($orderResume: JSON!, $preBookedLessons: JSON!, $user: JSON! $admin: Boolean!) {
+    getSession(orderResume: $orderResume, preBookedLessons: $preBookedLessons, user: $user, admin: $admin) 
   }
 `
 

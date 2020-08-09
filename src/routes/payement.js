@@ -16,14 +16,108 @@ const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
 
 moment.locale('fr')
 
-const createSubscription = async (data) => {
-  const paymentID = data.id
+const confirmAdminSubscription = async (payment) => {
+  const session = await mongoose.startSession()
+  session.startTransaction()
+  const opts = { session }
+  var subscription = null
+
+  try {
+    if(payment.status === 'paid' && payment.amountRefunded.value === '0.00') {
+      subscription = await mollieClient.customers_subscriptions.create({
+        customerId: payment.customerId,
+        amount: {
+          currency: 'EUR',
+          value: String(payment.metadata.totalMonthly)+'.00'
+        },
+        times: payment.metadata.subDuration-1,
+        interval: '1 month',
+        startDate: payment.metadata.startDate,
+        //interval: '1 day',
+        //startDate: moment().format('YYYY-MM-DD'),
+        description: payment.id,
+        mandateId: payment.mandateId,
+        webhookUrl: process.env.MOLLIE_WEBHOOK_SUBSCRIPTION_URL
+      })
+
+      const mandate = await mollieClient.customers_mandates.get(
+        subscription.mandateId,
+        { customerId: subscription.customerId }
+      ) 
+      //UPDATE PAYEMENT TO DB
+      const graphqlPayment = await payementModel.findOneAndUpdate(
+        { molliePaymentID: payment.id },
+        {
+          mollieCustomerID: payment.customerId,
+          mollieSubscriptionID: subscription.id,
+          mollieMandateID: mandate.id,
+          mollieMandateStatus: mandate.status,
+          reference: payment.metadata.reference
+        },
+        { new: true }
+      ).session(session)
+
+      for(const discount of payment.metadata.discounts) {
+        const graphqlDiscount = await discountModel.findOneAndUpdate(
+          { _id: discount.discountID },
+          { status: 'USED' }
+        ).session(session)
+      }
+
+        //UPDATE SUBSCRIPTION SUBSTATUS and PaymentID
+      const graphqlSubscription = await subscriptionModel.findOneAndUpdate(
+        { _id: graphqlPayment.subscription },
+        {
+          payement: graphqlPayment._id,
+          subStatus: 'WAITING_BEGIN'
+        },
+        { new: true }
+      ).session(session)
+
+      if(payment.metadata.yearlyTax > 0) {
+        var graphqlUser = await userModel.findOneAndUpdate(
+          { _id: payment.metadata.userID },
+          { mollieCustomerID: payment.customerId, paidYearlyTax: true },
+          { new: true }
+        ).session(session)
+      }
+      const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
+      await session.commitTransaction()
+      session.endSession()
+      var mail = await sendMail(FROM, user.email, 'Aquadream - Confirmation de votre abonnement', CONFIRM_SUBSCRIPTION(user))
+
+    }else if(payment.status === 'paid' && payment.amount.value === payment.amountRefunded.value){
+      await session.abortTransaction()
+      session.endSession()
+      return true
+    }else{
+      await session.abortTransaction()
+      session.endSession()
+      return true
+    }
+  }catch(error){
+    try{
+      console.log('CATCH ERROR')
+      console.log(error)
+      await session.abortTransaction()
+      session.endSession()
+      //const dPayment = await mollieClient.payments.cancel(paymentID)
+      const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payment.customerId })
+      return true
+    }catch(errorBis) {
+      console.log('CATCH ERROR BIS')
+      console.log(errorBis)
+      return true
+    }
+  }
+}
+
+const createSubscription = async (payment) => {
   const session = await mongoose.startSession()
   session.startTransaction()
   const opts = { session }
   var subscription = null
   try {
-    const payment = await mollieClient.payments.get(paymentID)
     if(payment.status === 'paid' && payment.amountRefunded.value === '0.00') {
       subscription = await mollieClient.customers_subscriptions.create({
         customerId: payment.customerId,
@@ -121,7 +215,7 @@ const createSubscription = async (data) => {
       await session.abortTransaction()
       session.endSession()
       //const dPayment = await mollieClient.payments.cancel(paymentID)
-      const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payement.customerId })
+      const dSubscription = await mollieClient.customers_subscriptions.cancel(subscription.id, { customerId: payment.customerId })
       return true
     }catch(errorBis) {
       console.log('CATCH ERROR BIS')
@@ -132,7 +226,14 @@ const createSubscription = async (data) => {
 }
 
 export async function checkout(req, res, next){
-  const isAccepted = await createSubscription(req.body)
+  const paymentID = req.body.id
+  const payment = await mollieClient.payments.get(paymentID)
+  var isAccepted = false
+  if(payment.metadata.admin) {
+    isAccepted = await confirmAdminSubscription(payment)
+  }else {
+    isAccepted = await createSubscription(payment)
+  }
   if(isAccepted) {
     res.sendStatus(200)
   }else{

@@ -22,7 +22,7 @@ export default gql`
   extend type Query {
     payement(id: ID!): Payement!
     payements: [Payement!]!
-    getSession(orderResume: JSON!, user: JSON!, preBookedLessons: JSON!): JSON!
+    getSession(orderResume: JSON!, user: JSON!, preBookedLessons: JSON!, admin: Boolean!): JSON!
     getMollieCheckoutResult(paymentRef: String!): JSON!
     getMollieSubscriptionData(mollieCustomerID: String!, mollieSubscriptionID: String!): JSON!
     doNotCallAGAIN: Boolean!

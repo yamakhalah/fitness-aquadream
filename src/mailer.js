@@ -116,6 +116,25 @@ export function ADMIN_DISCOUNT(user, discount) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function ADMIN_CREATE_SUBSCRIPTION(data) {
+  var lessonsDetail = ""
+  for(const lesson of data.lessons) {
+    lessonsDetail += "<p>"+lesson.name+" du "+moment(lesson.recurenceBegin).format("DD/MM/YYYY")+" au "+moment(lesson.recurenceEnd).format("DD/MM/YYYY")+" de "+moment(lesson.recurenceBegin).format("HH:mm")+" à "+moment(lesson.recurenceEnd).format("HH:mm")+"</p>"
+  }
+  return '<p>Bonjour '+data.user.firstName+' '+data.user.lastName+'</p>'+
+  '<p>Nous vous informons que notre équipe vous a réservé une place pour un abonnement Aquadream !</p>'+
+  '<p>Si vous ne souhaitez pas être inscrit(e) à cet abonnement veuillez nous contacter via aquadreamtemploux@gmail.com</p>'+
+  '<p>Liste des cours: </p>'+
+  data +
+  '<p>Total: '+data.total+'€ </p>'+
+  '<p>Total Mensuel: '+data.totalMonth+'€ </p>'+
+  '<p>ATTENTION: Afin de confirmer votre abonnement veuillez effectuer le premier versement en suivant ce lien sécurisé: '+data.url+'</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 export function ADMIN_MAIL(message) {
   return '<p>Bonjour,</p>'+
   '<p>Ceci est un message de la part de l\'équipe d\'Aquadream:</p>' +

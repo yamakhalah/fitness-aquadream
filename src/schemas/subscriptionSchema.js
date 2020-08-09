@@ -17,7 +17,7 @@ export default gql`
 
   type Subscription {
     id: ID!
-    payement: Payement!
+    payement: Payement
     user: User!
     lessonsDay: [LessonDay!]
     lessons: [Lesson!]
@@ -58,5 +58,6 @@ export default gql`
     changeLesson(subscription: ID!, oldLesson: ID!, newLesson: ID!): Boolean!
     cancelSubscriptionWithDiscount(id: ID!): Boolean!
     cancelSubscriptionWithRefund(id: ID!): Boolean!
+    adminCreateSubscription(payment: JSON!): Boolean!
   }
 `

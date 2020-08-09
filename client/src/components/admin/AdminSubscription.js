@@ -79,28 +79,31 @@ export default function AdminSubscription() {
       var lSubscriptionsData = []
       var promises = []
       for(const subscription of data.subscriptions) {
-        const promise = new Promise((resolve, reject) => {
-          client.query({
-            query:  GET_MOLLIE_SUBSCRIPTION_DATA,
-            variables: {
-              mollieCustomerID: subscription.user.mollieCustomerID,
-              mollieSubscriptionID: subscription.payement.mollieSubscriptionID
-            },
-            fetchPolicy: 'network-only'
-          })
-          .then(result => {
-            lSubscriptionsData.push({
-              subscription: subscription,
-              mollieSubscription: result.data.getMollieSubscriptionData
+        console.log(subscription)
+        if(subscription.subStatus !== 'WAITING_PAYEMENT'){   
+          const promise = new Promise((resolve, reject) => {
+            client.query({
+              query:  GET_MOLLIE_SUBSCRIPTION_DATA,
+              variables: {
+                mollieCustomerID: subscription.user.mollieCustomerID,
+                mollieSubscriptionID: subscription.payement.mollieSubscriptionID
+              },
+              fetchPolicy: 'network-only'
             })
-            resolve()
+            .then(result => {
+              lSubscriptionsData.push({
+                subscription: subscription,
+                mollieSubscription: result.data.getMollieSubscriptionData
+              })
+              resolve()
+            })
+            .catch(error => {
+              console.log(error)
+              reject()
+            })
           })
-          .catch(error => {
-            console.log(error)
-            reject()
-          })
-        })
-        promises.push(promise)
+          promises.push(promise)
+        }
       }
       Promise.all(promises.map(p => p.catch(e => e)))
       .then(result => {

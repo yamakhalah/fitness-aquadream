@@ -6,7 +6,7 @@ import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
 import mongoose from 'mongoose'
 import { ApolloError} from 'apollo-server-express'
-import { sendMail, FROM, CHANGE_SUBSCRIPTION, CANCEL_SUBSCRIPTION_DISCOUNT } from '../mailer'
+import { sendMail, FROM, ADMIN_CREATE_SUBSCRIPTION } from '../mailer'
 import { createMollieClient } from '@mollie/api-client'
 import crypto from 'crypto'
 import moment from 'moment'
@@ -29,6 +29,7 @@ export default {
       const subscriptions = await subscriptionModel.find({
         user: user
       }).exec()
+      console.log(subscriptions)
       return subscriptions
     }
   },
@@ -94,6 +95,60 @@ export default {
         session.endSession()
         return false
       }
+    },
+
+    adminCreateSubscription: async(parent, { payment }, { models: { userModel, payementModel, subscriptionModel, lessonModel, lessonDayModel }}, info) => {
+      const session = await mongoose.startSession()
+      session.startTransaction()
+      const opts = { session }
+      try{
+        var lessonsID = []
+        var dataLessons = []
+        for(const lesson of payment.metadata.lessons){
+          lessonsID.push(lesson.lessonID)
+          var graphqlLesson = await lessonModel.addUser(lesson.lessonID, payment.metadata.userID, opts)
+          dataLessons.push(graphqlLesson)
+          for(const lessonDay of graphqlLesson.lessonsDay) {
+            var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
+          }
+        }
+        const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
+        const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')
+        const dataSubscription = {
+          user: payment.metadata.userID,
+          lessons: lessonsID,
+          created: moment().toISOString(),
+          subType: 'LESSON',
+          total: payment.metadata.total,
+          totalMonth: payment.metadata.totalMonthly,
+          validityBegin: validityBegin.toISOString(),
+          validityEnd: validityEnd.toISOString(),
+          subStatus: 'WAITING_PAYEMENT'
+        }
+
+        const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
+        const graphqlPayement = await payementModel.create({ subscription: graphqlSubscription._id, molliePaymentID: payment.id }, opts)
+        const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
+        var data = {
+          lessons: dataLessons,
+          user: user,
+          validityBegin: validityBegin.toString(),
+          validityEnd: validityEnd.toString(),
+          total: graphqlSubscription.total,
+          totalMonth: graphqlSubscription.totalMonth,
+          url: payment._links.checkout.href
+        }
+        await session.commitTransaction()
+        session.endSession()
+        var mail = await sendMail(FROM, user.email, 'Aquadream - Inscription prioritaire', ADMIN_CREATE_SUBSCRIPTION(data))
+        return true
+      }catch(error){
+          console.log('CATCH ERROR')
+          console.log(error)
+          await session.abortTransaction()
+          session.endSession()
+          return false
+      } 
     },
 
     /*
@@ -254,7 +309,7 @@ export default {
   },
   Subscription: {
     payement: async({ payement }, args, { models: { payementModel }}, info) => {
-      if(payement === null) return null
+      if(payement === undefined) return null
       const object = await payementModel.findById({ _id: payement }).exec()
       return object
     },
@@ -266,7 +321,7 @@ export default {
     },
 
     lessonsDay: async({ lessonsDay }, args, { models: { lessonDayModel }}, info) => {
-      if(lessonsDay == null) return null
+      if(lessonsDay === undefined) return null
       var lessonsDayList = []
       lessonsDay.forEach(element => {
         var object = lessonDayModel.findById({ _id: element }).exec()
@@ -276,7 +331,7 @@ export default {
     },
 
     lessons: async({ lessons }, args, { models: { lessonModel }}, info) => {
-      if(lessons == null) return null
+      if(lessons == undefined) return null
       var lessonsList = []
       lessons.forEach(element => {
         var object = lessonModel.findById({ _id: element }).exec()

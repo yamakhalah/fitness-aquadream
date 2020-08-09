@@ -7,7 +7,6 @@ const SubscriptionSchema = new Schema({
   payement: {
     type: Schema.Types.ObjectId,
     ref: PAYEMENT,
-    required: true
   },
   user: { 
     type: Schema.Types.ObjectId,

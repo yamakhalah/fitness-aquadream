@@ -4,6 +4,7 @@ export const GET_USERS = gql`
   query getUsers {
     users {
       id
+      mollieCustomerID
       firstName
       lastName
       phone
