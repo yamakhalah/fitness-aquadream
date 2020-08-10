@@ -277,13 +277,13 @@ export default function Booking() {
       <Loader />
     </div>
   )
-  /*
-  else if(true) return (
+  
+  else if(!adminMode) return (
     <div className={classes.loader}>
-      <h2>En raison du COVID-19 il n'est pour l'instant pas possible de réserver des cours. Info: contact@aquadream-temploux.be</h2>
+      <h2>Patiente, nos cours seront bientôt disponibles. Infos: contact@aquadream-temploux.be</h2>
     </div>
   )
-  */
+  
   else
   return (
     <React.Fragment>
