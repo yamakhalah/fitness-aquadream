@@ -14,11 +14,11 @@ import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { CREATE_LESSON_AND_LESSONS_DAY } from '../../database/mutation/lessonMutation'
 import DateFnsUtils from '@date-io/date-fns'
 import frLocale from "date-fns/locale/fr";
-import moment from 'moment-timezone'
+import moment from 'moment'
 import localization from 'moment/locale/fr'
 
 moment.locale('fr', localization)
-moment.tz.setDefault('Europe/Brussels')
+//moment.tz.setDefault('Europe/Brussels')
 
 
 const styles = theme => ({
@@ -219,6 +219,7 @@ class CreateLesson extends React.Component {
         this.setState({ selectedDayDate: event.getDay()})
         break
       case 'recurenceEnd':
+        console.log()
         this.setState({
           [id]: moment(event, 'DD/MM/YYYY').hour(this.state.timeEnd.hour()).minute(this.state.timeEnd.minute())
         })
@@ -230,12 +231,14 @@ class CreateLesson extends React.Component {
           [id]: moment(date, 'DD/MM/YYYY'),
           'recurenceBegin': this.state.recurenceBegin.hour(date.hour()).minute(date.minute()),
         })
+        this.refreshTotalLessons(undefined, undefined)
         break
       case 'timeEnd':
         this.setState({
           [id]: moment(date, 'DD/MM/YYYY'),
           'recurenceEnd': this.state.recurenceEnd.hour(date.hour()).minute(date.minute()),
         })
+        this.refreshTotalLessons(undefined, undefined)
       break
       default:
         this.setState({
@@ -307,8 +310,8 @@ class CreateLesson extends React.Component {
     while(indexDate.isSameOrBefore(endDate)) {
       var dateValid = true
       this.state.noShowDates.forEach(element => {
-        var beginInterval = moment(element.begin)
-        var endInterval = moment(element.end)
+        var beginInterval = moment(element.begin, 'YYYY-MM-DDTHH:mm:ss.SSSSZ')
+        var endInterval = moment(element.end, 'YYYY-MM-DDTHH:mm:ss.SSSSZ')
         if(indexDate.isSameOrAfter(beginInterval) && indexDate.isSameOrBefore(endInterval)) {
           dateValid = false
         }
