@@ -275,9 +275,9 @@ class CreateLesson extends React.Component {
   }
 
   refreshPrice = (totalLessons) => {
-    var totalPrice = this.state.unitPrice * totalLessons
-    var totalPrice2X = this.state.unitPrice2X * totalLessons
-    var totalPrice3X = this.state.unitPrice3X * totalLessons
+    var totalPrice = Math.ceil(this.state.unitPrice * totalLessons)
+    var totalPrice2X = Math.ceil(this.state.unitPrice2X * totalLessons)
+    var totalPrice3X = Math.ceil(this.state.unitPrice3X * totalLessons)
     var monthlyPrice = Math.ceil(totalPrice / this.state.totalMonth) || 0
     var monthlyPrice2X = Math.ceil(totalPrice2X / this.state.totalMonth) || 0
     var monthlyPrice3X = Math.ceil(totalPrice3X / this.state.totalMonth) || 0

@@ -45,13 +45,14 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons, fUser}) => {
+const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons, fUser, adminMode}) => {
   const classes = useStyles()
   const [user, setUser] = React.useState(fUser())
   const [client, setClient] = React.useState(useApolloClient())
   const [needReRender, setNeedReRender] = React.useState(false)
   const [totalPayement, setTotalPayement] = React.useState(0)
   const [monthlyPayement, setMonthlyPayement] = React.useState([0,0,0,0,0,0,0,0,0,0,0,0])
+  const [adminDiscountAmount, setAdminDiscountAmount] = React.useState(0)
   const [discountAmount, setDiscountAmount] = React.useState(0)
   const [discountCode, setDiscountCode] = React.useState('')
   const [discounts, setDiscounts] = React.useState([])
@@ -72,6 +73,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
   })
 
   useEffect(() => {
+    console.log('USE EFFECT')
     if(bookedLessons.length > 0) {
       var lessonsData = []
       var highestMonth = 0
@@ -150,7 +152,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         recurenceBegin: closestRecurenceBegin.toISOString(true),
         recurenceEnd: closestRecurenceEnd.toISOString(true),
         subDuration: highestMonth,
-        total: (total - discountAmount),
+        total: Math.ceil((total - discountAmount)),
         totalMonthly: Math.ceil(((total-discountAmount)/highestMonth)),
         yearlyTax: tax,
         lessonsData: lessonsData,
@@ -160,10 +162,18 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
       setOrderResume(orderResume)
       handleFinalPriceCallBack(orderResume)
     }
-  }, [discounts])
+  }, [discountAmount], [discounts])
 
   const changeDiscountCode = (event) => {
     setDiscountCode(event.target.value)
+  }
+
+  const changeAdminDiscountAmount = (event) => {
+    setAdminDiscountAmount(event.target.value)
+  }
+
+  const validateAdminDiscount = () => {
+    setDiscountAmount(adminDiscountAmount)
   }
 
   const validateDiscountCode = () => {
@@ -175,8 +185,6 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         return
       }
     }
-    console.log(discountCode)
-    console.log(user.id)
     client.query({
       query: GET_DISCOUNT_BY_CODE,
       fetchPolicy: 'network-only',
@@ -203,7 +211,6 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         setDiscountAmount(amount+discount.value)
         setDiscounts([...list])
         setDiscountCode('')
-        console.log(list)
       }
     })
     .catch(error => {
@@ -326,15 +333,31 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         </ListItem>
       </List>
       <Container className={classes.discount}>
-      <TextField
-          label="Code de réduction"
-          id="reduc"
-          value={discountCode}
-          onChange={changeDiscountCode}
-      />
-      <Button variant="contained" color="primary" onClick={validateDiscountCode}>
-        Ajouter
-      </Button>
+        { adminMode ? (
+          <React.Fragment>
+            <TextField
+              label="ADMIN REDUCTION"
+              id="adminReduc"
+              value={adminDiscountAmount}
+              onChange={changeAdminDiscountAmount}
+            />
+            <Button variant="contained" color="primary" onClick={validateAdminDiscount}>
+              Ajouter
+            </Button>
+          </React.Fragment>
+        ):(
+          <React.Fragment>
+            <TextField
+                label="Code de réduction"
+                id="reduc"
+                value={discountCode}
+                onChange={changeDiscountCode}
+            />
+            <Button variant="contained" color="primary" onClick={validateDiscountCode}>
+              Ajouter
+            </Button>
+          </React.Fragment>
+        )}
       </Container>
     </Container>
     <Snackbar

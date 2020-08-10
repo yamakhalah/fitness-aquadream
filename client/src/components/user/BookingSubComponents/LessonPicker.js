@@ -139,7 +139,7 @@ const useStyles = makeStyles(theme => ({
 
 const LessonPicker = ({ handleChangeCallback }) => {
   const classes = useStyles()
-  const [selectedType, setSelectedType] = React.useState([3,"AQUA_BOXING"])
+  const [selectedType, setSelectedType] = React.useState([2,"AQUA_BIKING"])
   const [selectedModalLesson, setSelectedModalLesson] = React.useState(null)
   const [openInfoModal, setOpenInfoModal] = React.useState(false)
   const [selectedLessons, setSelectedLessons] = React.useState([])
@@ -172,7 +172,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
       lessonsDic[element.lessonSubType.name].push(element)
     });
     setLessonsBySubType(lessonsDic)
-    handleListItemClick('AQUA_BOXING', 3)
+    handleListItemClick('AQUA_BIKING', 2)
   }
 
   const handleListItemClick = (key, index) => {

@@ -143,7 +143,7 @@ export default function Booking() {
       case 0:
         return <LessonPicker handleChangeCallback={lessonPickerCallback} />
       case 1: 
-        return <OrderResume handleFinalPriceCallBack={orderResumeCallBack} preBookedLessons={preBookedLessons} bookedLessons={bookedLessons} fUser={getUser} />
+        return <OrderResume handleFinalPriceCallBack={orderResumeCallBack} preBookedLessons={preBookedLessons} bookedLessons={bookedLessons} fUser={getUser} adminMode={adminMode} />
       case 2:
         setLoading(true)
         if(bookedLessons.length === 0) {
