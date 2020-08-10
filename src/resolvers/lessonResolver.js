@@ -24,7 +24,7 @@ export default {
 
     lessonsWaitingOrGoing: async (parent, args, { models: { lessonModel }}, info) => {
       try{
-        var today = moment().toISOString(true)
+        var today = moment().add(2, 'hours').toISOString(true)
         const lessons = await lessonModel.find({ 
           'status': ["WAITING_BEGIN", "ON_GOING"],
           'classicDate': { $lte: today}
@@ -37,7 +37,7 @@ export default {
 
     lessonsWaitingOrGoingFree: async (parent, args, { models: { lessonModel }}, info) => {
       try{
-        var today = moment().toISOString(true)
+        var today = moment().add(2, 'hours').toISOString(true)
         const lessons = await lessonModel.find({ 
           'status': ["WAITING_BEGIN", "ON_GOING"],
           'classicDate': { $lte: today},
