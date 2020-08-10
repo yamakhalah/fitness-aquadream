@@ -1,13 +1,15 @@
 import React from 'react'
 import Loader from '../global/Loader'
 import { withStyles } from '@material-ui/core/styles';
+import { Euro } from '@material-ui/icons'
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField, Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
+import { InputAdornment, IconButton, Tooltip, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField, Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
 import { GET_USERS, SEND_GLOBAL_EMAIL } from '../../database/query/userQuery'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { UPDATE_IS_ADMIN, UPDATE_IS_TEACHER } from '../../database/mutation/userMutation'
+import { ADMIN_CREATE_DISCOUNT } from '../../database/mutation/discountMutation'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 
 const styles = theme => ({
@@ -48,7 +50,10 @@ class AdminUser extends React.Component {
       openSnack: false,
       openDialog: false,
       loading: false,
-      message: ''
+      message: '',
+      openDiscountDialog: false,
+      selectedUser: null,
+      discountValue: 0
     }
   }
 
@@ -86,6 +91,32 @@ class AdminUser extends React.Component {
         loading: false
       })
       this.showSnackMessage('Erreur lors de l\'envoi des emails', 'error')
+    })
+  }
+
+  createDiscount = () => {
+    this.setState({
+      openDiscountDialog: false,
+      loading: true
+    })
+    this.props.client.mutate({
+      mutation: ADMIN_CREATE_DISCOUNT,
+      variables: {
+        user: this.state.selectedUser.id,
+        value: parseFloat(this.state.discountValue)
+      }
+    })
+    .then(result => {
+      this.setState({
+        loading: false
+      })
+      this.showSnackMessage('Le bon d\'achat a bien été crée', 'success')
+    })
+    .catch(error => {
+      this.setState({
+        loading: false
+      })
+      this.showSnackMessage('Erreur lors de la création du bon d\'achat', 'error')
     })
   }
   
@@ -154,6 +185,23 @@ class AdminUser extends React.Component {
     })
   }
 
+  handleDiscountDialog = (user) => {
+    if(!this.state.openDiscountDialog){
+      this.setState(
+        {
+          openDiscountDialog: true,
+          selectedUser: user
+        }
+      )
+    }else{
+      this.setState(
+        {
+          openDiscountDialog: false,
+        }
+      )
+    }
+  }
+
   render(){
     const { classes } = this.props
 
@@ -182,6 +230,7 @@ class AdminUser extends React.Component {
               <TableCell numeric='true'>Nombre de crédit</TableCell>
               <TableCell numeric='false'>Professeur</TableCell>
               <TableCell numeric='false'>Administrateur</TableCell>
+              <TableCell numeric='false'>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -211,6 +260,13 @@ class AdminUser extends React.Component {
                     color="primary"
                   />
                 </TableCell>
+                <TableCell>
+                <Tooltip title="Ajouter un bon d'achat">
+                  <IconButton onClick={() => this.handleDiscountDialog(user)}>
+                    <Euro />
+                  </IconButton>
+                </Tooltip>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -238,6 +294,31 @@ class AdminUser extends React.Component {
             Annuler           
           </Button>
           <Button onClick={() => this.sendEmail()} color="primary" disabled={this.state.loading}>
+            Confirmer           
+          </Button> 
+        </DialogActions>
+      </Dialog>
+      <Dialog open={this.state.openDiscountDialog} fullWidth={true} maxWidth='md'>
+        <DialogTitle>Créer un bon d'achat</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Un bon d'achat sera généré pour {this.state.selectedUser ? this.state.selectedUser.firstName : '' } {this.state.selectedUser ? this.state.selectedUser.lastName : '' } de la valeur entrée ci-dessous. L'utilisateur recevra un email avec son code.</DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="montant"
+            label="Montant"
+            type="number"
+            fullWidth
+            startAdornment={<InputAdornment position="end">€</InputAdornment>}
+            value={this.state.discountValue}
+            onChange={ event =>  {this.setState({ discountValue: event.target.value })}}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {this.setState({ openDiscountDialog: false })}} color="default" disabled={this.state.loading}>
+            Annuler           
+          </Button>
+          <Button onClick={() => this.createDiscount()} color="primary" disabled={this.state.loading}>
             Confirmer           
           </Button> 
         </DialogActions>
