@@ -59,6 +59,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
   const [openSnack, setOpenSnack] = React.useState(false)
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
+  const [admin,] = React.useState(adminMode)
   const [bookedLessonsDiscount, setBookedLessonsDiscount] = React.useState({
     "X1": [],
     "X2": [],
@@ -296,7 +297,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
               </ListItem>
             </div>
         ))}
-        {!user.paidYearlyTax && orderResume.total > 0 && !adminMode (
+        {!user.paidYearlyTax && orderResume.total > 0 && !admin && (
           <ListItem className={classes.listItem}>
             <ListItemText primary="Paiement annuel pour assurance" />
             <Typography variant="body2">
