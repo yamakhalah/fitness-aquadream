@@ -1,7 +1,9 @@
 require('dotenv').config()
 var mailer = require('nodemailer')
-var moment = require('moment')
+var moment = require('moment-timezone')
+
 moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 export const FROM = 'noreply@aquadream-temploux.be'
 
@@ -88,7 +90,7 @@ export function CONFIRM_SUBSCRIPTION(user) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
   '<p> Nous vous informons que votre paiement a été accepté et que votre abonnement a été crée </p>'+
   '<p> Pour voir l\'état de votre abonnement rendez vous sur https://www.app.aquadream-temploux.be/subscription </p>'+
-  '</br></br>'+
+  '</br>'+
   '<p> Vous ne voyez pas votre commande ? Contactez paiement@aquadream-temploux.be </p>'+
   '<p> Pour toute autre question contactez nous sur contact@aquadream-temploux.be </p>'+
   '<p>Cordialement,</p>'+

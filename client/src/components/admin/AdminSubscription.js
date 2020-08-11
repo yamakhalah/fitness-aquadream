@@ -103,7 +103,7 @@ export default function AdminSubscription() {
             })
           })
           promises.push(promise)
-        }else{
+        }else if(subscription.subStatus === 'WAITING_PAYEMENT'){
           lSubscriptionsData.push({
             subscription: subscription,
             mollieSubscription: null
