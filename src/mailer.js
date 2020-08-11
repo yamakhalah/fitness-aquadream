@@ -60,6 +60,19 @@ export function CANCEL_SUBSCRIPTION_DISCOUNT(discount, subscription) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function PRE_CANCEL_SUBSCRIPTION(subscription) {
+  return '<p>Bonjour '+subscription.user.firstName+' '+subscription.user.lastName+'</p>'+
+  '<p>Nous vous informons qu\'un de vos abonnement a été annulé.</p>' +
+  '<p>Etant donné que vous n\'aviez pas encore payé celui-ci, vous ne recevez pas de bon d\'achat.</p>' +
+  '</br></br>'+
+  '<p>Plus d\informations via l\'application Aquadream</p>' +
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+
 export function OPEN_LESSON(user, lesson) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
   '<p> Nous vous informons que l\'abonnement '+ lesson.name +' débutant le '+moment(lesson.recurenceBegin).format('DD/MM/YYYY')+' est maintenant ouvert. </p>'+
@@ -125,7 +138,7 @@ export function ADMIN_CREATE_SUBSCRIPTION(data) {
   '<p>Nous vous informons que notre équipe vous a réservé une place pour un abonnement Aquadream !</p>'+
   '<p>Si vous ne souhaitez pas être inscrit(e) à cet abonnement veuillez nous contacter via aquadreamtemploux@gmail.com</p>'+
   '<p>Liste des cours: </p>'+
-  data +
+  lessonsDetail +
   '<p>Total: '+data.total+'€ </p>'+
   '<p>Total Mensuel: '+data.totalMonth+'€ </p>'+
   '<p>ATTENTION: Afin de confirmer votre abonnement veuillez effectuer le premier versement en suivant ce lien sécurisé: '+data.url+'</p>'+

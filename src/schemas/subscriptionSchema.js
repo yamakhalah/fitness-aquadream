@@ -24,8 +24,8 @@ export default gql`
     created: String!
     subStatus: SubStatus!
     subType: SubType!
-    total: Int!
-    totalMonth: Int!
+    total: Float!
+    totalMonth: Float!
     validityBegin: String!
     validityEnd: String!
   }
@@ -38,8 +38,8 @@ export default gql`
     created: String!
     subStatus: String!
     subType: String!
-    total: Int!
-    totalMonth: Int!
+    total: Float!
+    totalMonth: Float!
     validityBegin: String!
     validityEnd: String!
   }
@@ -56,6 +56,7 @@ export default gql`
     updateSubscription(id: ID!, subscription: SubscriptionInput!): Subscription!
     deleteSubscription(id: ID!): Subscription!
     changeLesson(subscription: ID!, oldLesson: ID!, newLesson: ID!): Boolean!
+    preCancelSubscription(id: ID!): Boolean!
     cancelSubscriptionWithDiscount(id: ID!): Boolean!
     cancelSubscriptionWithRefund(id: ID!): Boolean!
     adminCreateSubscription(payment: JSON!): Boolean!

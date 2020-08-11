@@ -12,6 +12,12 @@ export const CANCEL_SUBSCRIPTION_DISCOUNT = gql`
   }
 `
 
+export const PRE_CANCEL_SUBSCRIPTION =gql`
+  mutation preCancelSubscription($id: ID!){
+    preCancelSubscription(id: $id)
+  }
+`
+
 export const ADMIN_CREATE_SUBSCRIPTION = gql`
   mutation adminCreateSubscription($payment: JSON!){
     adminCreateSubscription(payment: $payment)

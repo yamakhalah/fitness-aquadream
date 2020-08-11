@@ -6,7 +6,7 @@ import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
 import mongoose from 'mongoose'
 import { ApolloError} from 'apollo-server-express'
-import { sendMail, FROM, ADMIN_CREATE_SUBSCRIPTION } from '../mailer'
+import { sendMail, FROM, ADMIN_CREATE_SUBSCRIPTION, CANCEL_SUBSCRIPTION_DISCOUNT, PRE_CANCEL_SUBSCRIPTION } from '../mailer'
 import { createMollieClient } from '@mollie/api-client'
 import crypto from 'crypto'
 import moment from 'moment'
@@ -238,7 +238,46 @@ export default {
     },
     */
 
-    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
+   preCancelSubscription: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
+      const session = await mongoose.startSession()
+      const opts = { session }
+      session.startTransaction()
+      try{
+        //GET SUBSCRIPTION && PAYMENT DATA
+        const sub = await subscriptionModel.findById(id).populate([{ path: 'payement', model: payementModel }, { path: 'lessonsDay', model: lessonDayModel }, { path: 'lessons', model: lessonModel }, { path: 'user', model: userModel } ])
+        //COMPUTE HOW MUCH CUSTOMER ALREADY PAID BASED ON RECURENCE BEGIN AND TOTAL MONTHLY
+        if(sub.subType === 'LESSON') {
+          for(const lesson of sub.lessons){
+            //LESSONMODEL.removeUser
+            const dLesson = await lessonModel.removeUser(lesson._id, sub.user._id, opts)
+            for(const lessonDay of lesson.lessonsDay) {
+              const dLessonDay = await lessonDayModel.removeUserIncreaseSpotLeft(lessonDay, sub.user._id, opts)
+            }
+          }
+        } else {
+          console.log('ELSE')
+        }
+        //CANCEL SUBSCRIPTION
+        const user = await userModel.removeSubscription(sub.user._id, sub._id, opts)
+        const uSub = await subscriptionModel.findOneAndUpdate(
+          { _id: sub._id },
+          { subStatus: 'CANCELED_BY_ADMIN'},
+          { new: true }
+        ).session(session)
+        await session.commitTransaction()
+        session.endSession()
+        //SEND EMAIL
+        var mail = await sendMail(FROM, sub.user.email, PRE_CANCEL_SUBSCRIPTION(sub))
+        return true
+      }catch(error) {
+        console.log(error)
+        await session.abortTransaction()
+        session.endSession()
+        return false
+      }
+   },
+
+    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel }}, info) => {
       const session = await mongoose.startSession()
       const opts = { session }
       session.startTransaction()
@@ -262,7 +301,8 @@ export default {
         }
         //CANCEL MOLLIE SUBSCRIPTION
         const graphqlDiscount = await discountModel.create(discount, { opts })
-        const user = await userModel.addDiscount(sub.user._id, graphqlDiscount._id, session)
+        var user = await userModel.addDiscount(sub.user._id, graphqlDiscount._id, session)
+        user = await userModel.removeSubscription(sub.user._id, sub._id, opts)
         //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
         if(sub.subType === 'LESSON') {
           for(const lesson of sub.lessons){

@@ -9,7 +9,7 @@ import { CustomSnackBar } from '../global/CustomSnackBar'
 import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'
-import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT } from '../../database/mutation/subscriptionMutation'
+import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT, PRE_CANCEL_SUBSCRIPTION } from '../../database/mutation/subscriptionMutation'
 import moment from 'moment-timezone'
 
 moment.locale('fr')
@@ -79,8 +79,7 @@ export default function AdminSubscription() {
       var lSubscriptionsData = []
       var promises = []
       for(const subscription of data.subscriptions) {
-        console.log(subscription)
-        if(subscription.subStatus !== 'WAITING_PAYEMENT'){   
+        if(subscription.subStatus !== 'WAITING_PAYEMENT' && subscription.subStatus !== 'CANCELED_BY_ADMIN'){   
           const promise = new Promise((resolve, reject) => {
             client.query({
               query:  GET_MOLLIE_SUBSCRIPTION_DATA,
@@ -91,6 +90,7 @@ export default function AdminSubscription() {
               fetchPolicy: 'network-only'
             })
             .then(result => {
+              console.log(result)
               lSubscriptionsData.push({
                 subscription: subscription,
                 mollieSubscription: result.data.getMollieSubscriptionData
@@ -103,6 +103,11 @@ export default function AdminSubscription() {
             })
           })
           promises.push(promise)
+        }else{
+          lSubscriptionsData.push({
+            subscription: subscription,
+            mollieSubscription: null
+          })
         }
       }
       Promise.all(promises.map(p => p.catch(e => e)))
@@ -141,6 +146,29 @@ export default function AdminSubscription() {
     }else{
       setOpenDeleteDialog(false)
     }
+  }
+
+  const preDeleteSubscription = (subscriptionData) => {
+    setLoading(true)
+    client.mutate({
+      mutation: PRE_CANCEL_SUBSCRIPTION,
+      variables: {
+        id: subscriptionData.subscription.id
+      }
+    })
+    .then(result => {
+      if(result.data.preCancelSubscription) {
+        showSnackMessage('L\'abonnement a bien été annulé', 'success')
+      }else{
+        showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+      }
+      setLoading(false)
+    })
+    .catch(error => {
+      console.log(error)
+      showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+      setLoading(false)
+    })
   }
 
   const deleteSubscription = () => {
@@ -262,7 +290,7 @@ export default function AdminSubscription() {
                     <TableCell>{moment(subscriptionData.subscription.validityEnd).format('DD/MM/YYYY')}</TableCell>
                     <TableCell>{subscriptionData.subscription.total}</TableCell>
                     <TableCell>{subscriptionData.subscription.totalMonth}</TableCell>
-                    <TableCell>{subscriptionData.mollieSubscription.status}</TableCell>
+                    <TableCell>{subscriptionData.mollieSubscription ? subscriptionData.mollieSubscription.status : 'Non payé' }</TableCell>
                     <TableCell>
                       <Tooltip title="Modifier l'abonnement">
                         <IconButton onClick={() => handleEditDialog(subscriptionData)}>
@@ -272,6 +300,13 @@ export default function AdminSubscription() {
                       {(subscriptionData.subscription.subStatus === 'WAITING_BEGIN' || subscriptionData.subscription.subStatus === 'ON_GOING' ) && 
                         <Tooltip title="Annuler l'abonnement">
                           <IconButton onClick={() => handleDeleteDialog(subscriptionData)}>
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                      }
+                      {(subscriptionData.subscription.subStatus === 'WAITING_PAYEMENT') && 
+                        <Tooltip title="Annuler l'abonnement">
+                          <IconButton onClick={() => preDeleteSubscription(subscriptionData)}>
                             <Delete />
                           </IconButton>
                         </Tooltip>
