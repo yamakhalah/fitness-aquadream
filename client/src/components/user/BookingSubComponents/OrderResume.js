@@ -296,7 +296,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
               </ListItem>
             </div>
         ))}
-        {!user.paidYearlyTax && orderResume.total > 0 && (
+        {!user.paidYearlyTax && orderResume.total > 0 && !adminMode (
           <ListItem className={classes.listItem}>
             <ListItemText primary="Paiement annuel pour assurance" />
             <Typography variant="body2">
