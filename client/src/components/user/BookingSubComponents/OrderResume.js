@@ -145,7 +145,7 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         lessonsData.push(data)
       })
       var tax = 0
-      if(!user.paidYearlyTax){
+      if(!user.paidYearlyTax && !adminMode) {
         tax = 35
       }
       var orderResume = {
