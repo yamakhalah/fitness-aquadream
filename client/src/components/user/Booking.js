@@ -99,6 +99,7 @@ export default function Booking() {
   const [adminMode, setAdminMode] = React.useState(false)
   const [adminUserSelected, setAdminUserSelected] = React.useState(null)
   const [adminUserList, setAdminUserList] = React.useState([])
+  const [adminGotResult, setAdminGotResult] = React.useState(false)
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
@@ -165,8 +166,9 @@ export default function Booking() {
         admin: adminMode
       }
     })
-    .then(result => {    
-      if(adminMode){
+    .then(result => {  
+      if(adminMode && !adminGotResult){
+        setAdminGotResult(true)
         client.mutate({
           mutation: ADMIN_CREATE_SUBSCRIPTION,
           variables: {
