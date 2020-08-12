@@ -29,7 +29,6 @@ export default {
       const subscriptions = await subscriptionModel.find({
         user: user
       }).exec()
-      console.log(subscriptions)
       return subscriptions
     }
   },
@@ -104,7 +103,6 @@ export default {
       try{
         var lessonsID = []
         var dataLessons = []
-        console.log(payment.metadata.lessons)
         for(const lesson of payment.metadata.lessons){
           lessonsID.push(lesson.lessonID)
           var graphqlLesson = await lessonModel.addUser(lesson.lessonID, payment.metadata.userID, opts)

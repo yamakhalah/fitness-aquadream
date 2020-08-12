@@ -99,7 +99,6 @@ export default function Booking() {
   const [adminMode, setAdminMode] = React.useState(false)
   const [adminUserSelected, setAdminUserSelected] = React.useState(null)
   const [adminUserList, setAdminUserList] = React.useState([])
-  const [adminGotResult, setAdminGotResult] = React.useState(false)
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
@@ -139,24 +138,26 @@ export default function Booking() {
     }
   }, [Authentification.data, Authentification.loading, loading, adminMode])
 
+  function preCheckout() {
+    setLoading(true)
+    if(bookedLessons.length === 0) {
+      noBookingCheckout()
+    }else{
+      checkout()
+    }
+  }
   function getStepContent(step) {
     switch(step) {
       case 0:
         return <LessonPicker handleChangeCallback={lessonPickerCallback} />
       case 1: 
         return <OrderResume handleFinalPriceCallBack={orderResumeCallBack} preBookedLessons={preBookedLessons} bookedLessons={bookedLessons} fUser={getUser} adminMode={adminMode} />
-      case 2:
-        setLoading(true)
-        if(bookedLessons.length === 0) {
-          noBookingCheckout()
-        }else{
-          checkout()
-        }
+        
     }
   }
 
   const checkout = () => {
-    console.log(adminUserSelected)
+    setLoading(true)
     client.query({
       query: GET_SESSION,
       variables: {
@@ -166,9 +167,8 @@ export default function Booking() {
         admin: adminMode
       }
     })
-    .then(result => {  
-      if(adminMode && !adminGotResult){
-        setAdminGotResult(true)
+    .then(result => {
+      if(adminMode){
         client.mutate({
           mutation: ADMIN_CREATE_SUBSCRIPTION,
           variables: {
@@ -176,7 +176,6 @@ export default function Booking() {
           }
         })
         .then(result => {
-          console.log(result.data.adminCreateSubscription)
           if(result.data.adminCreateSubscription){
             showSnackMessage("L'abonnement a bien été crée !", "success")
           }else{
@@ -373,7 +372,7 @@ export default function Booking() {
                           Retour
                         </Button>
                       )}
-                      {activeStep !== 2 && (
+                      {activeStep === 0 && (
                         <Button
                           variant="contained"
                           color="primary"
@@ -381,7 +380,18 @@ export default function Booking() {
                           className={classes.button}
                           disabled={nextButtonDisable}
                         >
-                          {activeStep === steps.length - 1 ? 'Payer' : 'Suivant'}
+                          Suivant
+                        </Button>
+                      )}
+                      {activeStep === 1 && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={preCheckout}
+                          className={classes.button}
+                          disabled={nextButtonDisable}
+                        >
+                          Payer
                         </Button>
                       )}
                     </div>

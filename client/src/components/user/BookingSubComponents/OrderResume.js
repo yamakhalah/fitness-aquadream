@@ -74,7 +74,6 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
   })
 
   useEffect(() => {
-    console.log('USE EFFECT')
     if(bookedLessons.length > 0) {
       var lessonsData = []
       var highestMonth = 0
@@ -207,7 +206,6 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
         setDiscountCode('')
       }else{
         var amount = discountAmount
-        console.log(result)
         list.push(result.data.discountByCode)
         setDiscountAmount(amount+discount.value)
         setDiscounts([...list])

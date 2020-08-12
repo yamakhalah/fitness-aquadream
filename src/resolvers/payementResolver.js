@@ -59,7 +59,6 @@ export default {
 
     getSession: async (parent, { orderResume, preBookedLessons, user, admin }, { models: { payementModel }}, info) => {
       try{
-        console.log(user)
         //CHECK IF USER HAS MOLLIE CUSTOMER ID
         if(user.mollieCustomerID.length === 0){
           //IF NO CUSTOMER CREATE THE CUSTOMER
@@ -121,7 +120,7 @@ export default {
           { new: true }
         )
         for(const lesson of preBookedLessons) {
-          const preBookedLesson = lessonModel.addUser(lesson.id, user.id, null)
+          const preBookedLesson = await lessonModel.addUser(lesson.id, user.id, null)
         }
         return molliePayment
       }catch(error){
