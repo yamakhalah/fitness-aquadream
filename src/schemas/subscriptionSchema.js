@@ -59,6 +59,6 @@ export default gql`
     preCancelSubscription(id: ID!): Boolean!
     cancelSubscriptionWithDiscount(id: ID!): Boolean!
     cancelSubscriptionWithRefund(id: ID!): Boolean!
-    adminCreateSubscription(payment: JSON!): Boolean!
+    adminCreateSubscription(orderResume: JSON!, preBookedLessons: JSON!, user: JSON!, admin: Boolean!): Boolean!
   }
 `

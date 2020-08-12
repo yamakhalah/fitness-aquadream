@@ -143,7 +143,7 @@ export function ADMIN_CREATE_SUBSCRIPTION(data) {
   lessonsDetail +
   '<p>Total: '+data.total+'€ </p>'+
   '<p>Total Mensuel: '+data.totalMonth+'€ </p>'+
-  '<p>ATTENTION: Afin de confirmer votre abonnement veuillez effectuer le premier versement en suivant ce lien sécurisé: '+data.url+'</p>'+
+  '<p>ATTENTION: Afin de confirmer votre abonnement veuillez effectuer le premier versement en suivant ce lien sécurisé: '+process.env.PRIORITARY_BOOKING_REDIRECT_URL+'/'+data.subscription+' </p>'+
   '<p>Cordialement,</p>'+
   '<p>L\'équipe Aquadream</p>'+
   '</br></br>'+

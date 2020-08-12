@@ -27,6 +27,7 @@ import Booking from './components/user/Booking'
 import Credit from './components/user/Credit'
 import CreditUse from './components/user/CreditUse'
 import Payement from './components/user/BookingSubComponents/Payement'
+import PrioritaryPayement from './components/user/BookingSubComponents/PriorityPayement'
 import Home from './components/user/Home'
 import Subscription from './components/user/Subscription'
 import NotFound from './components/global/404'
@@ -130,6 +131,7 @@ export default function App(props) {
             <div className={classes.toolbar} />
             <Switch>
               <Route exact path="/booking/checkout/:reference" component={Payement} />
+              <Route exact path="/booking/prioritary-checkout/:subscription" component={PrioritaryPayement} />
               <AuthRoute user={user} component={Home} exact path="/" />
               <AuthRoute user={user} component={Credit} exact path="/credit" />
               <AuthRoute user={user} component={CreditUse} exact path="/creditUse" />

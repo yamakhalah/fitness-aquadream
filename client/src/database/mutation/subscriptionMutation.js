@@ -19,7 +19,7 @@ export const PRE_CANCEL_SUBSCRIPTION =gql`
 `
 
 export const ADMIN_CREATE_SUBSCRIPTION = gql`
-  mutation adminCreateSubscription($payment: JSON!){
-    adminCreateSubscription(payment: $payment)
+  mutation adminCreateSubscription($orderResume: JSON!, $preBookedLessons: JSON!, $user: JSON!, $admin: Boolean!){
+    adminCreateSubscription(orderResume: $orderResume, preBookedLessons: $preBookedLessons, user: $user, admin: $admin)
   }
 `

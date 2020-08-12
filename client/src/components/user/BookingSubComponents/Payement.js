@@ -46,7 +46,6 @@ const Payement = (props: PayementProps) => {
   
   
   useEffect(() => {
-    console.log(props.match.params)
     if(props.match.params.reference === 'prebooked'){
       setSuccess(true)
       setPreBooked(true)

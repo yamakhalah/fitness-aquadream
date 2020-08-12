@@ -57,6 +57,66 @@ export default {
       }
     },
 
+    getPrioritySession: async (parent, { user, subscription }, { models: { userModel, payementModel }}, info) => {
+      try{
+        //CHECK IF USER HAS MOLLIE CUSTOMER ID
+        if(user.mollieCustomerID.length === 0){
+          //IF NO CUSTOMER CREATE THE CUSTOMER
+          const mollieUser = await mollieClient.customers.create({
+            name: user.firstName+' '+user.lastName,
+            email: user.email,
+            locale: 'fr_BE'
+          })
+          //console.log(mollieUser)
+          user.mollieCustomerID = mollieUser.id
+        }
+
+        var graphqlUser = await userModel.findOneAndUpdate(
+          { _id: user.userID },
+          { mollieCustomerID: user.mollieCustomerID },
+          { new: true }
+        )
+        //CREATE FIRST PAYEMENT
+        const ref = uuid.v4()
+ 
+        const molliePayment = await mollieClient.payments.create({
+          amount: {
+            currency: 'EUR',
+            value: String(subscription.totalMonth)+'.00'
+          },
+          description: 'Première échéance abonnement et taxe annuelle (si non payée)',
+          redirectUrl: process.env.MOLLIE_REDIRECT_URL+'/'+ref,
+          webhookUrl: process.env.MOLLIE_WEBHOOK_URL,
+          locale: 'fr_BE',
+          method: ['bancontact', 'creditcard', 'directdebit', 'inghomepay', 'belfius', 'banktransfer', 'mybank'],
+          metadata: {
+            userID: user.userID,
+            subDuration: Math.ceil(moment(subscription.validityEnd).diff(moment(subscription.validityBegin), 'months', true)),
+            totalMonthly: subscription.totalMonth,
+            total: subscription.total,
+            startDate: moment(subscription.validityBegin).format('YYYY-MM-DD'),
+            endDate: moment(subscription.validityEnd).format('YYYY-MM-DD'),
+            lessons: subscription.lessons,
+            reference: ref,
+            admin: true,
+            subscription: subscription.id
+          },
+          sequenceType: 'first',
+          customerId: user.mollieCustomerID,
+          restrictPaymentMethodsToCountry: 'BE'
+        }) 
+        var graphqlUser = await userModel.findOneAndUpdate(
+          { _id: user.id },
+          { mollieCustomerID: user.mollieCustomerID },
+          { new: true }
+        )
+        return molliePayment
+      }catch(error){
+        console.log('error')
+        console.log(error)
+      }
+    },
+
     getSession: async (parent, { orderResume, preBookedLessons, user, admin }, { models: { payementModel }}, info) => {
       try{
         //CHECK IF USER HAS MOLLIE CUSTOMER ID

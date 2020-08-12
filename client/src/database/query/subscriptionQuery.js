@@ -86,3 +86,21 @@ export const GET_SUBSCRIPTIONS_FOR_USER = gql`
     }
   }
 `
+
+export const GET_SUBSCRIPTION = gql`
+  query getSubscription($id: ID!){
+    subscription(id: $id){
+      id
+      lessonsDay{
+        id
+      }
+      created
+      subType
+      subStatus
+      total
+      totalMonth
+      validityBegin
+      validityEnd
+    }
+  }
+`

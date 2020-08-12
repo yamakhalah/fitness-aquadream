@@ -96,50 +96,51 @@ export default {
       }
     },
 
-    adminCreateSubscription: async(parent, { payment }, { models: { userModel, payementModel, subscriptionModel, lessonModel, lessonDayModel }}, info) => {
+    adminCreateSubscription: async(parent, { orderResume, preBookedLessons, user, admin }, { models: { userModel, payementModel, subscriptionModel, lessonModel, lessonDayModel }}, info) => {
       const session = await mongoose.startSession()
       session.startTransaction()
       const opts = { session }
+      const userl = user
       try{
         var lessonsID = []
         var dataLessons = []
-        for(const lesson of payment.metadata.lessons){
-          lessonsID.push(lesson.lessonID)
-          var graphqlLesson = await lessonModel.addUser(lesson.lessonID, payment.metadata.userID, opts)
+        for(const lesson of orderResume.lessonsData){
+          lessonsID.push(lesson.lesson.id)
+          var graphqlLesson = await lessonModel.addUser(lesson.lesson.id, userl.id, opts)
           dataLessons.push(graphqlLesson)
           for(const lessonDay of graphqlLesson.lessonsDay) {
-            var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
+            var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, userl.id, opts)
           }
         }
-        const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
-        const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')
+        const validityBegin = moment(orderResume.recurenceBegin)
+        const validityEnd = moment(orderResume.recurenceEnd)
+        console.log(validityEnd)
         const dataSubscription = {
-          user: payment.metadata.userID,
+          user: userl.id,
           lessons: lessonsID,
           created: moment().toISOString(),
           subType: 'LESSON',
-          total: payment.metadata.total,
-          totalMonth: payment.metadata.totalMonthly,
+          total: orderResume.total,
+          totalMonth: orderResume.totalMonthly,
           validityBegin: validityBegin.toISOString(),
           validityEnd: validityEnd.toISOString(),
           subStatus: 'WAITING_PAYEMENT'
         }
 
         const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
-        const graphqlPayement = await payementModel.create({ subscription: graphqlSubscription._id, molliePaymentID: payment.id }, opts)
-        const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
+        const user = await userModel.addSubscription(userl.id, graphqlSubscription._id, opts)
         var data = {
           lessons: dataLessons,
-          user: user,
+          user: userl,
           validityBegin: validityBegin.toString(),
           validityEnd: validityEnd.toString(),
           total: graphqlSubscription.total,
           totalMonth: graphqlSubscription.totalMonth,
-          url: payment._links.checkout.href
+          subscription: graphqlSubscription._id
         }
         await session.commitTransaction()
         session.endSession()
-        var mail = await sendMail(FROM, user.email, 'Aquadream - Inscription prioritaire', ADMIN_CREATE_SUBSCRIPTION(data))
+        var mail = await sendMail(FROM, userl.email, 'Aquadream - Inscription prioritaire', ADMIN_CREATE_SUBSCRIPTION(data))
         return true
       }catch(error){
           console.log('CATCH ERROR')

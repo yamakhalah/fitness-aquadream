@@ -6,6 +6,12 @@ export const GET_SESSION = gql`
   }
 `
 
+export const GET_PRIORITY_SESSION = gql`
+  query getPrioritySession($user: JSON! $subscription: JSON!) {
+    getPrioritySession(user: $user, subscription: $subscription) 
+  }
+`
+
 export const GET_MOLLIE_CHECKOUT_RESULT = gql`
   query getMollieCheckoutResult($paymentRef: String!){
     getMollieCheckoutResult(paymentRef: $paymentRef)

@@ -21,7 +21,7 @@ const confirmAdminSubscription = async (payment) => {
   session.startTransaction()
   const opts = { session }
   var subscription = null
-
+  console.log(payment)
   try {
     if(payment.status === 'paid' && payment.amountRefunded.value === '0.00') {
       subscription = await mollieClient.customers_subscriptions.create({
@@ -45,24 +45,17 @@ const confirmAdminSubscription = async (payment) => {
         { customerId: subscription.customerId }
       ) 
       //UPDATE PAYEMENT TO DB
-      const graphqlPayment = await payementModel.findOneAndUpdate(
-        { molliePaymentID: payment.id },
-        {
+      const graphqlPayment = await payementModel.create(
+        { molliePaymentID: payment.id,
           mollieCustomerID: payment.customerId,
           mollieSubscriptionID: subscription.id,
           mollieMandateID: mandate.id,
           mollieMandateStatus: mandate.status,
-          reference: payment.metadata.reference
+          reference: payment.metadata.reference, 
+          subscription: payment.metadata.subscription
         },
-        { new: true }
-      ).session(session)
-
-      for(const discount of payment.metadata.discounts) {
-        const graphqlDiscount = await discountModel.findOneAndUpdate(
-          { _id: discount.discountID },
-          { status: 'USED' }
-        ).session(session)
-      }
+        opts
+      )
 
         //UPDATE SUBSCRIPTION SUBSTATUS and PaymentID
       const graphqlSubscription = await subscriptionModel.findOneAndUpdate(
@@ -74,13 +67,6 @@ const confirmAdminSubscription = async (payment) => {
         { new: true }
       ).session(session)
 
-      if(payment.metadata.yearlyTax > 0) {
-        var graphqlUser = await userModel.findOneAndUpdate(
-          { _id: payment.metadata.userID },
-          { mollieCustomerID: payment.customerId, paidYearlyTax: true },
-          { new: true }
-        ).session(session)
-      }
       const user = await userModel.addSubscription(payment.metadata.userID, graphqlSubscription._id, opts)
       await session.commitTransaction()
       session.endSession()

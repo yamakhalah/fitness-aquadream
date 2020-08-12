@@ -158,45 +158,50 @@ export default function Booking() {
 
   const checkout = () => {
     setLoading(true)
-    client.query({
-      query: GET_SESSION,
-      variables: {
-        orderResume: orderResume,
-        preBookedLessons: preBookedLessons,
-        user: adminMode ? adminUserSelected : user,
-        admin: adminMode
-      }
-    })
-    .then(result => {
-      if(adminMode){
-        client.mutate({
-          mutation: ADMIN_CREATE_SUBSCRIPTION,
-          variables: {
-            payment: result.data.getSession
-          }
-        })
-        .then(result => {
-          if(result.data.adminCreateSubscription){
-            showSnackMessage("L'abonnement a bien été crée !", "success")
-          }else{
-            showSnackMessage("Une erreur a eu lieu lors de la création de l'abonnement !", "error")
-          }
-          reset()
-        })
-        .catch(error => {
-          console.log(error)
+    if(adminMode){
+      client.mutate({
+        mutation: ADMIN_CREATE_SUBSCRIPTION,
+        variables: {
+          orderResume: orderResume,
+          preBookedLessons: preBookedLessons,
+          user: adminUserSelected,
+          admin: adminMode
+        }
+      })
+        
+      .then(result => {
+        if(result.data.adminCreateSubscription){
+          showSnackMessage("L'abonnement a bien été crée !", "success")
+        }else{
           showSnackMessage("Une erreur a eu lieu lors de la création de l'abonnement !", "error")
           reset()
-        })
-      } else { 
-        window.location = result.data.getSession._links.checkout.href
-      }
-    })
-    .catch(error => {
-      console.log(error)
-      showSnackMessage("Une erreur a eu lieu lors de la création de la session de paiement !", "error")
-      reset()
-    })
+        }
+        reset()
+      })
+      .catch(error => {
+        console.log(error)
+        showSnackMessage("Une erreur a eu lieu lors de la création de l'abonnement !", "error")
+        reset()
+      })
+    }else{  
+      client.query({
+        query: GET_SESSION,
+        variables: {
+          orderResume: orderResume,
+          preBookedLessons: preBookedLessons,
+          user: user,
+          admin: adminMode
+        }
+      })
+      .then(result => {
+          window.location = result.data.getSession._links.checkout.href
+      })
+      .catch(error => {
+        console.log(error)
+        showSnackMessage("Une erreur a eu lieu lors de la création de la session de paiement !", "error")
+        reset()
+      })
+    }
   }
 
   const noBookingCheckout = () => {
