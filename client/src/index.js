@@ -1,23 +1,21 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom'
 import ReactDOM from 'react-dom';
-import ApolloClient, { ApolloError } from 'apollo-client'
+import ApolloClient from 'apollo-client'
 import { onError } from 'apollo-link-error'
 import {ApolloLink, Observable} from 'apollo-link'
 import ApolloLinkTimeout from 'apollo-link-timeout';
 import { CachePersistor, persistCache } from 'apollo-cache-persist'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloProvider } from 'react-apollo'
-import { HttpLink, createHttpLink } from 'apollo-link-http'
+import { createHttpLink } from 'apollo-link-http'
 import resolver from './store/resolver'
 import typeDef from './store/typeDef'
-import getErrorMessage from './error'
 import './index.css';
 import App from './App';
 import { ThemeProvider } from '@material-ui/styles';
 import theme from './style/theme/default'
 import * as serviceWorker from './serviceWorker';
-import { toIdValue } from 'apollo-utilities';
 require('dotenv').config()
 
 const cache = new InMemoryCache()

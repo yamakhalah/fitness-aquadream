@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Snackbar, Button, Checkbox, Grid, Box, Link, Container, Typography }from '@material-ui/core';
+import { Paper, Snackbar, Button, Checkbox, Grid, Box, Link, Typography }from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import logo from '../../style/img/Aquadream-outlined-transparent.png'

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import moment from 'moment-timezone'
 import { Snackbar, List, ListItem, ListItemText, Typography, Container, TextField, Button} from '@material-ui/core'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import { GET_DISCOUNT_BY_CODE } from '../../../database/query/discountQuery'
 import { CustomSnackBar } from '../../global/CustomSnackBar'
-import { useApolloClient, useQuery } from 'react-apollo'
+import { useApolloClient } from 'react-apollo'
 
 moment.locale('fr')
 moment.tz.setDefault('Europe/Brussels')

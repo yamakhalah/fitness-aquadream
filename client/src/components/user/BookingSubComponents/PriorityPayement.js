@@ -56,6 +56,7 @@ const PriorityPayement = (props: PriorityPayementProps) => {
       })
       .then(result => {
         var subscription  = result.data.subscription
+        console.log(subscription)
         if(subscription.subStatus === 'WAITING_PAYEMENT') {
           client.query({
             query: GET_PRIORITY_SESSION,

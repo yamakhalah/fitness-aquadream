@@ -1,16 +1,13 @@
 import React from 'react'
 import moment from 'moment-timezone'
 import Loader from '../../global/Loader.js'
-import { DialogTitle, DialogContent, DialogActions, Dialog, Table, TableHead, TableRow, TableCell, TableBody, Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip, CardContent, Card, CardActions, IconButton, Divider } from '@material-ui/core'
+import { DialogTitle, DialogContent, Dialog, Table, TableHead, TableRow, TableCell, TableBody, Grow, List, ListItem, ListItemText, Typography, Grid, Container, Paper, Box, Button, Tooltip, CardContent, Card, CardActions, IconButton, Divider } from '@material-ui/core'
 import { Add, Info, Remove, LowPriority, Close } from '@material-ui/icons'
-import { lessonSubTypeToString, lessonTypeToString } from '../../../utils/enumToString'
+import { lessonSubTypeToString } from '../../../utils/enumToString'
 import { dateToDayString } from '../../../utils/dateTimeConverter'
-import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
-import { useApolloClient, useQuery, useMutation } from 'react-apollo'
-import { useHistory } from 'react-router-dom'
+import { makeStyles } from '@material-ui/core/styles'
+import { useQuery } from 'react-apollo'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../../database/query/lessonQuery'
-import { GET_LESSON_TYPES } from '../../../database/query/lessonTypeQuery'
-import { GET_LESSON_SUB_TYPES } from '../../../database/query/lessonSubTypeQuery'
 import { textAlign, borderRadius } from '@material-ui/system';
 
 moment.locale('fr')

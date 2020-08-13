@@ -1,7 +1,7 @@
 import React from 'react'
 import Loader from '../global/Loader'
 import { makeStyles } from '@material-ui/core/styles'
-import { useQuery, useMutation, useApolloClient } from  'react-apollo'
+import { useQuery, useApolloClient } from  'react-apollo'
 import { IconButton, Snackbar, Container, CssBaseline, Typography, Grid, Card, CardMedia, CardContent, CardActions, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { ExpandMore, Money } from '@material-ui/icons'
@@ -10,7 +10,6 @@ import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { lessonSubTypeToIMG } from '../../utils/enumToString'
 import moment from 'moment-timezone'
-import { borderRadius } from '@material-ui/system';
 
 moment.locale('fr')
 moment.tz.setDefault('Europe/Brussels')

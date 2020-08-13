@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react'
 import Loader from '../global/Loader'
 import { makeStyles } from '@material-ui/core/styles'
-import { Snackbar, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, TablePagination, Container, CssBaseline, Typography, Table, TableRow, TableCell, TableBody, TableHead, FormLabel, RadioGroup, Radio, FormControlLabel } from '@material-ui/core'
-import { Edit, ExpandMore, ArrowForward, Delete, Info } from '@material-ui/icons'
-import { useQuery, useApolloClient } from  'react-apollo'
+import { Snackbar, FormControl, InputLabel, Select, MenuItem, Tooltip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, TablePagination, Container, CssBaseline, Typography, Table, TableRow, TableCell, TableBody, TableHead, FormLabel, RadioGroup, Radio, FormControlLabel } from '@material-ui/core'
+import { Edit, ExpandMore, ArrowForward, Delete } from '@material-ui/icons'
+import { useQuery, useMutation, useApolloClient } from  'react-apollo'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import { CustomSnackBar } from '../global/CustomSnackBar'
-import MaterialTable, { Column } from 'material-table'
 import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'
@@ -53,31 +52,16 @@ export default function AdminSubscription() {
   const classes = useStyles()
   const [client, setClient] = React.useState(useApolloClient())
   const [loading, setLoading] = React.useState(true)
-  const [columns,] = React.useState(
-    [
-      { title: 'ID', field: 'id' },
-      { title: 'Utilisateur', field: 'user' },
-      { title: 'Création', field: 'created' },
-      { title: 'Total Cours', field: 'totalLessons' },
-      { title: 'Statut Abonnement', field: 'subStatus',
-        lookup: { 'WAITING_PAYEMENT': 'En attente de paiement', 'WAITING_BEGIN': 'En attente', 'ON_GOING': 'En Cours' }
-      },
-      { title: 'Jour', field: 'day' },
-      { title: 'Début', field: 'begin' },
-      { title: 'Fin', field: 'end' },
-      { title: 'Prix Total', field: 'total' },
-      { title: 'Prix Mensuel', field: 'totalMonthly' },
-      { title: 'Status Paiement', field: 'paymentStatus' },
-    ])
-  const [rows, setRows] = React.useState([])
+  const [subscriptionsData, setSubscriptionsData] = React.useState([])
   const [lessonsData, setLessonsData] = React.useState([])
   const [selectedSubscriptionData, setSelectedSubscriptionData] = React.useState(null)
   const [selectedOldLesson, setSelectedOldLesson] = React.useState(null)
   const [selectedNewLesson, setSelectedNewLesson] = React.useState(null)
   const [refundType, setRefundType] = React.useState('discount')
+  const [rowsPerPage, setRowsPerPage] = React.useState(10)
+  const [page, setPage] = React.useState(0)
   const [openEditDialog, setOpenEditDialog] = React.useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
-  const [openInfosDialog, setOpenInfosDialog] = React.useState(false)
   const [openSnack, setOpenSnack] = React.useState(false)
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
@@ -93,7 +77,6 @@ export default function AdminSubscription() {
   useEffect(() => {
     if(data) {
       var lSubscriptionsData = []
-      var lRows = []
       var promises = []
       for(const subscription of data.subscriptions) {
         if(subscription.subStatus !== 'WAITING_PAYEMENT' && subscription.subStatus !== 'CANCELED_BY_ADMIN'){   
@@ -107,18 +90,8 @@ export default function AdminSubscription() {
               fetchPolicy: 'network-only'
             })
             .then(result => {
-              lRows.push({
-                id: subscription.id,
-                user: subscription.user.firstName+' '+subscription.user.lastName,
-                created: moment(subscription.created).format('DD/MM/YYYY HH:mm'),
-                totalLessons: subscription.lessons.length,
-                subStatus: subscription.subStatus,
-                day: dateToDayString(subscription.validityBegin),
-                begin: moment(subscription.validityBegin).format('DD/MM/YYYY'),
-                end: moment(subscription.validityEnd).format('DD/MM/YYYY'),
-                total: subscription.total,
-                totalMonthly: subscription.totalMonth,
-                paymentStatus: result.data.getMollieSubscriptionData.status,
+              console.log(result)
+              lSubscriptionsData.push({
                 subscription: subscription,
                 mollieSubscription: result.data.getMollieSubscriptionData
               })
@@ -131,18 +104,7 @@ export default function AdminSubscription() {
           })
           promises.push(promise)
         }else if(subscription.subStatus === 'WAITING_PAYEMENT'){
-          lRows.push({
-            id: subscription.id,
-            user: subscription.user.firstName+' '+subscription.user.lastName,
-            created: moment(subscription.created).format('DD/MM/YYYY HH:mm'),
-            totalLessons: subscription.lessons.length,
-            subStatus: subscription.subStatus,
-            day: dateToDayString(subscription.validityBegin),
-            begin: moment(subscription.validityBegin).format('DD/MM/YYYY'),
-            end: moment(subscription.validityEnd).format('DD/MM/YYYY'),
-            total: subscription.total,
-            totalMonthly: subscription.totalMonth,
-            paymentStatus: 'Non payé',
+          lSubscriptionsData.push({
             subscription: subscription,
             mollieSubscription: null
           })
@@ -150,8 +112,8 @@ export default function AdminSubscription() {
       }
       Promise.all(promises.map(p => p.catch(e => e)))
       .then(result => {
-        setRows(lRows)
-        setSelectedSubscriptionData(lRows[0])
+        setSubscriptionsData(lSubscriptionsData)
+        setSelectedSubscriptionData(lSubscriptionsData[0])
         setLoading(false)
       })
       .catch(error => {
@@ -159,18 +121,13 @@ export default function AdminSubscription() {
       })
     }
   }, [data])
- 
-  const sortSubscriptions = (subscriptions) => {
-    return subscriptions.sort((a,b) => Date.parse(a.subscription.created) - Date.parse(b.subscription.created))
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
   }
 
-  const handleInfosDialog = (subscriptionData) => {
-    if(!openInfosDialog) {
-      setSelectedSubscriptionData(subscriptionData)
-      setOpenInfosDialog(true)
-    }else{
-      setOpenInfosDialog(false)
-    }
+  const sortSubscriptions = (subscriptions) => {
+    return subscriptions.sort((a,b) => Date.parse(a.subscription.created) - Date.parse(b.subscription.created))
   }
 
   const handleEditDialog = (subscriptionData) => {
@@ -197,10 +154,7 @@ export default function AdminSubscription() {
       mutation: PRE_CANCEL_SUBSCRIPTION,
       variables: {
         id: subscriptionData.subscription.id
-      },
-      refetchQueries: [{
-        query: GET_SUBSCRIPTIONS
-      }]
+      }
     })
     .then(result => {
       if(result.data.preCancelSubscription) {
@@ -225,10 +179,7 @@ export default function AdminSubscription() {
         mutation: CANCEL_SUBSCRIPTION_DISCOUNT,
         variables: {
           id: selectedSubscriptionData.subscription.id
-        },
-        refetchQueries: [{
-          query: GET_SUBSCRIPTIONS
-        }]
+        }
       })
       .then(result => {
         if(result.data.cancelSubscriptionWithDiscount) {
@@ -303,206 +254,6 @@ export default function AdminSubscription() {
     </div>
   )
 
-  return(
-    <React.Fragment>
-      <Container component="main" maxWidth="xl" className={classes.root}>
-        <CssBaseline />
-        <MaterialTable
-          title="Liste des abonnnements"
-          columns={columns}
-          data={rows}
-          actions={[
-            {
-              icon: () => <Edit />,
-              tooltip: 'Modifier l\'abonnement',
-              onClick: (event, rowData) => handleEditDialog(rowData)
-            },
-            rowData => ({
-              icon: () => <Delete />,
-              tooltip: 'Annuler l\'abonnement',
-              onClick: (event, rowData) =>  rowData.subscription.subStatus === 'WAITING_PAYEMENT' ? preDeleteSubscription(rowData) : handleDeleteDialog(rowData),
-              disabled: rowData.subscription.subStatus !== 'WAITING_PAYEMENT' && rowData.subscription.subStatus !== 'WAITING_BEGIN' && rowData.subscription.subStatus !== 'ON_GOING'
-            }),
-            {
-              icon: () => <Info />,
-              tooltip: 'Informations',
-              onClick: (event, rowData) => handleInfosDialog(rowData)
-            }
-          ]}
-        />
-      </Container>
-      <Dialog open={openInfosDialog} fullWidth={true} maxWidth='sm'>
-        <DialogTitle>Informations sur les cours</DialogTitle>
-        <DialogContent>
-          <Container component="main" maxWidth="xl" className={classes.container}>
-            {selectedSubscriptionData.subscription.lessons.map(lesson => (
-              <React.Fragment key={lesson.id}>
-                <Grid item xs={6} md={6} className={classes.inline}>
-                  <Typography component="h6" variant="h6" className={classes.typography}>
-                    {lesson.name}
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={4} md={4}>
-                      Type:
-                    </Grid>
-                    <Grid item xs={8} md={8}>
-                      {lesson.lessonType.simpleName}
-                    </Grid>
-                    <Grid item xs={4} md={4}>
-                      Sous-Type:
-                    </Grid>
-                    <Grid item xs={8} md={8}>
-                      {lesson.lessonSubType.simpleName}
-                    </Grid>
-                    <Grid item xs={4} md={4}>
-                      Jour:
-                    </Grid>
-                    <Grid item xs={8} md={8}>
-                      {dateToDayString(moment(lesson.recurenceBegin))}
-                    </Grid>
-                    <Grid item xs={4} md={4}>
-                      Heure:
-                    </Grid>
-                    <Grid item xs={8} md={8}>
-                      {moment(lesson.recurenceBegin).format('HH:mm')} - {moment(lesson.recurenceEnd).format('HH:mm')}
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </React.Fragment>
-            ))}
-          </Container>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleInfosDialog(null)} color="default" disabled={loading}>
-            Retour           
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={openDeleteDialog} fullWidth={true} maxWidth='sm'>
-        <DialogTitle>Annuler l'abonnement de {selectedSubscriptionData.subscription.user.firstName} {selectedSubscriptionData.subscription.user.lastName}</DialogTitle>
-        <DialogContent>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Méthode de remboursement</FormLabel>
-            <RadioGroup aria-label="gender" name="gender1" value={refundType} onChange={ event => {setRefundType(event.target.value)}}>
-              <FormControlLabel value="discount" control={<Radio />} label="Générer un bon d'achat" />
-              <FormControlLabel value="refund" disabled control={<Radio />} label="Générer un paiement direct" />
-            </RadioGroup>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleDeleteDialog(null)} color="default" disabled={loading}>
-            Annuler           
-          </Button>
-          <Button onClick={() => deleteSubscription()} color="primary" disabled={loading}>
-            Confirmer        
-          </Button> 
-        </DialogActions>
-      </Dialog>
-      <Dialog open={openEditDialog} fullWidth={true} maxWidth='md'>
-        <DialogTitle>Modifier un abonnement</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <FormControl required variant="outlined" className={classes.formControl}>
-                <InputLabel id="lessonType">Cours à changer</InputLabel>
-                  <Select
-                    labelId="subLessons"
-                    id="subLessons"
-                    value={selectedOldLesson ? selectedOldLesson : ''}
-                    name="subLessons"
-                    label="Cours à changer"
-                    labelWidth={80}
-                    onChange={event => {
-                      setSelectedOldLesson(event.target.value)
-                  }}
-                  >
-                  <MenuItem value={selectedOldLesson ? selectedOldLesson : '' } disabled>
-                    {selectedOldLesson ? (selectedOldLesson.name +' '+dateToDayString(selectedOldLesson.recurenceBegin)+' '+ moment(selectedOldLesson.recurenceBegin).format('HH:mm')) : ''}
-                  </MenuItem>
-                  {selectedSubscriptionData.subscription.lessons.map(lesson =>               
-                    <MenuItem key={lesson.id} value={lesson}>{(lesson.name +' '+dateToDayString(lesson.recurenceBegin)+' '+ moment(lesson.recurenceBegin).format('HH:mm'))}</MenuItem>
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl required variant="outlined" className={classes.formControl}>
-                <InputLabel id="lessonType">Nouveau cours</InputLabel>
-                  <Select
-                    labelId="newLessons"
-                    id="newLessons"
-                    value={selectedNewLesson ? selectedNewLesson : ''}
-                    name="newLessons"
-                    label="Nouveau cours"
-                    labelWidth={80}
-                    onChange={event => {
-                      setSelectedNewLesson(event.target.value)
-                  }}
-                  >
-                  <MenuItem value={selectedNewLesson ? selectedNewLesson : '' } disabled>
-                    {selectedNewLesson ? (selectedNewLesson.name +' '+dateToDayString(selectedNewLesson.recurenceBegin)+' '+ moment(selectedNewLesson.recurenceBegin).format('HH:mm')) : ''}
-                  </MenuItem>
-                  {lessonsData.map(lesson =>               
-                    <MenuItem key={lesson.id} value={lesson}>{(lesson.name +' '+dateToDayString(lesson.recurenceBegin)+' '+ moment(lesson.recurenceBegin).format('HH:mm'))}</MenuItem>
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={5} className={classes.container}>
-              <Grid item xs={12}>
-                {selectedOldLesson ? selectedOldLesson.name : ''}
-              </Grid>
-              <Grid item xs={12}>
-                {selectedOldLesson ? dateToDayString(selectedOldLesson.recurenceBegin) : ''}
-              </Grid>
-              <Grid item xs={12}>
-                {selectedOldLesson ? moment(selectedOldLesson.recurenceBegin).format('HH:mm') : ''}
-              </Grid>
-            </Grid>
-            <Grid item xs={2} className={classes.container}>
-              <ArrowForward />
-            </Grid>
-            <Grid item xs={5} className={classes.container}>
-              <Grid item xs={12}>
-                {selectedNewLesson ? selectedNewLesson.name : ''}
-              </Grid>
-              <Grid item xs={12}>
-                {selectedNewLesson ? dateToDayString(selectedNewLesson.recurenceBegin) : ''}
-              </Grid>
-              <Grid item xs={12}>
-                {selectedNewLesson ? moment(selectedNewLesson.recurenceBegin).format('HH:mm') : ''}
-              </Grid>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleEditDialog(null)} color="default" disabled={loading}>
-            Annuler           
-          </Button>
-          <Button onClick={() => modifyLesson()} color="primary" disabled={loading}>
-            Confirmer           
-          </Button> 
-        </DialogActions>
-      </Dialog>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left'
-        }}
-        open={openSnack}
-        autoHideDuration={5000}
-        onClose={handleSnackClose}
-      >
-        <CustomSnackBar
-          onClose={handleSnackClose}
-          variant={errorVariant}
-          message={errorMessage}
-        />
-      </Snackbar>
-    </React.Fragment>
-  )
-
-  /*
   return (
     <div>
       <Container component="main" maxWidth="xl" className={classes.root}>
@@ -755,6 +506,5 @@ export default function AdminSubscription() {
       </Snackbar>              
     </div>
   )
-  */
 }
 

@@ -1,12 +1,11 @@
 import React, { Fragment } from 'react'
-import PropTypes from 'prop-types';
-import { withStyles, useTheme, makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
-import { MuiPickersUtilsProvider, KeyboardDatePicker, KeyboardTimePicker } from '@material-ui/pickers'
-import { FormControl, InputLabel, Select, MenuItem, TextField, TablePagination, TableFooter, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
-import { MeetingRoom, ExpandMore, Edit, FirstPage, LastPage, KeyboardArrowLeft, KeyboardArrowRight, Delete } from '@material-ui/icons'
+import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
+import { FormControl, InputLabel, Select, MenuItem, TextField, TablePagination, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
+import { MeetingRoom, ExpandMore, Edit, Delete } from '@material-ui/icons'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS } from '../../database/query/lessonQuery'
 import { OPEN_LESSON, UPDATE_LESSON, CANCEL_LESSON, DELETE_LESSON } from '../../database/mutation/lessonMutation'
@@ -88,7 +87,6 @@ class AdminLesson extends React.Component {
       deleteLessonDialog: false,
       loading: true,
       selectedLesson:  null,
-      selectedIndex: null,
       selectedIndex: null,
       errorVariant: 'error',
       errorMessage: '',

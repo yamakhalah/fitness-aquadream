@@ -16,6 +16,8 @@ export function lessonTypeToString(type) {
       return 'Enfant'
     case 'ADULTE':
       return 'Adulte'
+    default:
+      return 'Inconnu'
   }
 }
 
@@ -55,6 +57,8 @@ export function lessonSubTypeToString(type) {
       return 'Ostéopathie de l\'eau'
     case 'POST_NATAL_AQUATIQUE':
       return 'Post-natal aquatique'
+    default:
+      return 'Inconnu'
   }
 }
 
@@ -94,5 +98,7 @@ export function lessonSubTypeToIMG(type) {
       return defaultIMG
     case 'POST_NATAL_AQUATIQUE':
       return defaultIMG
+    default:
+      return defaultIMG 
   }
 }

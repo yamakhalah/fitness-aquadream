@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Checkbox, Link, Grid, Box, FormControl, InputLabel, MenuItem, Select, Typography, CssBaseline, Container, FormControlLabel } from '@material-ui/core';
+import { Button, Checkbox, Link, Grid, Box, FormControl, InputLabel, MenuItem, Select, Typography, CssBaseline, Container } from '@material-ui/core';
 import Copyright from './Copyright'
 import Snackbar from '@material-ui/core/Snackbar'
 import { withStyles } from '@material-ui/core/styles';
@@ -134,6 +134,8 @@ class SignUp extends React.Component {
         this.setState({
           confirmHealth: !this.state.confirmHealth
         })
+        break
+      default:
         break
     }
   }
