@@ -72,7 +72,7 @@ export default {
         }
 
         var graphqlUser = await userModel.findOneAndUpdate(
-          { _id: user.userID },
+          { _id: user.id },
           { mollieCustomerID: user.mollieCustomerID },
           { new: true }
         )
@@ -90,7 +90,7 @@ export default {
           locale: 'fr_BE',
           method: ['bancontact', 'creditcard', 'directdebit', 'inghomepay', 'belfius', 'banktransfer', 'mybank'],
           metadata: {
-            userID: user.userID,
+            userID: user.id,
             subDuration: Math.ceil(moment(subscription.validityEnd).diff(moment(subscription.validityBegin), 'months', true)),
             totalMonthly: subscription.totalMonth,
             total: subscription.total,

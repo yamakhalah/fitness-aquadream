@@ -267,7 +267,7 @@ export default {
         await session.commitTransaction()
         session.endSession()
         //SEND EMAIL
-        var mail = await sendMail(FROM, sub.user.email, 'Aquadream - Abonnement annulé', PRE_CANCEL_SUBSCRIPTION(sub))
+        //var mail = await sendMail(FROM, sub.user.email, 'Aquadream - Abonnement annulé', PRE_CANCEL_SUBSCRIPTION(sub))
         return true
       }catch(error) {
         console.log(error)
