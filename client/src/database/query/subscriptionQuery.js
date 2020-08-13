@@ -49,16 +49,6 @@ export const GET_SUBSCRIPTIONS_FOR_USER = gql`
   query getSubscriptionsForUser($user: ID!){
     subscriptionsForUser(user: $user){
       id
-      user{
-        id
-        mollieCustomerID
-        firstName
-        lastName
-        email
-        isAdmin
-        isTeacher
-        paidYearlyTax
-      }
       lessonsDay{
         id
       }
@@ -101,6 +91,16 @@ export const GET_SUBSCRIPTION = gql`
   query getSubscription($id: ID!){
     subscription(id: $id){
       id
+      user{
+        id
+        mollieCustomerID
+        firstName
+        lastName
+        email
+        isAdmin
+        isTeacher
+        paidYearlyTax
+      }
       lessonsDay{
         id
       }
