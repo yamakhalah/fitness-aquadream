@@ -60,7 +60,7 @@ const PriorityPayement = (props: PriorityPayementProps) => {
           client.query({
             query: GET_PRIORITY_SESSION,
             variables: {
-              user: user,
+              user: subscription.user,
               subscription: subscription
             }
           })
