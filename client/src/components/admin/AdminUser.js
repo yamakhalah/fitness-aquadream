@@ -5,6 +5,7 @@ import { Euro } from '@material-ui/icons'
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
+import MaterialTable from 'material-table'
 import { InputAdornment, IconButton, Tooltip, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField, Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
 import { GET_USERS, SEND_GLOBAL_EMAIL } from '../../database/query/userQuery'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
@@ -45,6 +46,33 @@ class AdminUser extends React.Component {
     super(props)
     this.state = {
       users: [],
+      columns: [
+        { title: 'Prénom', field: 'firstName' },
+        { title: 'Nom', field: 'lastName' },
+        { title: 'Email', field: 'email' },
+        { title: 'Téléphone', field: 'phone' },
+        { title: 'Genre', field: 'gender' },
+        { title: 'Nombre de crédit', field: 'totalCredit' },
+        { title: 'Professeur', field: 'isTeacher', render: rowData => 
+          <Checkbox
+            name="isTeacher"
+            id="isTeacher"
+            checked={rowData.user.isTeacher}
+            onChange={event => this.handleTeacherChange(rowData.user.id, event)}
+            color="primary"
+          />
+        },
+        { title: 'Administrateur', field: 'isAdmin', render: rowData =>
+          <Checkbox
+            name="isAdmin"
+            id="isAdmin"
+            checked={rowData.user.isAdmin}
+            onChange={event => this.handleAdminChange(rowData.user.id, event)}
+            color="primary"
+          />
+        },
+      ],
+      rows: [],
       errorVariant: 'error',
       errorMessage: '',
       openSnack: false,
@@ -62,7 +90,21 @@ class AdminUser extends React.Component {
       query: GET_USERS
     })
     .then(result => {
-      this.setState({ users: result.data.users })
+      var lRows = []
+      for(const user of result.data.users) {
+        lRows.push({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          gender: user.gender,
+          totalCredit: user.credits.length,
+          isTeacher:  user.isTeacher,
+          isAdmin: user.isAdmin,
+          user: user
+        })
+      }
+      this.setState({ rows: lRows })
     })
     .catch(error => {
       this.showSnackMessage('Erreur lors de la récupération des utilisateurs', 'error')
@@ -132,7 +174,7 @@ class AdminUser extends React.Component {
     this.setState({ openSnack: false })
   }
 
-  handleTeacherChange = (id, event, index) => {
+  handleTeacherChange = (id, event) => {
     const { name, checked } = event.target
     this.props.client.mutate({
       mutation: UPDATE_IS_TEACHER,
@@ -145,18 +187,14 @@ class AdminUser extends React.Component {
       }]
     })
     .then(result => {
-      var users = this.state.users
-      users[index].isTeacher = checked
-      this.setState({
-        users: users
-      })
+      this.showSnackMessage('L\'utilisateur est maintenant un professeur', 'success')
     })
     .catch(error => {
       this.showSnackMessage('Erreur lors de la mise à jour de l\'utilisateur', 'error')
     })
   }
 
-  handleAdminChange = (id, event, index) => {
+  handleAdminChange = (id, event) => {
     const { name, checked } = event.target
     this.props.client.mutate({
       mutation: UPDATE_IS_ADMIN,
@@ -174,11 +212,7 @@ class AdminUser extends React.Component {
       ]
     })
     .then(result => {
-      var users = this.state.users
-      users[index].isAdmin = checked
-      this.setState({
-        users: users
-      })
+      this.showSnackMessage('L\'utilisateur est maintenant un administrateur', 'success')
     })
     .catch(error => {
       this.showSnackMessage('Erreur lors de la mise à jour de l\'utilisateur', 'error')
@@ -215,62 +249,18 @@ class AdminUser extends React.Component {
       <div>
       <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
-        <Typography component="h1" variant="h5">
-          Utilisateurs
-        </Typography>
-        <Button className={classes.button} color="primary" disabled={this.state.loading} onClick={() => {this.setState({ openDialog: true })}}>Envoyer un email</Button>
-        <Table className={classes.table} size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell numeric='false'>Prénom</TableCell>
-              <TableCell numeric='false'>Nom</TableCell>
-              <TableCell numeric='false'>Email</TableCell>
-              <TableCell numeric='true'>Téléphone</TableCell>
-              <TableCell numeric='false'>Genre</TableCell>
-              <TableCell numeric='true'>Nombre de crédit</TableCell>
-              <TableCell numeric='false'>Professeur</TableCell>
-              <TableCell numeric='false'>Administrateur</TableCell>
-              <TableCell numeric='false'>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {this.state.users.map((user, index) => (
-              <TableRow key={user.id}>
-                <TableCell component="th" scope="row">{user.firstName}</TableCell>
-                <TableCell>{user.lastName}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>{user.gender}</TableCell>
-                <TableCell>{user.credits.length}</TableCell>
-                <TableCell>
-                  <Checkbox
-                    name="isTeacher"
-                    id="isTeacher"
-                    checked={user.isTeacher}
-                    onChange={event => this.handleTeacherChange(user.id, event, index)}
-                    color="primary"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    name="isAdmin"
-                    id="isAdmin"
-                    checked={user.isAdmin}
-                    onChange={event => this.handleAdminChange(user.id, event, index)}
-                    color="primary"
-                  />
-                </TableCell>
-                <TableCell>
-                <Tooltip title="Ajouter un bon d'achat">
-                  <IconButton onClick={() => this.handleDiscountDialog(user)}>
-                    <Euro />
-                  </IconButton>
-                </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <MaterialTable
+          title="Liste des utilisateurs"
+          columns={this.state.columns}
+          data={this.state.rows}
+          actions={[
+            {
+              icon: () => <Euro />,
+              tooltip: 'Ajouter un bon d\'achat',
+              onClick: (event, rowData) => this.handleDiscountDialog(rowData.user)
+            }
+          ]}
+        />
       </Container>
       <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='md'>
         <DialogTitle>Envoyer un message</DialogTitle>

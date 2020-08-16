@@ -5,8 +5,9 @@ import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
 import { FormControl, InputLabel, Select, MenuItem, TextField, TablePagination, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
-import { MeetingRoom, ExpandMore, Edit, Delete } from '@material-ui/icons'
+import { MeetingRoom, ExpandMore, Edit, Delete, Info } from '@material-ui/icons'
 import { CustomSnackBar } from '../global/CustomSnackBar'
+import MaterialTable from 'material-table'
 import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS } from '../../database/query/lessonQuery'
 import { OPEN_LESSON, UPDATE_LESSON, CANCEL_LESSON, DELETE_LESSON } from '../../database/mutation/lessonMutation'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
@@ -82,7 +83,21 @@ class AdminLesson extends React.Component {
     this.state = {
       lessons: [],
       teachers: [],
+      columns: [
+        { title: 'Nom', field: 'name' },
+        { title: 'Type de date', field: 'dateType' },
+        { title: 'Jour', field: 'day' },
+        { title: 'Date de début', field: 'begin' },
+        { title: 'Date de fin', field: 'end' },
+        { title: 'Heure', field: 'hour' },
+        { title: 'Nombre de cours', field: 'lessonsCount' },
+        { title: 'Places restantes', field: 'spotLeft' },
+        { title: 'Places disponibles', field: 'spotTotal' },
+        { title: 'Status', field: 'status' },
+      ],
+      rows: [],
       openLessonDialog: false,
+      openInfosDialog: false,
       editLessonDialog: false,
       deleteLessonDialog: false,
       loading: true,
@@ -107,12 +122,26 @@ class AdminLesson extends React.Component {
         this.setState({ loading: false})
         this.showSnackMessage('Erreur durant le chargement de vos données', 'error')
       }else if(data){
+        var lRows = []
         var lessons = data.lessonsWaitingOrGoing
-        lessons.forEach((element, index) => {
-          lessons[index].lessonsDay = this.sortLessonsDay(element.lessonsDay)
+        lessons.forEach((lesson , index) => {
+          lesson.lessonsDay = this.sortLessonsDay(lesson.lessonsDay)
+          lRows.push({
+            name: lesson.name,
+            dateType: lesson.dateType,
+            day: dateToDayString(lesson.recurenceBegin),
+            begin: moment(lesson.recurenceBegin).format('DD/MM/YYYY'),
+            end: moment(lesson.recurenceEnd).format('DD/MM/YYYY'),
+            hour: moment(lesson.recurenceBegin).format('HH:mm')+' à '+moment(lesson.recurenceEnd).format('HH:mm'),
+            lessonsCount: lesson.totalLessons,
+            spotLeft: lesson.spotLeft,
+            spotTotal: lesson.spotTotal,
+            status: lesson.status,
+            lesson: lesson
+          })
         });
-        var sortedLessons = this.sortLessons(lessons)
-        this.setState({ lessons: sortedLessons, loading: false })
+        var sortedLessons = this.sortLessons(lRows)
+        this.setState({ rows: sortedLessons, loading: false })
       }
     })
 
@@ -135,6 +164,19 @@ class AdminLesson extends React.Component {
       selectedLesson: lesson,
       selectedIndex: index
     })
+  }
+
+  handleInfosDialog = (lesson) => {
+    if(!this.state.openInfosDialog) {
+      this.setState({
+        openInfosDialog: true,
+        selectedLesson: lesson,
+      })
+    }else{
+      this.setState({
+        openInfosDialog: false
+      })
+    }
   }
 
   handleOpenLessonClose = () => {
@@ -160,13 +202,13 @@ class AdminLesson extends React.Component {
       ]
     })
     .then(result =>  {
-      var lessons = this.state.lessons
+      var lessons = this.state.rows
       lessons[this.state.selectedIndex] = result.data.openLesson
       this.showSnackMessage('Le cours a bien été ouvert !', 'success')
       this.setState({
         openLessonDialog: false,
         loading: false,
-        lessons: lessons
+        rows: lessons
       })     
     })
     .catch(error =>  {
@@ -312,16 +354,9 @@ class AdminLesson extends React.Component {
       ]
     })
     .then(result => {
-      var tmp = this.state.lessons
-      var index = tmp.map(x => {
-        return x.id;
-      }).indexOf(this.state.selectedLesson.id);
-      
-      tmp.splice(index, 1);
       this.setState({
         deleteLessonDialog: false,
         loading: false,
-        lessons: tmp
       })
       this.showSnackMessage('Le cours a bien été supprimé', 'success')
     })
@@ -338,88 +373,71 @@ class AdminLesson extends React.Component {
       {this.state.loading ? (<CircularProgress size={150} className={classes.buttonProgress} />):( 
       <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
-        <Typography component="h1" variant="h5">
-          Liste des cours
-        </Typography>
-        <Table className={classes.table} size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell style={{width: '15%'}}>Nom</TableCell>
-              <TableCell>Type de date</TableCell>
-              <TableCell>Jour</TableCell>
-              <TableCell>Date de début</TableCell>
-              <TableCell>Date de fin</TableCell>
-              <TableCell style={{width: '10%'}}>Heure</TableCell>
-              <TableCell>Nombre de cours</TableCell>
-              <TableCell>Places restantes</TableCell>
-              <TableCell>Places disponibles</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell style={{width: '15%'}}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-          {(this.state.rowsPerPage > 0
-            ? this.state.lessons.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
-            : this.state.lessons
-          ).map((lesson, index) => (
-            <Fragment key={lesson.id}>
-              <TableRow key={lesson.id} className={classes.row}>
-                <TableCell component="th" scope="row">{lesson.name}</TableCell> 
-                <TableCell>{lesson.dateType}</TableCell>
-                <TableCell>{dateToDayString(lesson.recurenceBegin)}</TableCell>
-                <TableCell>{moment(lesson.recurenceBegin).format('DD/MM/YYYY')}</TableCell>
-                <TableCell>{moment(lesson.recurenceEnd).format('DD/MM/YYYY')}</TableCell>
-                <TableCell>{moment(lesson.recurenceBegin).format('HH:mm')} à {moment(lesson.recurenceEnd).format('HH:mm')}</TableCell>
-                <TableCell>{lesson.totalLessons}</TableCell> 
-                <TableCell>{lesson.spotLeft}</TableCell>
-                <TableCell>{lesson.spotTotal}</TableCell>
-                <TableCell>{lesson.status}</TableCell>
-                <TableCell>
-                {lesson.isOpened ?
-                  <div />
-                  :
-                  <Tooltip title="Ouvrir le cours">
-                    <IconButton onClick={this.handleOpenLessonDialog.bind(this, lesson, index)}>
-                      <MeetingRoom />
-                    </IconButton>
-                  </Tooltip>
-                }
-                <Tooltip title="Editer le cours">
-                  <IconButton onClick={this.openEditDialog.bind(this, lesson, index)}>
-                    <Edit />
-                  </IconButton>
-                </Tooltip>
-                { lesson.users.length === 0 && (
-                <Tooltip title="Supprimer le cours">
-                  <IconButton onClick={this.openDeleteDialog.bind(this, lesson, index)}>
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-                )}
-                </TableCell>    
-              </TableRow>
-              <TableRow className={classes.row}>
-                <TableCell colSpan={2} className={classes.cell} />
-                <TableCell colSpan={7} className={classes.cell}>
-                <ExpansionPanel>
-                  <ExpansionPanelSummary
-                    expandIcon={<ExpandMore />}
-                    id="expandMore"
-                  >
-                    <Typography>Informations complètes</Typography>
-                  </ExpansionPanelSummary>
-                  <ExpansionPanelDetails>
-                  <Container component="main" maxWidth="xl" className={classes.container}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={3} sm={3}>
-                        <Typography className={classes.bold}>
-                          Addresse:
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={9} sm={9}>
-                        <Typography>
-                          {lesson.address.street} {lesson.address.postalCode} {lesson.address.city} 
-                        </Typography>
+        <MaterialTable
+          title='Liste des cours'
+          columns={this.state.columns}
+          data={this.state.rows}
+          actions={[
+            {
+              icon: () => <Edit />,
+              tooltip: 'Editer le cours',
+              onClick: (event, rowData) => this.openEditDialog(rowData.lesson, rowData.tableData.id)
+            },
+            rowData => ({
+              icon: () => <MeetingRoom />,
+              tooltip: 'Ouvrir le cours',
+              onClick: (event, rowData) => this.handleOpenLessonDialog(rowData.lesson, rowData.tableData.id),
+              disabled: !rowData.isOpened
+            }),
+            rowData => ({
+              icon: () => <Delete />,
+              tooltip: 'Supprimer le cours',
+              onClick: (event, rowData) => this.openDeleteDialog(rowData.lesson, rowData.tableData.id),
+              disabled: rowData.lesson.users.length !== 0
+            }),
+            {
+              icon: () => <Info />,
+              tooltip: 'Informations',
+              onClick: (event, rowData) => this.handleInfosDialog(rowData.lesson)
+            }
+          ]}
+        />
+      </Container>
+      )}
+      <Dialog
+        open={this.state.openLessonDialog}
+      >
+        <DialogTitle>Ouvrir le cours</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Êtes-vous sûr de vouloir ouvrir ce cours ?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleOpenLessonClose.bind(this)} color="default" disabled={this.state.loading}>
+            Annuler           
+          </Button>
+          <Button onClick={this.openLesson.bind(this)} color="primary" disabled={this.state.loading}>
+            Confirmer           
+          </Button> 
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={this.state.openInfosDialog}
+        maxWidth='md'
+      >
+        <DialogTitle>Informations détaillées</DialogTitle>
+        <DialogContent>
+        <Container component="main" maxWidth="xl" className={classes.container}>
+          {this.state.selectedLesson !== null && (
+          <Grid container spacing={2}>
+            <Grid item xs={3} sm={3}>
+              <Typography className={classes.bold}>
+                Addresse:
+              </Typography>
+            </Grid>
+            <Grid item xs={9} sm={9}>
+              <Typography>
+                {this.state.selectedLesson.address.street} {this.state.selectedLesson.address.postalCode} {this.state.selectedLesson.address.city} 
+              </Typography>
                       </Grid>
                       <Grid item xs={3} sm={3}>
                         <Typography className={classes.bold}>
@@ -428,7 +446,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={3} sm={3}>
                         <Typography>
-                          {lesson.lessonType.simpleName} 
+                          {this.state.selectedLesson.lessonType.simpleName} 
                         </Typography>
                       </Grid>
                       <Grid item xs={3} sm={3}>
@@ -438,7 +456,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={3} sm={3}>
                         <Typography>
-                          {lesson.lessonSubType.simpleName} 
+                          {this.state.selectedLesson.lessonSubType.simpleName} 
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -448,7 +466,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.unitPrice}€
+                          {this.state.selectedLesson.pricing.unitPrice}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -458,7 +476,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.monthlyPrice}€
+                          {this.state.selectedLesson.pricing.monthlyPrice}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -468,7 +486,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.totalPrice}€
+                          {this.state.selectedLesson.pricing.totalPrice}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -478,7 +496,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.unitPrice2X}€
+                          {this.state.selectedLesson.pricing.unitPrice2X}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -488,7 +506,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.monthlyPrice2X}€
+                          {this.state.selectedLesson.pricing.monthlyPrice2X}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -498,7 +516,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.totalPrice2X}€
+                          {this.state.selectedLesson.pricing.totalPrice2X}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -508,7 +526,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.unitPrice3X}€
+                          {this.state.selectedLesson.pricing.unitPrice3X}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -518,7 +536,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.monthlyPrice3X}€
+                          {this.state.selectedLesson.pricing.monthlyPrice3X}€
                         </Typography>
                       </Grid>
                       <Grid item xs={2} sm={2}>
@@ -528,7 +546,7 @@ class AdminLesson extends React.Component {
                       </Grid>
                       <Grid item xs={2} sm={2}>
                         <Typography>
-                          {lesson.pricing.totalPrice3X}€
+                          {this.state.selectedLesson.pricing.totalPrice3X}€
                         </Typography>
                       </Grid>
                       <Grid item className={classes.title} xs={12} >
@@ -567,11 +585,11 @@ class AdminLesson extends React.Component {
                           Status 
                         </Typography>
                       </Grid>
-                      {lesson.lessonsDay.map((lessonDay, index) => (
+                      {this.state.selectedLesson.lessonsDay.map((lessonDay, index) => (
                         <Fragment key={index}>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
                           <Typography>
-                              {lesson.teacher.user.firstName} {lesson.teacher.user.lastName}
+                              {this.state.selectedLesson.teacher.user.firstName} {this.state.selectedLesson.teacher.user.lastName}
                           </Typography>
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
@@ -581,7 +599,7 @@ class AdminLesson extends React.Component {
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
                             <Typography>
-                              {moment(lesson.recurenceBegin).format('HH:mm')} à {moment(lesson.recurenceEnd).format('HH:mm')} 
+                              {moment(this.state.selectedLesson.recurenceBegin).format('HH:mm')} à {moment(this.state.selectedLesson.recurenceEnd).format('HH:mm')} 
                             </Typography>
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
@@ -605,45 +623,13 @@ class AdminLesson extends React.Component {
                         </Fragment>
                       ))}
                     </Grid>
+          )}
                   </Container>
-                  </ExpansionPanelDetails>
-                </ExpansionPanel>
-                </TableCell>
-                <TableCell colSpan={2} className={classes.cell} />
-              </TableRow>
-            </Fragment>
-            ))}
-          </TableBody>
-          </Table>
-              <TablePagination
-                component="div"
-                rowsPerPageOptions={[5, { label: 'All', value: -1 }]}
-                colSpan={3}
-                count={this.state.lessons.length}
-                rowsPerPage={this.state.rowsPerPage}
-                page={this.state.page}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true,
-                }}
-                onChangePage={this.handleChangePage}
-              />
-      </Container>
-      )}
-      <Dialog
-        open={this.state.openLessonDialog}
-      >
-        <DialogTitle>Ouvrir le cours</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Êtes-vous sûr de vouloir ouvrir ce cours ?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.handleOpenLessonClose.bind(this)} color="default" disabled={this.state.loading}>
-            Annuler           
+          <Button onClick={this.handleInfosDialog.bind(this)} color="default" disabled={this.state.loading}>
+            Retour          
           </Button>
-          <Button onClick={this.openLesson.bind(this)} color="primary" disabled={this.state.loading}>
-            Confirmer           
-          </Button> 
         </DialogActions>
       </Dialog>
         <Dialog

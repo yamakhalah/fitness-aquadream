@@ -6,7 +6,7 @@ import { Edit, ExpandMore, ArrowForward, Delete, Info } from '@material-ui/icons
 import { useQuery, useApolloClient } from  'react-apollo'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import { CustomSnackBar } from '../global/CustomSnackBar'
-import MaterialTable, { Column } from 'material-table'
+import MaterialTable from 'material-table'
 import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'

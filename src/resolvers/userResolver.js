@@ -113,11 +113,12 @@ export default {
         if(user === null) {
           return false
         }
+        const salt = Number(process.env.SALT)
         var password = generator.generate({
           length: 10,
           numbers: true
         })
-        var hashedPassword = bcrypt.hashSync(password, 12)
+        var hashedPassword = bcrypt.hashSync(password, salt)
         user.password = hashedPassword
         var newUser = await userModel.updateUser(user._id, user)
         var mail = await sendMail(FROM, newUser.email, 'Aquadream - Mot de passe réinitialisé', RESET_MAIL({firstName: newUser.firstName, lastName: newUser.lastName, password: password}))
@@ -139,7 +140,8 @@ export default {
         if (!matchPasswords) {
           return new AuthenticationError('L\'ancien mot de passe n\'est pas correct');
         }
-        var hashedPassword = bcrypt.hashSync(newPassword, SALT)
+        const salt = Number(process.env.SALT)
+        var hashedPassword = bcrypt.hashSync(newPassword, salt)
         user.password = hashedPassword
         var newUser = await userModel.updateUser(user._id, user)
         return true

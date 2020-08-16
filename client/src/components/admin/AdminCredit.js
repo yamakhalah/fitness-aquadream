@@ -4,6 +4,7 @@ import Loader from '../global/Loader'
 import { useQuery, useMutation } from  'react-apollo'
 import { GET_CREDITS_VALIDITY } from '../../database/query/creditQuery'
 import { INVALIDATE_CREDIT, UPDATE_CREDIT } from '../../database/mutation/creditMutation'
+import MaterialTable from 'material-table'
 import { Snackbar, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton, TableBody, TableRow, TableCell, Container, CssBaseline , Typography, Table, TableHead, Tooltip, Grid } from '@material-ui/core';
 import { Delete, Edit } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
@@ -57,13 +58,23 @@ export default function AdminCredit(props) {
   const [openSnack, setOpenSnack] =  React.useState(null)
   const [errorMessage, setErrorMessage] = React.useState('')
   const [errorVariant, setErrorVariant] = React.useState('error')
+  const [columns,] = React.useState(
+    [
+      { title: 'utilisateur', field: 'user' },
+      { title: 'Type', field: 'type' },
+      { title: 'Sous-Type', field: 'subType' },
+      { title: 'Utilisé ?', field: 'isUsed' },
+      { title: 'Date de validité', field: 'validityDate' },
+    ]
+  )
+  const [rows, setRows] = React.useState([])
   const [invalidateCredit] = useMutation(
     INVALIDATE_CREDIT,
     {
       onCompleted: (result) => {
-        var cCredits = [...credits]
-        cCredits.splice(selectedIndex, 1)
-        setCredits(cCredits)
+        var lRows = [...rows]
+        lRows.splice(selectedIndex, 1)
+        setRows(sortCredits(lRows))
         showSnackMessage("Le crédit a bien  été invalidé", "success")
         closeDeleteDialog()
       },
@@ -76,9 +87,9 @@ export default function AdminCredit(props) {
     UPDATE_CREDIT,
     {
       onCompleted: (result) => {
-        var cCredits = [...credits]
-        cCredits[selectedIndex] = selectedCredit
-        setCredits(cCredits)
+        var lRows = [...rows]
+        lRows[selectedIndex] = selectedCredit
+        setRows(sortCredits(lRows))
         showSnackMessage("Le crédit a bien  été modifié", "success")
         closeEditDialog()
       },
@@ -92,7 +103,20 @@ export default function AdminCredit(props) {
   const { loading, error, data, fetchMore } = useQuery(
     GET_CREDITS_VALIDITY, 
     {
-      onCompleted: (newData) => { setCredits(newData.creditsValidity)}
+      onCompleted: (newData) => { 
+        var lRows = []
+        for(const credit of newData.creditsValidity){
+          lRows.push({
+            user: credit.user.firstName,
+            type: credit.lessonDay.lesson.lessonType.simpleName,
+            subType: credit.lessonDay.lesson.lessonSubType.simpleName,
+            isUsed: credit.isUsed ? 'Oui' : 'Non',
+            validityDate: moment(credit.validityEnd).format('DD/MM/YYYY'),
+            credit: credit
+          })
+        }
+        setRows(sortCredits(lRows))
+      }
     }
   )
 
@@ -148,46 +172,25 @@ export default function AdminCredit(props) {
     <div>
       <Container component="main" maxWidth="xl" className={classes.root}>
       <CssBaseline />
-      <Typography component="h1" variant="h5">
-        Liste des crédits valides
-      </Typography>
-        <Table className={classes.table} size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Utilisateur</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Sous-Type</TableCell>
-              <TableCell>Utilisé ?</TableCell>
-              <TableCell>Date de validity</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortCredits(credits).map((credit, index) => (
-              <TableRow key={credit.id}>
-                <TableCell component="th" scope="row">{credit.user.firstName} {credit.user.lastName}</TableCell>
-                <TableCell>{credit.lessonDay.lesson.lessonType.simpleName}</TableCell>
-                <TableCell>{credit.lessonDay.lesson.lessonSubType.simpleName}</TableCell>
-                <TableCell>{credit.isUsed ? 'Oui' : 'Non'}</TableCell>
-                <TableCell>{moment(credit.validityEnd).format('DD/MM/YYYY')}</TableCell>
-                <TableCell>
-                  {!credit.isUsed &&
-                      <Tooltip title="Modifier le crédit">
-                        <IconButton className={classes.greenIcon} onClick={openEditDialog.bind(this, credit, index)}>
-                          <Edit />
-                        </IconButton>
-                      </Tooltip>
-                      }
-                      <Tooltip title="Invalider le crédit">
-                        <IconButton className={classes.redIcon} onClick={openDeleteDialog.bind(this, credit, index)}>
-                          <Delete />
-                        </IconButton>
-                      </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <MaterialTable
+        title="Liste des crédits"
+        columns={columns}
+        date={rows}
+        actions={[
+          rowData => ({
+            icon: () => <Edit />,
+            tooltip: 'Modifier le crédit',
+            onClick: (event, rowData) => openEditDialog.bind(this, rowData.credit, rowData.tableData.id),
+            disabled: rowData.isUsed
+          }),
+          rowData => ({
+            icon: () => <Delete />,
+            tooltip: 'Invalider le crédit',
+            onClick: (event, rowData) => openDeleteDialog.bind(this, rowData.credit, rowData.tableData.id),
+            disabled: rowData.isUsed
+          })
+        ]}
+      />
       </Container>
       <Dialog open={deleteOpen}>
         <DialogTitle>Invalider le crédit</DialogTitle> 

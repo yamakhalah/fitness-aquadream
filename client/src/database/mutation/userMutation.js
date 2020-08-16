@@ -19,6 +19,12 @@ export const RESET_PASSWORD = gql`
   }
 `
 
+export const CHANGE_PASSWORD = gql`
+  mutation changePassword($id: ID!, $oldPassword: String!, $newPassword: String!) {
+    changePassword(id: $id, oldPassword: $oldPassword, newPassword: $newPassword)
+  }
+`
+
 export const UPDATE_IS_TEACHER = gql`
   mutation updateIsTeacher($id: ID!, $isTeacher: Boolean!) {
     updateIsTeacher(id: $id, isTeacher: $isTeacher){

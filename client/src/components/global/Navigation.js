@@ -118,12 +118,19 @@ export default function Navigation(props) {
     })
   }
 
-  let loginButton, logoutButton, menuButton, adminDrawer, teacherDrawer
+  let loginButton, logoutButton, changePasswordButton, menuButton, adminDrawer, teacherDrawer
     if(isAuthenticated) {
       menuButton = 
         <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer}>
           <Menu />
         </IconButton>
+
+      changePasswordButton =
+      <Link to="/change-password" className="topNavItem">
+        <Button className={classes.title}>
+          Changer de mot de passe
+        </Button>
+      </Link>
 
       logoutButton = 
       <Button className={classes.title} onClick={logout.bind(this)}>
@@ -236,6 +243,7 @@ export default function Navigation(props) {
               Aquadream
             </Typography>
             <div className="buttonBar">
+              {changePasswordButton}
               {loginButton}
               {logoutButton}
             </div>

@@ -29,6 +29,7 @@ import CreditUse from './components/user/CreditUse'
 import Payement from './components/user/BookingSubComponents/Payement'
 import PrioritaryPayement from './components/user/BookingSubComponents/PriorityPayement'
 import Home from './components/user/Home'
+import ChangePassword from './components/global/ChangePassword'
 import Subscription from './components/user/Subscription'
 import NotFound from './components/global/404'
 import CGVReader from './components/global/CGV'
@@ -137,6 +138,7 @@ export default function App(props) {
               <AuthRoute user={user} component={CreditUse} exact path="/creditUse" />
               <AuthRoute user={user} component={Booking} exact path="/booking" />
               <AuthRoute user={user} component={Subscription} exact path="/subscription" />
+              <AuthRoute user={user} component={ChangePassword} exact path="/change-password" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={CreateLesson} path="/createLesson" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminUser} path="/adminUser" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminLesson} path="/adminLesson" />

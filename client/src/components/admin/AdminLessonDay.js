@@ -2,8 +2,9 @@ import React, { Fragment } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { useQuery, useApolloClient } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
+import MaterialTable from 'material-table'
 import { TablePagination, CircularProgress, Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
-import { ExpandMore, Delete, Edit } from '@material-ui/icons'
+import { ExpandMore, Delete, Edit, PeopleAlt } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { GET_LESSONS_DAY_FROM_TODAY } from '../../database/query/lessonDayQuery'
@@ -88,10 +89,22 @@ export default function AdminLessonDay(){
   const [today,] = React.useState(moment().toISOString(true))
   const [client,] = React.useState(useApolloClient())
   const [teachers, setTeachers] = React.useState([])
-  const [lessonsDay, setLessonsDay] = React.useState([])
+  const [columns,] = React.useState(
+    [
+      { title: 'Nom', field: 'name' },
+      { title: 'Jour', field: 'day' },
+      { title: 'Heure', field: 'hour' },
+      { title: 'Professeur', field: 'teacher' },
+      { title: 'Places restantes', field: 'spotLeft' },
+      { title: 'Places totales', field: 'spotTotal' },
+      { title: 'Status', field: 'status' },
+    ]
+  )
+  const [rows, setRows] = React.useState([])
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
+  const [openInfosDialog, setOpenInfosDialog] = React.useState(false)
   const [openEditDialog, setOpenEditDialog] = React.useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
   const [selectedLessonDay, setSelectedLessonDay] = React.useState(null)
@@ -110,7 +123,23 @@ export default function AdminLessonDay(){
         offset: 0,
         limit: 200
       },
-      onCompleted: (newData) => { setLessonsDay(newData.lessonsDayFromToday)}
+      onCompleted: (newData) => { 
+        var lRows = []
+        for(const lessonDay of newData.lessonsDayFromToday) {
+          lRows.push({
+            name: lessonDay.lesson.name,
+            day: dateToDayString(lessonDay.dayDate),
+            date: moment(lessonDay.dayDate).format('DD/MM/YYYY'),
+            hour: moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')+' à '+moment(lessonDay.hour.end, 'HH:mm').format('HH:mm'),
+            teacher: lessonDay.teacher.user.firstName+' '+lessonDay.teacher.user.lastName,
+            spotLeft:lessonDay.spotLeft,
+            spotTotal: lessonDay.spotTotal,
+            status: lessonDay.isCanceled ? 'Annulé' : 'Planifié',
+            lessonDay: lessonDay
+          })
+        }
+        setRows(lRows)
+      }
     }
   )
   
@@ -193,6 +222,15 @@ export default function AdminLessonDay(){
     setPage(newPage)
   };
 
+  const handleInfosDialog = (lessonDay) => {
+    setSelectedLessonDay(lessonDay)
+    setOpenInfosDialog(true)
+  }
+
+  const closeInfosDialog = () => {
+    setOpenInfosDialog(false)
+  }
+
   const handleEditDialog = (lessonDay) => {
     setSelectedLessonDay(lessonDay)
     setOpenEditDialog(true)
@@ -234,7 +272,12 @@ export default function AdminLessonDay(){
         spotLeft: lessonDay.spotLeft,
         spotTotal: lessonDay.spotTotal,
         isCanceled: lessonDay.isCanceled
-      }
+      },
+      refetchQueries: [
+        {
+          query: GET_LESSONS_DAY_FROM_TODAY
+        },
+      ]
     })
     .then(result => {
       closeEditDialog()
@@ -271,12 +314,12 @@ export default function AdminLessonDay(){
         spotTotal: lessonDay.spotTotal,
         isCanceled: true,
         message: message
-      }
+      },
     })
     .then(result => {
-      var cLessonsDay = {...lessonsDay}
-      cLessonsDay[selectedIndex].isCanceled = true
-      setLessonsDay(lessonsDay)
+      var cLessonsDay = {...rows}
+      cLessonsDay[selectedIndex].status = true
+      setRows(cLessonsDay)
       setMessage('')
       closeDeleteDialog()
       setDialogLoading(false)
@@ -300,84 +343,35 @@ export default function AdminLessonDay(){
       <div>
         <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
-        <Typography component="h1" variant="h5">
-          Liste des cours quotidiens
-        </Typography>
-          <Table className={classes.table} size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell style={{width: '15%'}}>Nom</TableCell>
-                <TableCell>Jour</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Heure</TableCell>
-                <TableCell>Professeur</TableCell>
-                <TableCell>Clients</TableCell>
-                <TableCell>Places restantes</TableCell>
-                <TableCell>Places disponibles</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell style={{width: '10%'}}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(rowsPerPage > 0
-                ? lessonsDay.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : lessonsDay
-                ).map((lessonDay, index) => (
-                <Fragment key={lessonDay.id}>
-                  <TableRow className={classes.row}>
-                    <TableCell component="th" scope="row">{lessonDay.lesson.name}</TableCell>
-                    <TableCell>{dateToDayString(lessonDay.dayDate)}</TableCell>
-                    <TableCell>{moment(lessonDay.dayDate).format('DD/MM/YYYY')}</TableCell>
-                    <TableCell>{moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')} à {moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')}</TableCell>
-                    <TableCell>{lessonDay.teacher.user.firstName} {lessonDay.teacher.user.lastName}</TableCell>
-                    <TableCell>
-                      <ExpansionPanel>
-                        <ExpansionPanelSummary
-                          expandIcon={<ExpandMore />}
-                          id="expandMore"
-                        >
-                          <Typography>{lessonDay.users.length} personnes</Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
-                          <Grid container spacing={2}>
-                            {lessonDay.users.map((user, index) => (
-                              <Grid item xs={12} md={12} key={user.id+' '+lessonDay.id}>
-                                <Typography>
-                                {user.firstName} {user.lastName}
-                                </Typography>
-                              </Grid>
-                            ))}
-                          </Grid>
-                        </ExpansionPanelDetails>
-                      </ExpansionPanel>
-                    </TableCell>
-                    <TableCell>{lessonDay.spotLeft}</TableCell>
-                    <TableCell>{lessonDay.spotTotal}</TableCell>
-                    <TableCell>{lessonDay.isCanceled ? 'Annulé' : 'Planifié'}</TableCell>
-                    <TableCell>
-                      {!lessonDay.isCanceled &&
-                      <Tooltip title="Supprimer le cours">
-                        <IconButton className={classes.redIcon} onClick={() => handleDeleteDialog(lessonDay, index)}>
-                          <Delete />
-                        </IconButton>
-                      </Tooltip>
-                      }
-                      <Tooltip title="Modifier le cours">
-                        <IconButton className={classes.greenIcon} onClick={() => handleEditDialog(lessonDay, index)}>
-                          <Edit />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                </Fragment>
-              ))}
-            </TableBody>
-            </Table>
+        <MaterialTable
+          title="Liste des cours quotidiens"
+          columns={columns}
+          data={rows}
+          actions={[
+            {
+              icon: () => <Edit />,
+              tooltip: 'Modifier le cours',
+              onClick: (event, rowData) => handleEditDialog(rowData.lessonDay, rowData.tableData.id)
+            },
+            rowData => ({
+              icon: () => <Delete />,
+              tooltip: 'Annuler le cours',
+              onClick: (event, rowData) => handleDeleteDialog(rowData.lessonDay, rowData.tableData.id),
+              disabled: rowData.lessonDay.isCanceled
+            }),
+            {
+              icon: () => <PeopleAlt />,
+              tooltip: 'Informations sur les élèves',
+              onClick: (event, rowData) => handleInfosDialog(rowData.lessonDay)
+            }
+          ]}
+          components={{
+            Pagination: props => (
               <TablePagination
                 rowsPerPageOptions={[rowsPerPage, { label: 'All', value: -1 }]}
                 component="div"
                 colSpan={3}
-                count={lessonsDay.length}
+                count= {rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 SelectProps={{
@@ -388,6 +382,8 @@ export default function AdminLessonDay(){
                 //onChangeRowsPerPage={handleChangeRowsPerPage}
                 //ActionsComponent={TablePaginationActions}
               />
+          )}}
+        />
         </Container>
         {selectedLessonDay && (
         <Dialog open={openEditDialog}>
@@ -516,6 +512,27 @@ export default function AdminLessonDay(){
             </Button>
           </DialogActions>
         </Dialog>
+        {selectedLessonDay && (
+          <Dialog open={openInfosDialog}>
+            <DialogTitle>Informations sur les élèves</DialogTitle>
+            <DialogContent>
+              <Grid container spacing={2}>
+                {selectedLessonDay.users.map((user, index) => (
+                  <Grid item xs={12} md={12} key={user.id+' '+selectedLessonDay.id}>
+                    <Typography>
+                      {user.firstName} {user.lastName}
+                    </Typography>
+                  </Grid>
+                ))}
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeInfosDialog}>
+                Annuler 
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
         <Snackbar
           anchorOrigin={{
             vertical: 'bottom',
