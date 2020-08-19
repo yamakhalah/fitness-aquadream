@@ -260,6 +260,9 @@ class AdminUser extends React.Component {
               onClick: (event, rowData) => this.handleDiscountDialog(rowData.user)
             }
           ]}
+          options={{
+            filtering: true
+          }}
         />
       </Container>
       <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='md'>

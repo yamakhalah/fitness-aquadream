@@ -329,6 +329,9 @@ export default function AdminSubscription() {
               onClick: (event, rowData) => handleInfosDialog(rowData)
             }
           ]}
+          options={{
+            filtering: true
+          }}
         />
       </Container>
       <Dialog open={openInfosDialog} fullWidth={true} maxWidth='sm'>

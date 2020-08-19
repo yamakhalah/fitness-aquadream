@@ -190,6 +190,9 @@ export default function AdminCredit(props) {
             disabled: rowData.isUsed
           })
         ]}
+        options={{
+            filtering: true
+          }}
       />
       </Container>
       <Dialog open={deleteOpen}>

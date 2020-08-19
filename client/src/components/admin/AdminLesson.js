@@ -401,6 +401,9 @@ class AdminLesson extends React.Component {
               onClick: (event, rowData) => this.handleInfosDialog(rowData.lesson)
             }
           ]}
+          options={{
+            filtering: true
+          }}
         />
       </Container>
       )}

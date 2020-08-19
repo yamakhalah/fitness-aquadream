@@ -383,6 +383,9 @@ export default function AdminLessonDay(){
                 //ActionsComponent={TablePaginationActions}
               />
           )}}
+          options={{
+            filtering: true
+          }}
         />
         </Container>
         {selectedLessonDay && (
