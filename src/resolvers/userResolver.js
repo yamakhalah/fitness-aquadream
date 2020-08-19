@@ -66,6 +66,17 @@ export default {
   },
   Mutation: {
     createUser: async(parent, { email, password, firstName, lastName, phone, gender}, { models: { userModel }}, info) => {
+      const blacklist = [
+        'ce.delmarcelle@gmail.com', 'laurencedehard72@gmail.com', 'dumonceaucarine@hotmail.com', 
+        'carole@sohoo.be', 'sophie.wain@gmail.com', 'heninberenice@gmail.com', 'marysehuez@gmail.com', 
+        'lynda.polet@gmail.com', 'catherine.nachtergaele@gmail.com', 'ju-georges@hotmail.com', 
+        'bruneaubianca@gmail.com', 'scarolette35@gmail.com', 'foncouxmaureen@gmail.com',
+        'noemytambour@yahoo.fr', 'anne-mestdagh@live.be', 'philippot.sandra@live.be',
+        'lucettebran@hotmail.com', 'namur4@hotmail.com'
+      ]
+
+      if(blacklist.contains(email)) return null
+
       const user = await userModel.create({ email, password, firstName, lastName, phone, gender })
       if(user._id !== null) {
         var mail = await sendMail(FROM, user.email, 'Aquadream - Confirmation d\'inscription', SIGN_UP(user))

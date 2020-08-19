@@ -192,7 +192,7 @@ export default function AdminCredit(props) {
         ]}
         options={{
             filtering: true
-          }}
+        }}
       />
       </Container>
       <Dialog open={deleteOpen}>
