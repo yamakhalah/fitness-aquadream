@@ -75,7 +75,7 @@ export default {
         'lucettebran@hotmail.com', 'namur4@hotmail.com'
       ]
 
-      if(blacklist.contains(email)) return null
+      if(blacklist.includes(email)) return null
 
       const user = await userModel.create({ email, password, firstName, lastName, phone, gender })
       if(user._id !== null) {
