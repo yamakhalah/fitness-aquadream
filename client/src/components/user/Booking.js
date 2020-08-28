@@ -283,12 +283,13 @@ export default function Booking() {
       <Loader />
     </div>
   )
-  
+  /*
   else if(!adminMode) return (
     <div className={classes.loader}>
       <h2>Patiente, nos cours seront bientôt disponibles. Infos: contact@aquadream-temploux.be</h2>
     </div>
   )
+  */
   
   else
   return (
