@@ -6,7 +6,7 @@ import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
 import mongoose from 'mongoose'
 import { ApolloError} from 'apollo-server-express'
-import { sendMail, FROM, ADMIN_CREATE_SUBSCRIPTION, CANCEL_SUBSCRIPTION_DISCOUNT, PRE_CANCEL_SUBSCRIPTION } from '../mailer'
+import { sendMail, FROM, ADMIN_CREATE_SUBSCRIPTION, CANCEL_SUBSCRIPTION_DISCOUNT, PRE_CANCEL_SUBSCRIPTION, CHANGE_SUBSCRIPTION } from '../mailer'
 import { createMollieClient } from '@mollie/api-client'
 import crypto from 'crypto'
 import moment from 'moment'
@@ -68,7 +68,7 @@ export default {
 
         //REMOVE USER FROM OLD LESSONS_DAY
         for(const lesson of graphQLOldLesson.lessonsDay){
-          var test = await lessonDayModel.removeUserDecreaseSpotLeft(lesson, user.id, opts)
+          var test = await lessonDayModel.removeUserIncreaseSpotLeft(lesson, user.id, opts)
         }
         //REMOVE USER FROM OLD LESSON
         (await lessonModel).removeUser(graphQLOldLesson.id, user.id, opts)
