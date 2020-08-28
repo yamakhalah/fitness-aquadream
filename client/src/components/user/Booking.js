@@ -198,8 +198,13 @@ export default function Booking() {
       })
       .catch(error => {
         console.log(error)
-        showSnackMessage("Une erreur a eu lieu lors de la création de la session de paiement !", "error")
-        reset()
+        if(error.graphQLErrors[0].message === 'LESSON_FULL') {
+          showSnackMessage("La dernière place à été prise entre temps. Navré pour le désagréement", "error")
+          reset()
+        }else {
+          showSnackMessage("Une erreur a eu lieu lors de la création de la session de paiement !", "error")
+          reset()
+        }
       })
     }
   }
@@ -283,12 +288,13 @@ export default function Booking() {
       <Loader />
     </div>
   )
-  
+  /*
   else if(!adminMode) return (
     <div className={classes.loader}>
       <h2>Patiente, nos cours seront bientôt disponibles. Infos: contact@aquadream-temploux.be</h2>
     </div>
   )
+  */
   
   else
   return (

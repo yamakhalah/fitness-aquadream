@@ -7,6 +7,7 @@ import lessonModel from '../models/lesson'
 import uuid from 'uuid'
 import Promise  from 'promise'
 import moment from 'moment'
+import { ApolloError } from 'apollo-server'
 import { createMollieClient } from '@mollie/api-client'
 const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
 moment.locale('fr')
@@ -118,8 +119,18 @@ export default {
       }
     },
 
-    getSession: async (parent, { orderResume, preBookedLessons, user, admin }, { models: { payementModel }}, info) => {
+    getSession: async (parent, { orderResume, preBookedLessons, user, admin }, { models: { payementModel, lessonModel }}, info) => {
       try{
+        const lessonsID = []
+        for(const lesson of orderResume.lessonsData){
+          var tmp = await lessonModel.findById(lesson.lesson.id)
+          if(tmp.spotLeft <= 0) return new ApolloError('LESSON_FULL')
+          var elem = {
+            lessonID: lesson.lesson.id,
+            //lessonMonthlyPrice: lesson.lessonMonthlyPrice
+          }
+          lessonsID.push(elem)
+        }
         //CHECK IF USER HAS MOLLIE CUSTOMER ID
         if(user.mollieCustomerID.length === 0){
           //IF NO CUSTOMER CREATE THE CUSTOMER
@@ -133,15 +144,7 @@ export default {
         }
         //CREATE FIRST PAYEMENT
         const ref = uuid.v4()
-        const lessonsID = []
         const discountsID = []
-        for(const lesson of orderResume.lessonsData){
-          var elem = {
-            lessonID: lesson.lesson.id,
-            //lessonMonthlyPrice: lesson.lessonMonthlyPrice
-          }
-          lessonsID.push(elem)
-        }
         for(const discount of orderResume.discounts){
           var elem = {
             discountID: discount.id
