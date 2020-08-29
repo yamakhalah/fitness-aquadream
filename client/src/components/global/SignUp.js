@@ -86,10 +86,11 @@ class SignUp extends React.Component {
       this.setState({'open': true})
       return
     }
+    const emailLower = this.state.email.toLowerCase()
     this.props.client.mutate({
       mutation: CREATE_USER,
       variables: {
-        email: this.state.email,
+        email: emailLower,
         password: this.state.password,
         firstName: this.state.firstName,
         lastName: this.state.lastName,
