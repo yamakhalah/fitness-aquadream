@@ -71,11 +71,6 @@ const styles = theme => ({
     width: '60%',
     margin: 0,
     padding: 0
-  },
-  copyright: {
-    position: 'absolute',
-    display: 'block',
-    bottom: 10
   }
 });
 
@@ -231,9 +226,6 @@ class Login extends React.Component {
               </Link>
             </Grid>
           </Grid>
-        <Box className={classes.copyright}>
-          <Copyright />
-        </Box>
       </div>
       </Grid>
     </Grid>
