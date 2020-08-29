@@ -115,9 +115,10 @@ class Login extends React.Component {
   }
 
   login = (email, password) => {
+      const emailLower = email.toLowerCase()
       this.props.client.query({
         query: LOGIN,
-        variables: {email: email, password: password},
+        variables: {email: emailLower, password: password},
       })
       
       .then(result => {
