@@ -2,7 +2,8 @@ import React from 'react'
 import Loader from '../global/Loader'
 import { makeStyles } from '@material-ui/core/styles'
 import { useQuery, useApolloClient } from  'react-apollo'
-import { IconButton, Snackbar, Container, CssBaseline, Typography, Grid, Card, CardMedia, CardContent, CardActions, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core'
+import { Button, IconButton, Snackbar, Container, CssBaseline, Typography, Grid, Card, CardMedia, CardContent, CardActions, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core'
+import { Link } from 'react-router-dom'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { ExpandMore, Money } from '@material-ui/icons'
 import { GET_SUBSCRIPTIONS_FOR_USER } from '../../database/query/subscriptionQuery'
@@ -10,6 +11,7 @@ import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { lessonSubTypeToIMG } from '../../utils/enumToString'
 import moment from 'moment-timezone'
+import '../../style/css/navigation.css'
 
 moment.locale('fr')
 moment.tz.setDefault('Europe/Brussels')
@@ -49,7 +51,7 @@ const useStyles = makeStyles(theme => ({
   },
   statusKO: {
     backgroundColor: theme.palette.red.main,
-    maxWidth: '30%',
+    maxWidth: '40%',
     margin: '0 auto',
     borderRadius: 30
   },
@@ -74,12 +76,10 @@ export default function Subscription(props) {
 
   const initSubscriptions = (data) => {
     // GET MOLLIE SUBSCRIPTION DATA FOR EVERY SUB
-    console.log(data)
-    console.log(user)
     var lSubscriptionsData = []
     var promises = []
     for(const subscription of data.subscriptionsForUser){
-      if(subscription.subStatus !== 'WAITING_PAYEMENT'){ 
+      if(subscription.subStatus !== 'WAITING_PAYEMENT' ){ 
         const promise = new Promise((resolve, reject) => {
           client.query({
             query: GET_MOLLIE_SUBSCRIPTION_DATA,
@@ -102,13 +102,17 @@ export default function Subscription(props) {
           })
         })
         promises.push(promise)
+      }else{
+        lSubscriptionsData.push({
+          subscription: subscription,
+          mollieSubscription: null
+        })
       }
     }
     Promise.all(promises.map(p => p.catch(e => e)))
     .then(results => {
       setSubscriptionsData(lSubscriptionsData)
       setLoading(false)
-      console.log(subscriptionsData)
     })
     .catch(error => {
       console.log(error)
@@ -202,7 +206,7 @@ export default function Subscription(props) {
                       Montant mensuel: 
                     </Grid>
                     <Grid item xs={8} md={8}>
-                      {Number(subscriptionData.mollieSubscription.amount.value)}€
+                      {Number(subscriptionData.subscription.totalMonth)}€
                     </Grid>
                     <Grid item xs={4} md={4}>
                       Status: 
@@ -210,8 +214,13 @@ export default function Subscription(props) {
                     {subscriptionData.subscription.subStatus === 'WAITING_PAYEMENT' && 
                       <Grid item xs={8} md={8}>
                         <div className={classes.statusKO}>
-                          Problème de paiement
+                          En attente de paiement
                         </div>
+                        <Link  className='topNavItem' to={'/booking/prioritary-checkout/'+subscriptionData.subscription.id}>
+                        <Button className={classes.expansionPanel} variant="contained" color="primary">
+                          Payer
+                        </Button>
+                        </Link>
                       </Grid>
                     }
                     {(subscriptionData.subscription.subStatus === 'WAITING_BEGIN' || subscriptionData.subscription.subStatus === 'ON_GOING' ) && 
@@ -296,10 +305,14 @@ export default function Subscription(props) {
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
                   <CardActions>
-                    {subscriptionData.mollieSubscription.status === 'suspended' && (
-                      <IconButton onClick={correctPayment(subscriptionData)}>
-                        <Money />
-                      </IconButton>
+                    {subscriptionData.mollieSubscription && (
+                      <React.Fragment>
+                        {subscriptionData.mollieSubscription.status === 'suspended' && (
+                          <IconButton onClick={correctPayment(subscriptionData)}>
+                            <Money />
+                          </IconButton>
+                        )}
+                      </React.Fragment>
                     )}
                   </CardActions>
                 </CardContent>
