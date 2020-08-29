@@ -62,6 +62,20 @@ export function CANCEL_SUBSCRIPTION_DISCOUNT(discount, subscription) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function CANCEL_SUBSCRIPTION_REFUND(refund, subscription) {
+  return '<p>Bonjour '+subscription.user.firstName+' '+subscription.user.lastName+'</p>'+
+  '<p>Nous vous informons qu\'un de vos abonnement a été annulé.</p>' +
+  '<p>Si vous aviez déjà payé un remboursement a été généré et vous recevrez prochainement l\'argent déjà versé sur votre compte.</p>' +
+  '</br></br>'+
+  '<p>Montant remboursé: '+refund+'€</p>' +
+  '</br></br>'+
+  '<p>Plus d\informations via l\'application Aquadream</p>' +
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 export function PRE_CANCEL_SUBSCRIPTION(subscription) {
   return '<p>Bonjour '+subscription.user.firstName+' '+subscription.user.lastName+'</p>'+
   '<p>Nous vous informons qu\'un de vos abonnement a été annulé.</p>' +

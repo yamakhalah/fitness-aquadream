@@ -10,7 +10,7 @@ import MaterialTable from 'material-table'
 import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'
-import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT, PRE_CANCEL_SUBSCRIPTION } from '../../database/mutation/subscriptionMutation'
+import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT, CANCEL_SUBSCRIPTION_REFUND, PRE_CANCEL_SUBSCRIPTION } from '../../database/mutation/subscriptionMutation'
 import moment from 'moment-timezone'
 
 moment.locale('fr')
@@ -219,7 +219,6 @@ export default function AdminSubscription() {
 
   const deleteSubscription = () => {
     setLoading(true)
-    console.log('DELETE SUBSCRIPTION')
     if(refundType === 'discount') {
       client.mutate({
         mutation: CANCEL_SUBSCRIPTION_DISCOUNT,
@@ -246,7 +245,30 @@ export default function AdminSubscription() {
         setOpenDeleteDialog(false)
       })
     }else{
-      console.log('PAYMENT')
+      client.mutate({
+        mutation: CANCEL_SUBSCRIPTION_REFUND,
+        variables: {
+          id: selectedSubscriptionData.subscription.id
+        },
+        refetchQueries: [{
+          query: GET_SUBSCRIPTIONS
+        }]
+      })
+      .then(result => {
+        if(result.data.cancelSubscriptionWithRefund) {
+          showSnackMessage('L\'abonnement a bien été annulé', 'success')
+        }else{
+          showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+        }
+        setLoading(false)
+        setOpenDeleteDialog(false)
+      })
+      .catch(error => {
+        console.log(error)
+        showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+        setLoading(false)
+        setOpenDeleteDialog(false)
+      })
     }
   }
 
@@ -388,7 +410,7 @@ export default function AdminSubscription() {
             <FormLabel component="legend">Méthode de remboursement</FormLabel>
             <RadioGroup aria-label="gender" name="gender1" value={refundType} onChange={ event => {setRefundType(event.target.value)}}>
               <FormControlLabel value="discount" control={<Radio />} label="Générer un bon d'achat" />
-              <FormControlLabel value="refund" disabled control={<Radio />} label="Générer un paiement direct" />
+              <FormControlLabel value="refund" control={<Radio />} label="Générer un paiement direct" />
             </RadioGroup>
           </FormControl>
         </DialogContent>

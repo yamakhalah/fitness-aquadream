@@ -12,6 +12,12 @@ export const CANCEL_SUBSCRIPTION_DISCOUNT = gql`
   }
 `
 
+export const CANCEL_SUBSCRIPTION_REFUND = gql`
+  mutation cancelSubscriptionWithRefund($id: ID!){
+    cancelSubscriptionWithRefund(id: $id)
+  }
+`
+
 export const PRE_CANCEL_SUBSCRIPTION =gql`
   mutation preCancelSubscription($id: ID!){
     preCancelSubscription(id: $id)

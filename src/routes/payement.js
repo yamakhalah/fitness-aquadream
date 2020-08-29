@@ -21,7 +21,6 @@ const confirmAdminSubscription = async (payment) => {
   session.startTransaction()
   const opts = { session }
   var subscription = null
-  console.log(payment)
   try {
     if(payment.status === 'paid' && payment.amountRefunded.value === '0.00') {
       subscription = await mollieClient.customers_subscriptions.create({
@@ -228,7 +227,8 @@ export async function checkout(req, res, next){
 }
 
 export async function subscription(req, res, next){
-  console.log('SUBSCRIPTION')
+  console.log('SUBSCRIPTION  WEBHOOK')
+  //SEND PAYMENT ID everytime a payment is made. Check subsciptionID in payment
   console.log(req)
   res.sendStatus(200)
 }
