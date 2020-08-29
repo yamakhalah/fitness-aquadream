@@ -69,8 +69,8 @@ export default {
       const blacklist = [
         'ce.delmarcelle@gmail.com', 'laurencedehard72@gmail.com', 'dumonceaucarine@hotmail.com', 
         'carole@sohoo.be', 'sophie.wain@gmail.com', 'heninberenice@gmail.com', 'marysehuez@gmail.com', 
-        'lynda.polet@gmail.com', 'catherine.nachtergaele@gmail.com', 'ju-georges@hotmail.com', 
-        'bruneaubianca@gmail.com', 'scarolette35@gmail.com', 'foncouxmaureen@gmail.com',
+        'catherine.nachtergaele@gmail.com', 'ju-georges@hotmail.com', 
+        'bruneaubianca@gmail.com', 'foncouxmaureen@gmail.com',
         'noemytambour@yahoo.fr', 'anne-mestdagh@live.be', 'philippot.sandra@live.be',
         'lucettebran@hotmail.com', 'namur4@hotmail.com'
       ]
