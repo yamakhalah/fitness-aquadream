@@ -16,7 +16,7 @@ export  function dateToDayString(date) {
       return 'Vendredi'
     case 6:
       return 'Samedi'
-    case 7: 
+    case 0: 
       return 'Dimanche'
   }
 }
