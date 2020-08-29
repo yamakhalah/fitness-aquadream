@@ -25,7 +25,7 @@ export function getErrorMessage(error) {
         }
       default:
         return {
-          message: "Cet email ne semble pas exister", 
+          message: "L'email ou le mot de passe est incorrect", 
           variant: "error",
           show: true
         }
