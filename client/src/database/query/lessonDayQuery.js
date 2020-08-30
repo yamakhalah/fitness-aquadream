@@ -41,8 +41,14 @@ export const GET_LESSONS_DAY_SPOT_CANCELED = gql`
       lesson{
         id
         name
-        lessonType
-        lessonSubType
+        lessonType{
+          id
+          simpleName
+        }
+        lessonSubType{
+          id
+          simpleName
+        }
       }
       teacher{
         id

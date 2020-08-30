@@ -92,9 +92,10 @@ class Credit extends React.Component {
       query: GET_LESSONS_DAY_SPOT_CANCELED
     })
     .then(result => {
+      console.log(result)
       var lessonsDay = []
       result.data.lessonsDaySpotCanceled.forEach(element => {
-        if(element.lesson.lessonType === this.state.credit.lessonDay.lesson.lessonType && element.lesson.lessonSubType === this.state.credit.lessonDay.lesson.lessonSubType) {
+        if(element.lesson.lessonType.id === this.state.credit.lessonDay.lesson.lessonType.id && element.lesson.lessonSubType.id === this.state.credit.lessonDay.lesson.lessonSubType.id) {
           lessonsDay.push(element)
         }
       });
@@ -171,41 +172,50 @@ class Credit extends React.Component {
       <div className={classes.root}>
       <Container component="main" maxWidth="xl">
       <CssBaseline />
-      <Typography component="h1" variant="h5" className={classes.title}>
-        Cours disponibles:
-      </Typography>
-        <Table className={classes.table} size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell style={{width: '15%'}}>Nom</TableCell>
-              <TableCell>Jour</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Heure</TableCell>
-              <TableCell>Professeur</TableCell>
-              <TableCell>Places disponibles</TableCell>
-              <TableCell style={{width: '10%'}}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {this.state.lessonsDay.map((lessonDay) => (
-              <TableRow className={classes.row} key={lessonDay.id}>
-                <TableCell component="th" scope="row">{lessonDay.lesson.name}</TableCell>
-                <TableCell>{dateToDayString(lessonDay.dayDate)}</TableCell>
-                <TableCell>{moment(lessonDay.dayDate).format('DD/MM/YYYY')}</TableCell>
-                <TableCell>{moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')} à {moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')}</TableCell>
-                <TableCell>{lessonDay.teacher.user.firstName} {lessonDay.teacher.user.lastName}</TableCell>
-                <TableCell>{lessonDay.spotCanceled}</TableCell>
-                <TableCell>
-                  <Tooltip title="Sélectionner le cours">
-                    <IconButton className={classes.greenIcon} onClick={this.openConfirmDialog.bind(this, lessonDay)}>
-                      <Save />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
+      {this.state.lessonsDay !== 0 && (
+      <React.Fragment>
+        <Typography component="h1" variant="h5" className={classes.title}>
+          Cours disponibles:
+        </Typography>
+          <Table className={classes.table} size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell style={{width: '15%'}}>Nom</TableCell>
+                <TableCell>Jour</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Heure</TableCell>
+                <TableCell>Professeur</TableCell>
+                <TableCell>Places disponibles</TableCell>
+                <TableCell style={{width: '10%'}}>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {this.state.lessonsDay.map((lessonDay) => (
+                <TableRow className={classes.row} key={lessonDay.id}>
+                  <TableCell component="th" scope="row">{lessonDay.lesson.name}</TableCell>
+                  <TableCell>{dateToDayString(lessonDay.dayDate)}</TableCell>
+                  <TableCell>{moment(lessonDay.dayDate).format('DD/MM/YYYY')}</TableCell>
+                  <TableCell>{moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')} à {moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')}</TableCell>
+                  <TableCell>{lessonDay.teacher.user.firstName} {lessonDay.teacher.user.lastName}</TableCell>
+                  <TableCell>{lessonDay.spotCanceled}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Sélectionner le cours">
+                      <IconButton className={classes.greenIcon} onClick={this.openConfirmDialog.bind(this, lessonDay)}>
+                        <Save />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </React.Fragment>
+      )}
+      {this.state.lessonsDay === 0 && (
+        <Typography component="h1" variant="h5" className={classes.title}>
+          Il n'y a aucun cours disponible dans la même catégorie de cours que votre crédit
+        </Typography>
+      )}
       </Container>
       <Dialog open={this.state.openConfirmDialog}>
         <DialogTitle>Utiliser votre crédit</DialogTitle>

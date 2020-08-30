@@ -68,6 +68,7 @@ export default function Subscription(props) {
   const classes = useStyles()
   const [client, setClient] = React.useState(useApolloClient())
   const [user, setUser] = React.useState(useApolloClient().readQuery({query: GET_AUTHENTIFICATION}).Authentification)
+  //const [user, setUser] = React.useState({userID: '', mollieCustomerID: ''})
   const [loading, setLoading] = React.useState(true)
   const [subscriptionsData, setSubscriptionsData] = React.useState([]) 
   const [openSnack, setOpenSnack] = React.useState(false)

@@ -105,7 +105,7 @@ export default {
       try{
         const graphqlLessonDay = await lessonDayModel.removeUserIncreaseSpotCanceled(lessonDay, user.id, opts)
         const credit = await creditModel.create({ user: user.id, lessonDay: graphqlLessonDay.id, validityEnd: moment(graphqlLessonDay.dayDate).add(1, 'y').toISOString()}, opts)
-        const graphqlUser = await userModel.addCredit(user.id, credit, opts)
+        const graphqlUser = await userModel.addCredit(user.id, credit, session)
         await session.commitTransaction()
         session.endSession()
         return credit

@@ -118,6 +118,8 @@ const Home = () => {
       }]
     })
     .then(result => {
+      setLoading(false)
+      showSnackMessage('Cours annulé, un crédit a été généré.', 'success')
       window.location.reload()
     })
     .catch(error => {
