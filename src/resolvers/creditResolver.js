@@ -2,6 +2,7 @@ import creditModel from '../models/credit'
 import lessonDayModel from '../models/lessonDay'
 import userModel from '../models/user'
 import { ApolloError } from 'apollo-server';
+import { sendMail, USE_CREDIT, FROM } from '../mailer'
 import moment from 'moment'
 moment.locale('fr')
 
@@ -65,6 +66,7 @@ export default {
       if(lessonDay === null || credit === null || user == null) {
         throw new ApolloError('Error during use of credit')
       }
+      var mail = await sendMail(FROM, user.email, 'Aquadream - Vous avez annulé un cours', USE_CREDIT(user, lessonDay))
       return credit
     }
   },

@@ -5,7 +5,7 @@ import teacherModel from '../models/teacher'
 import creditModel from '../models/credit'
 import mongoose from 'mongoose'
 import { ApolloError } from 'apollo-server'
-import { sendMail, CANCEL_LESSON_DAY, FROM } from '../mailer'
+import { sendMail, CANCEL_LESSON_DAY, CANCEL_LESSON_DAY_BY_USER, FROM } from '../mailer'
 import moment from 'moment'
 moment.locale('fr')
 
@@ -106,6 +106,7 @@ export default {
         const graphqlLessonDay = await lessonDayModel.removeUserIncreaseSpotCanceled(lessonDay, user.id, opts)
         const credit = await creditModel.create({ user: user.id, lessonDay: graphqlLessonDay.id, validityEnd: moment(graphqlLessonDay.dayDate).add(1, 'y').toISOString()}, opts)
         const graphqlUser = await userModel.addCredit(user.id, credit, session)
+        var mail = await sendMail(FROM, graphqlUser.email, 'Aquadream - Vous avez annulé un cours', CANCEL_LESSON_DAY_BY_USER(graphqlUser, graphqlLessonDay))
         await session.commitTransaction()
         session.endSession()
         return credit

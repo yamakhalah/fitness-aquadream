@@ -133,7 +133,7 @@ class Credit extends React.Component {
       ]
     })
     .then(result => {
-      this.props.history.push('/home')
+      this.props.history.push('/')
     })
     .catch(error => {
       console.log(error)

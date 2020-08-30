@@ -24,6 +24,16 @@ export function SIGN_UP(user) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function USE_CREDIT(user, lessonDay) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+    '<p>Nous vous confirmons l\'utilisation de votre crédit pour le cours en date du '+moment(lessonDay.dayDate).format('DD/MM/YYYY')+' de '+moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')+' à '+moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')+'</p>'+
+    '<p>Vous pouvez y accéder via votre calendrier sur https://www.app.aquadream-temploux.be</p>'+
+    '<p>Cordialement,</p>'+
+    '<p>L\'équipe Aquadream</p>'+
+    '</br></br>'+
+    '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 export function RESET_MAIL(user) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
     '<p>Suite à votre demande votre mot de passe a été réinitialisé</p>'+
@@ -41,6 +51,16 @@ export function CANCEL_LESSON_DAY(user, lessonDay, message) {
   '<h4>Motif:</h4>'+
   '<p>'+message+'</p>'+
   '<p>Rassurez-vous, un avoir a été émis et peut être utilisé gratuitement pendant un an pour n\'importe quel cours. Rendez vous sur l\'onglet crédit pour l\'utiliser</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
+export function CANCEL_LESSON_DAY_BY_USER(user, lessonDay) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous confirmons l\'annulation de votre cours prévu le '+moment(lessonDay.dayDate).format('DD/MM/YYYY')+' de '+moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')+' à '+moment(lessonDay.hour.end, 'HH:mm').format('HH:mm')+'.</p>'+
+  '<p>Un crédit vous a été généré. Retrouvez-le sur https://www.app-aquadream-temploux.be/credit</p>'+
   '<p>Cordialement,</p>'+
   '<p>L\'équipe Aquadream</p>'+
   '</br></br>'+
