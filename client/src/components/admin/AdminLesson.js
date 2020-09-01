@@ -387,7 +387,7 @@ class AdminLesson extends React.Component {
               icon: () => <MeetingRoom />,
               tooltip: 'Ouvrir le cours',
               onClick: (event, rowData) => this.handleOpenLessonDialog(rowData.lesson, rowData.tableData.id),
-              disabled: !rowData.lesson.isOpened
+              disabled: rowData.lesson.isOpened
             }),
             rowData => ({
               icon: () => <Delete />,
