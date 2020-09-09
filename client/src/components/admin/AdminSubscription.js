@@ -96,6 +96,7 @@ export default function AdminSubscription() {
       var lRows = []
       var promises = []
       for(const subscription of data.subscriptions) {
+        /*
         if(subscription.subStatus !== 'WAITING_PAYEMENT' && subscription.subStatus !== 'CANCELED_BY_ADMIN'){   
           const promise = new Promise((resolve, reject) => {
             client.query({
@@ -130,7 +131,9 @@ export default function AdminSubscription() {
             })
           })
           promises.push(promise)
-        }else if(subscription.subStatus === 'WAITING_PAYEMENT'){
+          }else if(subscription.subStatus === 'WAITING_PAYEMENT'){
+          */
+          if(subscription.subStatus !== 'CANCELED_BY_ADMIN'){
           lRows.push({
             id: subscription.id,
             user: subscription.user.firstName+' '+subscription.user.lastName,
@@ -142,7 +145,7 @@ export default function AdminSubscription() {
             end: moment(subscription.validityEnd).format('DD/MM/YYYY'),
             total: subscription.total,
             totalMonthly: subscription.totalMonth,
-            paymentStatus: 'Non payé',
+            paymentStatus: 'Indisponible',
             subscription: subscription,
             mollieSubscription: null
           })
