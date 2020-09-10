@@ -104,7 +104,6 @@ export default function AdminCredit(props) {
     GET_CREDITS_VALIDITY, 
     {
       onCompleted: (newData) => { 
-        console.log(newData)
         var lRows = []
         for(const credit of newData.creditsValidity){
           lRows.push({
