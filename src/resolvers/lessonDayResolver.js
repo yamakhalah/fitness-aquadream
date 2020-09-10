@@ -104,6 +104,11 @@ export default {
       session.startTransaction() 
       try{
         const graphqlLessonDay = await lessonDayModel.removeUserIncreaseSpotCanceled(lessonDay, user.id, opts)
+        const existingCredit = await creditModel.findOne({ user: user.id, lessonDay: graphqlLessonDay.id })
+        if(existingCredit) {
+          throw new ApolloError('Un crédit existe  déjà pour cet utilisateur')
+          return null
+        }
         const credit = await creditModel.create({ user: user.id, lessonDay: graphqlLessonDay.id, validityEnd: moment(graphqlLessonDay.dayDate).add(1, 'y').toISOString()}, opts)
         const graphqlUser = await userModel.addCredit(user.id, credit, session)
         var mail = await sendMail(FROM, graphqlUser.email, 'Aquadream - Vous avez annulé un cours', CANCEL_LESSON_DAY_BY_USER(graphqlUser, graphqlLessonDay))

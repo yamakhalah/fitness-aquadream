@@ -104,6 +104,7 @@ export default function AdminCredit(props) {
     GET_CREDITS_VALIDITY, 
     {
       onCompleted: (newData) => { 
+        console.log(newData)
         var lRows = []
         for(const credit of newData.creditsValidity){
           lRows.push({
@@ -175,19 +176,19 @@ export default function AdminCredit(props) {
       <MaterialTable
         title="Liste des crédits"
         columns={columns}
-        date={rows}
+        data={rows}
         actions={[
           rowData => ({
             icon: () => <Edit />,
             tooltip: 'Modifier le crédit',
-            onClick: (event, rowData) => openEditDialog.bind(this, rowData.credit, rowData.tableData.id),
-            disabled: rowData.isUsed
+            onClick: (event, rowData) => openEditDialog(rowData.credit, rowData.tableData.id),
+            disabled: !rowData.isUsed
           }),
           rowData => ({
             icon: () => <Delete />,
             tooltip: 'Invalider le crédit',
-            onClick: (event, rowData) => openDeleteDialog.bind(this, rowData.credit, rowData.tableData.id),
-            disabled: rowData.isUsed
+            onClick: (event, rowData) => openDeleteDialog(rowData.credit, rowData.tableData.id),
+            disabled: !rowData.isUsed
           })
         ]}
         options={{
