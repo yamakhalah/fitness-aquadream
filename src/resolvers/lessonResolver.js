@@ -42,7 +42,6 @@ export default {
           'status': ["WAITING_BEGIN", "ON_GOING"],
           'spotLeft': { $gt: 0}
         }).sort({ recurenceBegin: 1, name: 1}).exec()
-        console.log(lessons)
         return lessons ? lessons : []
       }catch(error){
         console.log(error)
