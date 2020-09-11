@@ -40,12 +40,13 @@ export default {
         var today = moment().add(2, 'hours').toISOString(true)
         const lessons = await lessonModel.find({ 
           'status': ["WAITING_BEGIN", "ON_GOING"],
-          'classicDate': { $lte: today},
           'spotLeft': { $gt: 0}
         }).sort({ recurenceBegin: 1, name: 1}).exec()
-        return lessons
+        console.log(lessons)
+        return lessons ? lessons : []
       }catch(error){
         console.log(error)
+        return []
       }
     }
   },

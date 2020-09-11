@@ -71,14 +71,14 @@ export default {
           var test = await lessonDayModel.removeUserIncreaseSpotLeft(lesson, user.id, opts)
         }
         //REMOVE USER FROM OLD LESSON
-        (await lessonModel).removeUser(graphQLOldLesson.id, user.id, opts)
+        var tmp = await lessonModel.removeUser(graphQLOldLesson.id, user.id, opts)
 
         //ADD USER TO NEW LESSONS_DAY
         for(const lesson of graphQLNewLesson.lessonsDay){
           var test = await lessonDayModel.addUserDecreaseSpotLeft(lesson, user.id, opts)
         }
         //ADD USER TO NEW LESSON
-        (await lessonModel).addUser(graphQLNewLesson.id, user.id, opts)
+        tmp = await lessonModel.addUser(graphQLNewLesson.id, user.id, opts)
 
         //REMOVE OLD LESSON FROM SUBSCRIPTION
         //ADD NEW LESSON TO SUBSCRIPTIOn
