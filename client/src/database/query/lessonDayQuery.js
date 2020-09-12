@@ -29,6 +29,7 @@ export const GET_LESSONS_DAY_FROM_TODAY = gql`
       }
       spotLeft
       spotTotal
+      spotCanceled
       isCanceled
     }
   }

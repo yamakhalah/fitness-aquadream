@@ -612,7 +612,7 @@ class AdminLesson extends React.Component {
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >
                             <Typography>
-                              {lessonDay.spotLeft}  
+                              {lessonDay.spotTotal}  
                             </Typography>
                           </Grid>
                           <Grid item className={classes.textCentered} xs={2} md={2} >

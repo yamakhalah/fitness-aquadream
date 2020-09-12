@@ -91,16 +91,19 @@ export default function AdminLessonDay(){
   const [teachers, setTeachers] = React.useState([])
   const [columns,] = React.useState(
     [
+      { title: 'ID', field: 'id' },
       { title: 'Nom', field: 'name' },
       { title: 'Jour', field: 'day' },
       { title: 'Heure', field: 'hour' },
       { title: 'Professeur', field: 'teacher' },
-      { title: 'Places restantes', field: 'spotLeft' },
+      { title: 'Places disponibles abonnement', field: 'spotLeft' },
+      { title: 'Places disponibles crédit', field: 'spotCanceled' },
       { title: 'Places totales', field: 'spotTotal' },
       { title: 'Status', field: 'status' },
     ]
   )
   const [rows, setRows] = React.useState([])
+  const [rowsToShow, setRowsToShow] = React.useState([])
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
@@ -127,18 +130,22 @@ export default function AdminLessonDay(){
         var lRows = []
         for(const lessonDay of newData.lessonsDayFromToday) {
           lRows.push({
+            id: lessonDay.id,
             name: lessonDay.lesson.name,
             day: dateToDayString(lessonDay.dayDate),
             date: moment(lessonDay.dayDate).format('DD/MM/YYYY'),
             hour: moment(lessonDay.hour.begin, 'HH:mm').format('HH:mm')+' à '+moment(lessonDay.hour.end, 'HH:mm').format('HH:mm'),
             teacher: lessonDay.teacher.user.firstName+' '+lessonDay.teacher.user.lastName,
             spotLeft:lessonDay.spotLeft,
+            spotCanceled: lessonDay.spotCanceled,
             spotTotal: lessonDay.spotTotal,
             status: lessonDay.isCanceled ? 'Annulé' : 'Planifié',
             lessonDay: lessonDay
           })
         }
         setRows(lRows)
+        setRowsToShow(lRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
+
       }
     }
   )
@@ -220,6 +227,8 @@ export default function AdminLessonDay(){
       })
     }
     setPage(newPage)
+    setRowsToShow(rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage))
+    
   };
 
   const handleInfosDialog = (lessonDay) => {
@@ -346,7 +355,7 @@ export default function AdminLessonDay(){
         <MaterialTable
           title="Liste des cours quotidiens"
           columns={columns}
-          data={rows}
+          data={rowsToShow}
           actions={[
             {
               icon: () => <Edit />,
@@ -368,6 +377,7 @@ export default function AdminLessonDay(){
           components={{
             Pagination: props => (
               <TablePagination
+                {...props}
                 rowsPerPageOptions={[rowsPerPage, { label: 'All', value: -1 }]}
                 component="div"
                 colSpan={3}
@@ -384,7 +394,8 @@ export default function AdminLessonDay(){
               />
           )}}
           options={{
-            filtering: true
+            filtering: true,
+            pageSize:50
           }}
         />
         </Container>
