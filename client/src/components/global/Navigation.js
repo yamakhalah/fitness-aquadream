@@ -9,7 +9,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { Tooltip, AppBar, Toolbar, IconButton, Typography, Button, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
+import { VpnKey, ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { useApolloClient } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
@@ -125,13 +125,6 @@ export default function Navigation(props) {
           <Menu />
         </IconButton>
 
-      changePasswordButton =
-      <Link to="/change-password" className="topNavItem">
-        <Button className={classes.title}>
-          Changer de mot de passe
-        </Button>
-      </Link>
-
       logoutButton = 
       <Button className={classes.title} onClick={logout.bind(this)}>
         Se Déconnecter
@@ -243,7 +236,6 @@ export default function Navigation(props) {
               Aquadream
             </Typography>
             <div className="buttonBar">
-              {changePasswordButton}
               {loginButton}
               {logoutButton}
             </div>
@@ -302,6 +294,16 @@ export default function Navigation(props) {
                 <ListItem button key="reservation" className={classes.white}>
                   <ListItemIcon className={classes.white}><ShoppingCart /></ListItemIcon>
                   <ListItemText>Réservation</ListItemText>
+                </ListItem>
+              </Tooltip>
+            </Link>
+            <Divider/>
+            <h3 className="center">Support</h3>
+            <Link to="/change-password" className="leftNavItem">
+              <Tooltip title="Changer de mot de passe">
+                <ListItem button key="password">
+                  <ListItemIcon className={classes.white}><VpnKey /></ListItemIcon>
+                  <ListItemText className={classes.white}>Mot de passe</ListItemText>
                 </ListItem>
               </Tooltip>
             </Link>

@@ -264,6 +264,7 @@ class AdminUser extends React.Component {
             filtering: true
           }}
         />
+        <Button className={classes.button} color="primary" disabled={this.state.loading} onClick={() => {this.setState({ openDialog: true })}}>Envoyer un email à tous</Button>
       </Container>
       <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='md'>
         <DialogTitle>Envoyer un message</DialogTitle>
