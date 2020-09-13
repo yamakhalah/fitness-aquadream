@@ -104,7 +104,8 @@ UserSchema.statics.addSubscription = function(id, subscription, opts) {
 
 UserSchema.statics.removeSubscription = function(id, subscription, opts) {
   return User.findById(id).then(user => {
-    user.subscriptions.splice(subscription, 1)
+    var index = user.subscriptions.indexOf(subscription)
+    user.subscriptions.splice(index, 1)
     return User.findOneAndUpdate(
       { _id: user._id },
       { subscriptions: user.subscriptions },

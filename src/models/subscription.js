@@ -50,7 +50,8 @@ SubscriptionSchema.statics.deleteSubscription = function(id) {
 
 SubscriptionSchema.statics.changeLesson = function(id, oldLesson, newLesson, opts) {
   return Subscription.findById(id).then(subscription => {
-    subscription.lessons.splice(oldLesson, 1)
+    var index = subscription.lessons.indexOf(oldLesson)
+    subscription.lessons.splice(index, 1)
     subscription.lessons.push(newLesson)
     return Subscription.findOneAndUpdate(
       { _id: subscription._id },
