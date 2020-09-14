@@ -3,7 +3,7 @@ import generator from 'generate-password'
 import jwt from 'jsonwebtoken'
 import { AuthenticationError } from 'apollo-server'
 import { NOT_AUTHENTICATED, INVALID_CREDENTIALS } from '../error'
-import { sendMail, RESET_MAIL, SIGN_UP, FROM, ADMIN_MAIL } from '../mailer'
+import { sendMail, RESET_MAIL, SIGN_UP, FROM, ADMIN_MAIL, SUPPORT_MAIL } from '../mailer'
 import userModel from '../models/user'
 import subscriptionModel from '../models/subscription'
 import creditModel from '../models/credit'
@@ -57,6 +57,17 @@ export default {
         for(const user of users) {
           var email = await sendMail(FROM, user.email, 'Aquadream - Message de l\'équipe', ADMIN_MAIL(message))
         }
+        return true
+      }catch(error) {
+        console.log(error)
+        return false
+      }
+    },
+
+    sendSupportEmail: async (parent, { user, message }, { models: { userModel }}, info) => {
+      try{
+        const graphqlUser = await userModel.findById(user).exec()
+        var email = await sendMail(graphqlUser.email, 'dylan.divito@digital-production.be', 'Aquadream Support - '+graphqlUser.email, SUPPORT_MAIL(graphqlUser, message))
         return true
       }catch(error) {
         console.log(error)

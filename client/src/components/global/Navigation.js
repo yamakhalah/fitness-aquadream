@@ -9,7 +9,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { Tooltip, AppBar, Toolbar, IconButton, Typography, Button, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { VpnKey, ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
+import { Help, VpnKey, ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { useApolloClient } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
@@ -304,6 +304,14 @@ export default function Navigation(props) {
                 <ListItem button key="password">
                   <ListItemIcon className={classes.white}><VpnKey /></ListItemIcon>
                   <ListItemText className={classes.white}>Mot de passe</ListItemText>
+                </ListItem>
+              </Tooltip>
+            </Link>
+            <Link to="/support" className="leftNavItem">
+              <Tooltip title="Besoin d'aide ?">
+                <ListItem button key="support">
+                  <ListItemIcon className={classes.white}><Help /></ListItemIcon>
+                  <ListItemText className={classes.white}>Besoin d'aide ?</ListItemText>
                 </ListItem>
               </Tooltip>
             </Link>

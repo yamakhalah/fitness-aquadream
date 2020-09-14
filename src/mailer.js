@@ -195,6 +195,14 @@ export function ADMIN_MAIL(message) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function SUPPORT_MAIL(user, message) {
+  return '<p>ADMIN SUPPORT</p>'+
+  '<p>Demande de support de la part de: ' +user.email+ '</p>'+
+  '<p>ID: '+user.id+'</p>' +
+  '</br>'+
+  '<p>Message: '+message+'</p>'
+}
+
 var transport = mailer.createTransport({
   host: "ssl0.ovh.net",
   port: 587,

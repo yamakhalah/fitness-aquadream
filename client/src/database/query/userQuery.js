@@ -108,3 +108,9 @@ export const SEND_GLOBAL_EMAIL = gql`
     sendGlobalEmail(message: $message)
   }
 `
+
+export const SEND_SUPPORT_EMAIL = gql`
+  query sendSupportEmail($user: ID!, $message: String!) {
+    sendSupportEmail(user: $user, message: $message)
+  }
+`

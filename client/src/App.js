@@ -34,6 +34,7 @@ import Subscription from './components/user/Subscription'
 import NotFound from './components/global/404'
 import CGVReader from './components/global/CGV'
 import ROIReader from './components/global/ROI'
+import Support from './components/user/Support'
 
 const drawerWidth = 240;
 
@@ -139,6 +140,7 @@ export default function App(props) {
               <AuthRoute user={user} component={Booking} exact path="/booking" />
               <AuthRoute user={user} component={Subscription} exact path="/subscription" />
               <AuthRoute user={user} component={ChangePassword} exact path="/change-password" />
+              <AuthRoute user={user} component={Support} exact path="/support" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={CreateLesson} path="/createLesson" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminUser} path="/adminUser" />
               <PrivateRoute user={user} needAdmin={true} needTeacher={false} component={AdminLesson} path="/adminLesson" />
