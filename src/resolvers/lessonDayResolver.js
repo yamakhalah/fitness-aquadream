@@ -161,7 +161,6 @@ export default {
         var object = await userModel.findById({ _id: user}).exec()
         usersList.push(object)
       }
-      console.log(usersList)
       return usersList
     },
 

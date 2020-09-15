@@ -86,8 +86,6 @@ const getUser = async (req) => {
 const server = new ApolloServer({
   typeDefs: schemas,
   resolvers: resolvers,
-  introspection: process.env.GRAPHQL_TEST,
-  playground: process.env.GRAPHQL_TEST,
   engine: {
     debugPrintReports: true
   },

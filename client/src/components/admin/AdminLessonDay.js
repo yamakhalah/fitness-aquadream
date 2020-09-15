@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { useQuery, useApolloClient } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import MaterialTable from 'material-table'
+import Excel from 'exceljs'
 import { TablePagination, CircularProgress, Button, Tooltip, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Select, InputLabel, FormControl } from '@material-ui/core'
 import { ExpandMore, Delete, Edit, PeopleAlt } from '@material-ui/icons'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
@@ -12,7 +13,9 @@ import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { UPDATE_LESSON_DAY, CANCEL_LESSON_DAY } from '../../database/mutation/lessonDayMutation'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import DateFnsUtils from '@date-io/date-fns'
+import FileSaver from 'file-saver'
 import moment from 'moment-timezone'
+import { closestIndexTo } from 'date-fns/esm'
 
 moment.locale('fr')
 moment.tz.setDefault('Europe/Brussels')
@@ -82,11 +85,14 @@ const styles = makeStyles(theme => ({
     top: '50%',
     left: '50%'
   },
+  button: {
+    float: 'right'
+  },
 }))
 
 export default function AdminLessonDay(){
   const classes = styles()
-  const [today,] = React.useState(moment().toISOString(true))
+  const [today,] = React.useState(moment().hour(0).minute(0).toISOString(true))
   const [client,] = React.useState(useApolloClient())
   const [teachers, setTeachers] = React.useState([])
   const [columns,] = React.useState(
@@ -259,6 +265,140 @@ export default function AdminLessonDay(){
     setOpenDeleteDialog(false)
   }
 
+  const exportToXslx = async (from , to, weekly) => {
+    const workbook = new Excel.Workbook();
+    workbook.creator = 'Olmavita';
+    workbook.lastModifiedBy = 'Olmavita';
+    workbook.created = new Date();
+    workbook.modified = new Date();
+    workbook.lastPrinted = new Date();
+    if(weekly) {
+      const monday = workbook.addWorksheet('Lundi');
+      const tuesday = workbook.addWorksheet('Mardi');
+      const wednesday = workbook.addWorksheet('Mercredi');
+      const thursday = workbook.addWorksheet('Jeudi');
+      const friday = workbook.addWorksheet('Vendredi');
+      const saturday = workbook.addWorksheet('Samedi');
+      const sunday = workbook.addWorksheet('Dimanche');
+      const worksheets = [monday, tuesday, wednesday, thursday, friday, saturday, sunday];
+      workbook.worksheets.forEach(e => {
+        e.columns = [
+          { header: 'ID', key: 'id', width: 30 },
+          { header: 'Nom', key: 'name', width: 25 },
+          { header: 'Heure', key: 'hour', width: 15 },
+          { header: 'Professeur', key: 'teacher', width: 15 },
+          { header: 'Places disponibles abonnement', key: 'spotLeft', width: 25 },
+          { header: 'Places disponibles crédit', key: 'spotCanceled', width: 25 },
+          { header: 'Places totales', key: 'spotTotal', width: 10 },
+          { header: 'Présences', key: 'user', width: 25 },
+          { header: 'Emails', key: 'email', width: 40 }
+        ]
+      })
+
+      rows.forEach(e => {
+        var date = moment(e.lessonDay.dayDate)
+        if(date.isAfter(from) && date.isBefore(to)) {
+          var index = date.weekday()
+          if(date.weekday() === 0) {
+            index = 6
+          }
+          workbook.worksheets[index].addRow({
+            id: e.id,
+            name: e.name,
+            hour: e.hour,
+            teacher: e.teacher,
+            spotLeft:e.spotLeft,
+            spotCanceled: e.spotCanceled,
+            spotTotal: e.spotTotal,
+            user: '',
+            email: ''
+          })
+          e.lessonDay.users.forEach(user => {
+            workbook.worksheets[index].addRow({
+              id: '',
+              name: '',
+              hour: '',
+              teacher: '',
+              spotLeft: '',
+              spotCanceled: '',
+              spotTotal: '',
+              user: user.firstName+' '+user.lastName,
+              email: user.email
+            })
+          })
+          workbook.worksheets[index].addRow({
+            id: '',
+            name: '',
+            hour: '',
+            teacher: '',
+            spotLeft: '',
+            spotCanceled: '',
+            spotTotal: '',
+            user: '',
+            email: ''
+          })
+        }
+      })
+    }else{
+      workbook.addWorksheet(from.format('DD-MM-YYYY').toString());
+      workbook.worksheets[0].columns = [
+          { header: 'ID', key: 'id', width: 30 },
+          { header: 'Nom', key: 'name', width: 25 },
+          { header: 'Heure', key: 'hour', width: 15 },
+          { header: 'Professeur', key: 'teacher', width: 15 },
+          { header: 'Places disponibles abonnement', key: 'spotLeft', width: 25 },
+          { header: 'Places disponibles crédit', key: 'spotCanceled', width: 25 },
+          { header: 'Places totales', key: 'spotTotal', width: 10 },
+          { header: 'Présences', key: 'user', width: 25 },
+          { header: 'Emails', key: 'email', width: 40 }
+      ]
+      rows.forEach(e => {
+        var date = moment(e.lessonDay.dayDate)
+        if(date.isAfter(from) && date.isBefore(to)) {
+          workbook.worksheets[0].addRow({
+            id: e.id,
+            name: e.name,
+            hour: e.hour,
+            teacher: e.teacher,
+            spotLeft:e.spotLeft,
+            spotCanceled: e.spotCanceled,
+            spotTotal: e.spotTotal,
+            user: ''
+          })
+          e.lessonDay.users.forEach(user => {
+            workbook.worksheets[0].addRow({
+              id: '',
+              name: '',
+              hour: '',
+              teacher: '',
+              spotLeft: '',
+              spotCanceled: '',
+              spotTotal: '',
+              user: user.firstName+' '+user.lastName,
+              email: user.email
+            })
+          })
+          workbook.worksheets[0].addRow({
+            id: '',
+            name: '',
+            hour: '',
+            teacher: '',
+            spotLeft: '',
+            spotCanceled: '',
+            spotTotal: '',
+            user: '',
+            email: ''
+          })
+        }
+      })
+    }
+    //const file = await workbook.xlsx.writeFile('Aquadream_Présences.xlsx')
+    workbook.xlsx.writeBuffer()
+    .then(buffer => FileSaver.saveAs(new Blob([buffer]), `${moment().format('DD-MM-YYYY').toString()}_aquadream_presences.xlsx`))
+    .catch(err => console.log('Error writing excel export', err))
+    //window.open(file)
+  }
+
   const modifyLessonDay = () => {
     setDialogLoading(true)
     var lessonDay = selectedLessonDay
@@ -342,6 +482,8 @@ export default function AdminLessonDay(){
     })
   }
 
+  
+
     if(loading || dialogLoading) {
       return <CircularProgress size={150} className={classes.buttonProgress} />
     }
@@ -350,7 +492,11 @@ export default function AdminLessonDay(){
     }
     return(
       <div>
+        <Button className={classes.button} color="primary" disabled={loading} onClick={() => {exportToXslx(moment().day(1).hour(0).minute(0), moment().day(7).hour(21).minute(59), true)}}>Liste Hebdomadaire</Button>
+        <Button className={classes.button} color="primary" disabled={loading} onClick={() => {exportToXslx(moment().add(1, 'day').hour(0).minute(0), moment().add(1, 'day').hour(21).minute(59), false)}}>Liste Demain</Button>
+        <Button className={classes.button} color="primary" disabled={loading} onClick={() => {exportToXslx(moment().hour(0).minute(0), moment().hour(21).minute(59), false)}}>Liste Aujourd'hui</Button>
         <Container component="main" maxWidth="xl" className={classes.root}>
+        
         <CssBaseline />
         <MaterialTable
           title="Liste des cours quotidiens"
