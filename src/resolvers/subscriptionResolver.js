@@ -114,7 +114,6 @@ export default {
         }
         const validityBegin = moment(orderResume.recurenceBegin)
         const validityEnd = moment(orderResume.recurenceEnd)
-        console.log(validityEnd)
         const dataSubscription = {
           user: userl.id,
           lessons: lessonsID,
@@ -190,7 +189,7 @@ export default {
       }
    },
 
-    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel }}, info) => {
+    cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
       const session = await mongoose.startSession()
       const opts = { session }
       session.startTransaction()
@@ -217,7 +216,6 @@ export default {
         var user = await userModel.addDiscount(sub.user._id, graphqlDiscount._id, session)
         user = await userModel.removeSubscription(sub.user._id, sub._id, opts)
         //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
-        if(sub.subType === 'LESSON') {
           for(const lesson of sub.lessons){
             //LESSONMODEL.removeUser
             const dLesson = await lessonModel.removeUser(lesson._id, sub.user._id, opts)
@@ -225,9 +223,6 @@ export default {
               const dLessonDay = await lessonDayModel.removeUserIncreaseSpotLeft(lessonDay, sub.user._id, opts)
             }
           }
-        } else {
-          console.log('ELSE')
-        }
         //CANCEL SUBSCRIPTION
         const uSub = await subscriptionModel.findOneAndUpdate(
           { _id: sub._id },
@@ -279,7 +274,6 @@ export default {
         )
         console.log(mollieCanceledSubscription)
         //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
-        if(sub.subType === 'LESSON') {
           for(const lesson of sub.lessons){
             //LESSONMODEL.removeUser
             const dLesson = await lessonModel.removeUser(lesson._id, sub.user._id, opts)
@@ -287,9 +281,6 @@ export default {
               const dLessonDay = await lessonDayModel.removeUserIncreaseSpotLeft(lessonDay, sub.user._id, opts)
             }
           }
-        } else {
-          console.log('ELSE')
-        }
         //CANCEL SUBSCRIPTION
         const uSub = await subscriptionModel.findOneAndUpdate(
           { _id: sub._id },
@@ -319,13 +310,13 @@ export default {
     },
 
     user: async({ user }, args, { models: { userModel }}, info) => {
-      if(user === undefined) return null
+      if(user === undefined) return {}
       const object = await userModel.findById({ _id: user }).exec()
       return object
     },
 
     lessonsDay: async({ lessonsDay }, args, { models: { lessonDayModel }}, info) => {
-      if(lessonsDay === undefined) return null
+      if(lessonsDay === undefined) return {}
       var lessonsDayList = []
       lessonsDay.forEach(element => {
         var object = lessonDayModel.findById({ _id: element }).exec()
@@ -335,7 +326,7 @@ export default {
     },
 
     lessons: async({ lessons }, args, { models: { lessonModel }}, info) => {
-      if(lessons == undefined) return null
+      if(lessons == undefined) return {}
       var lessonsList = []
       lessons.forEach(element => {
         var object = lessonModel.findById({ _id: element }).exec()
