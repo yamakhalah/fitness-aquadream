@@ -82,7 +82,7 @@ export default function AdminSubscription() {
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
 
-  const { load, error, data } = useQuery(GET_SUBSCRIPTIONS, { fetchPolicy: 'network-only' })
+  const { load, error, data } = useQuery(GET_SUBSCRIPTIONS, { fetchPolicy: 'cache-and-network' })
 
   const initLessonsData = (data) => {
     setLessonsData(data.lessonsWaitingOrGoingFree)
