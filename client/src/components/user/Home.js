@@ -130,7 +130,7 @@ const Home = () => {
   }
 
   const canBeCanceled = () => {
-    if(moment(selectedLessonDay.dayDate).isBefore(moment())){
+    if(moment(selectedLessonDay.dayDate).isBefore(moment()) || moment().add(1, 'day').isAfter(moment(selectedLessonDay.dayDate))){
       return false
     }
     if(selectedLessonDay.isCanceled){

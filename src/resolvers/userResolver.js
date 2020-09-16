@@ -131,7 +131,6 @@ export default {
     resetPassword: async(parent, { email }, { models: { userModel }}, info) => {
       try {
         var user = await userModel.findOne({ email: new RegExp('^'+email+'$', "i") })
-        console.log(user)
         if(user === null) {
           return false
         }
