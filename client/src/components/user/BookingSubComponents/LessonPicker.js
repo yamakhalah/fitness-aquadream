@@ -166,6 +166,28 @@ const LessonPicker = ({ handleChangeCallback }) => {
   const initLessonPicker = (data) => {
     var lessonsDic = lessonsBySubType
     data.lessonsWaitingOrGoingFree.forEach(element => {
+      var today = moment()
+      var startDate = moment(element.recurenceBegin)
+      var reduction1X = 0
+      var reduction2X = 0
+      var reduction3X = 0
+      while(startDate.isSameOrBefore(today)) {
+        reduction1X += element.pricing.unitPrice
+        reduction2X += element.pricing.unitPrice2X
+        reduction3X += element.pricing.unitPrice3X
+        startDate.add(7, 'days')
+      }
+      var startDate = moment(element.recurenceBegin)
+      while(startDate.isSameOrBefore(today)){
+        startDate.add(1, 'months')
+        element.totalMonth--
+      }
+      element.pricing.totalPrice = Math.ceil(element.pricing.totalPrice-reduction1X)
+      element.pricing.totalPrice2X = Math.ceil(element.pricing.totalPrice2X-reduction2X)
+      element.pricing.totalPrice3X = Math.ceil(element.pricing.totalPrice3X-reduction3X)
+      element.pricing.monthlyPrice = Math.ceil(element.pricing.totalPrice/element.totalMonth)
+      element.pricing.monthlyPrice2X = Math.ceil(element.pricing.totalPrice/element.totalMonth2X)
+      element.pricing.monthlyPrice3X = Math.ceil(element.pricing.totalPrice/element.totalMonth3X)
       lessonsDic[element.lessonSubType.name].push(element)
     });
     setLessonsBySubType(lessonsDic)

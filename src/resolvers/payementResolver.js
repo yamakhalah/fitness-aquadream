@@ -151,6 +151,12 @@ export default {
           }
           discountsID.push(elem)
         }
+
+        var startDate = moment(orderResume.recurenceBegin)
+        var today = moment()
+        while(startDate.isSameOrBefore(today)) {
+          startDate.add(1, 'months')
+        }
         const molliePayment = await mollieClient.payments.create({
           amount: {
             currency: 'EUR',
@@ -166,7 +172,7 @@ export default {
             subDuration: orderResume.subDuration,
             totalMonthly: orderResume.totalMonthly,
             total: orderResume.total,
-            startDate: '2020-10-01',
+            startDate: startDate.format('YYYY-MM-DD'),
             endDate: moment(orderResume.recurenceEnd).format('YYYY-MM-DD'),
             lessons: lessonsID,
             discounts: discountsID,
