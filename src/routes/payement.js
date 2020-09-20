@@ -137,9 +137,13 @@ const createSubscription = async (payment) => {
       const graphqlPayement = await payementModel.create(dataPayment, opts)
       //SET SUBSCRIPTION
       var lessonsID = []
+      var validityBegin = null
       for(const lesson of payment.metadata.lessons){
         lessonsID.push(lesson.lessonID)
         var graphqlLesson = await lessonModel.addUser(lesson.lessonID, payment.metadata.userID, opts)
+        if(validityBegin === null || moment(graphqlLesson.recurenceBegin).isBefore(validityBegin)){
+          validityBegin = moment(graphqlLesson.recurenceBegin, 'YYYY-MM-DD')
+        }
         for(const lessonDay of graphqlLesson.lessonsDay) {
           var graphqlLessonDay = await lessonDayModel.addUserDecreaseSpotLeft(lessonDay, payment.metadata.userID, opts)
         }
@@ -150,7 +154,6 @@ const createSubscription = async (payment) => {
           { status: 'USED' }
         ).session(session)
       }
-      const validityBegin = moment(payment.metadata.startDate, 'YYYY-MM-DD')
       const validityEnd = moment(payment.metadata.endDate, 'YYYY-MM-DD')
       const dataSubscription = {
         payement: graphqlPayement.id,
