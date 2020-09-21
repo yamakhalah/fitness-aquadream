@@ -684,6 +684,20 @@ export default function AdminLessonDay(){
                     </Typography>
                   </Grid>
                 ))}
+                <Typography component="h6" variant="h6">
+                  Liste des absents
+                </Typography>
+                {selectedLessonDay.lesson.users.map((user, index) => (
+                  <React.Fragment>
+                  {selectedLessonDay.users.map((x) => {return x.id}).indexOf(user.id) === -1 && (
+                    <Grid item xs={12} md={12} key={user.id+' '+selectedLessonDay.lesson.id}>
+                      <Typography>
+                        {user.firstName} {user.lastName}
+                      </Typography>
+                    </Grid>
+                  )}
+                  </React.Fragment>
+                ))}
               </Grid>
             </DialogContent>
             <DialogActions>

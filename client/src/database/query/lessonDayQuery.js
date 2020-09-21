@@ -7,6 +7,11 @@ export const GET_LESSONS_DAY_FROM_TODAY = gql`
       lesson{
         id
         name
+        users{
+          id
+          firstName
+          lastName
+        }
       }
       teacher{
         id

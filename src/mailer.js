@@ -226,16 +226,15 @@ export function sendMail(from, to, subject, html) {
     if(error) {
       console.log(error)
       return false
-    }else{
-      console.log('OK MAIL')
+    }else if(response){
       return true
     }
-    transport.close()
   })
 }
 
 export function sendMultipleMail(from, to, subject, html) {
-  to.forEach(element => {
+  var result = true
+  for(const element of to) {
     var content = {
       from: from,
       to: element.email,
@@ -246,10 +245,9 @@ export function sendMultipleMail(from, to, subject, html) {
     transport.sendMail(content, (error, response) => {
       if(error) {
         console.log(error)
-        return false
+        result = false
       }
-      transport.close()
     })
-  });
-
+  }
+  return result
 }
