@@ -107,7 +107,7 @@ export default function AdminCredit(props) {
         var lRows = []
         for(const credit of newData.creditsValidity){
           lRows.push({
-            user: credit.user.firstName,
+            user: credit.user.firstName+' '+credit.user.lastName,
             type: credit.lessonDay.lesson.lessonType.simpleName,
             subType: credit.lessonDay.lesson.lessonSubType.simpleName,
             isUsed: credit.isUsed ? 'Oui' : 'Non',
