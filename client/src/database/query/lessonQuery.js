@@ -214,6 +214,9 @@ export const GET_LESSONS_WAITING_OR_GOING_FULL = gql`
       id
       users{
         id
+        email
+        firstName
+        lastName
       }
       lessonType{
         id

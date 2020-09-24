@@ -64,6 +64,19 @@ export default {
       }
     },
 
+    sendMultiEmail: async (parent, { users, message }, { models: { userModel }}, info) => {
+      try{
+        const userList = await userModel.find({_id: { $in: users }}).exec()
+        for(const user of userList) {
+          var email = await sendMail(FROM, user.email, 'Aquadream - Message de l\'équipe', ADMIN_MAIL(message))
+        }
+        return true
+      }catch(error) {
+        console.log(error)
+        return false
+      }
+    },
+
     sendSupportEmail: async (parent, { user, message }, { models: { userModel }}, info) => {
       try{
         const graphqlUser = await userModel.findById(user).exec()

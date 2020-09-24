@@ -5,15 +5,18 @@ import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
 import { FormControl, InputLabel, Select, MenuItem, TextField, TablePagination, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
-import { MeetingRoom, ExpandMore, Edit, Delete, Info } from '@material-ui/icons'
+import { Email, MeetingRoom, ExpandMore, Edit, Delete, Info, CollectionsBookmarkRounded } from '@material-ui/icons'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import MaterialTable from 'material-table'
+import Excel from 'exceljs'
 import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS } from '../../database/query/lessonQuery'
 import { OPEN_LESSON, UPDATE_LESSON, CANCEL_LESSON, DELETE_LESSON } from '../../database/mutation/lessonMutation'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
+import { SEND_MULTI_EMAIL } from '../../database/query/userQuery'
 import { dateToDayString } from '../../utils/dateTimeConverter'
 import DateFnsUtils from '@date-io/date-fns'
 import frLocale from "date-fns/locale/fr";
+import FileSaver from 'file-saver'
 import moment from 'moment-timezone'
 
 moment.locale('fr')
@@ -74,7 +77,10 @@ const styles = theme => ({
   },
   bold: {
     fontWeight: 'bold'
-  }
+  },
+  button: {
+    float: 'right'
+  },
 })
 
 class AdminLesson extends React.Component {
@@ -100,6 +106,8 @@ class AdminLesson extends React.Component {
       openInfosDialog: false,
       editLessonDialog: false,
       deleteLessonDialog: false,
+      openMessageDialog: false,
+      message: '',
       loading: true,
       selectedLesson:  null,
       selectedIndex: null,
@@ -156,6 +164,79 @@ class AdminLesson extends React.Component {
       this.showSnackMessage('Erreur durant le chargement des professeurs', 'error')
     })
     
+  }
+
+  exportToXslx = async () => {
+    const workbook = new Excel.Workbook();
+    workbook.creator = 'Olmavita';
+    workbook.lastModifiedBy = 'Olmavita';
+    workbook.created = new Date();
+    workbook.modified = new Date();
+    workbook.lastPrinted = new Date();
+    const monday = workbook.addWorksheet('Lundi');
+    const tuesday = workbook.addWorksheet('Mardi');
+    const wednesday = workbook.addWorksheet('Mercredi');
+    const thursday = workbook.addWorksheet('Jeudi');
+    const friday = workbook.addWorksheet('Vendredi');
+    const saturday = workbook.addWorksheet('Samedi');
+    const sunday = workbook.addWorksheet('Dimanche');
+    const worksheets = [monday, tuesday, wednesday, thursday, friday, saturday, sunday];
+    workbook.worksheets.forEach(e => {
+      e.columns = [
+        { header: 'ID', key: 'id', width: 30 },
+        { header: 'Nom', key: 'name', width: 25 },
+        { header: 'Heure', key: 'hour', width: 15 },
+        { header: 'Professeur', key: 'teacher', width: 15 },
+        { header: 'Places disponibles', key: 'spotLeft', width: 25 },
+        { header: 'Places totales', key: 'spotTotal', width: 10 },
+        { header: 'Abonnés', key: 'user', width: 25 },
+        { header: 'Emails', key: 'email', width: 40 }
+      ]
+    })
+
+    this.state.rows.forEach(e => {
+      var date = moment(e.lesson.recurenceBegin)
+      var index = date.weekday()
+      console.log(e.lesson.recurenceBegin)
+      console.log(index)
+      workbook.worksheets[index].addRow({
+        id: e.lesson.id,
+        name: e.name,
+        hour: e.hour,
+        teacher: e.teacher,
+        spotLeft:e.spotLeft,
+        spotTotal: e.spotTotal,
+        user: '',
+        email: ''
+      })
+      e.lesson.users.forEach(user => {
+        workbook.worksheets[index].addRow({
+          id: '',
+          name: '',
+          hour: '',
+          teacher: '',
+          spotLeft: '',
+          spotTotal: '',
+          user: user.firstName+' '+user.lastName,
+          email: user.email
+        })
+      })
+      workbook.worksheets[index].addRow({
+        id: '',
+        name: '',
+        hour: '',
+        teacher: '',
+        spotLeft: '',
+        spotTotal: '',
+        user: '',
+        email: ''
+      })
+    })
+    //const file = await workbook.xlsx.writeFile('Aquadream_Présences.xlsx')
+    workbook.xlsx.writeBuffer()
+    .then(buffer => FileSaver.saveAs(new Blob([buffer]), `${moment().format('DD-MM-YYYY').toString()}_aquadream_cours.xlsx`))
+    .catch(err => console.log('Error writing excel export', err))
+    //window.open(file)
   }
 
   handleOpenLessonDialog = (lesson, index) => {
@@ -263,6 +344,21 @@ class AdminLesson extends React.Component {
     })
   }
 
+  handleEmailDialog = (lesson) => {
+    if(this.state.openMessageDialog) {
+      this.setState({ 
+        openMessageDialog: false,
+        loading: true
+      })
+      this.sendEmail()
+    }else{
+      this.setState({ 
+        openMessageDialog: true,
+        selectedLesson: lesson 
+      })
+    }
+  }
+
   handleChangePage = (event, newPage) => {
     this.setState({
       page: newPage
@@ -337,8 +433,36 @@ class AdminLesson extends React.Component {
     }
   }
 
+  sendEmail = () => {
+    this.setState({ 
+      loading: true
+    })
+    var users = []
+    for(const user of this.state.selectedLesson.users) {
+      users.push(user.id)
+    }
+    this.props.client.query({
+      query: SEND_MULTI_EMAIL,
+      variables: {
+        users: users,
+        message: this.state.message
+      }
+    })
+    .then(result => {
+      this.setState({
+        loading: false
+      })
+      this.showSnackMessage('Les emails ont été envoyés', 'success')
+    })
+    .catch(error => {
+      this.setState({
+        loading: false
+      })
+      this.showSnackMessage('Erreur lors de l\'envoi des emails', 'error')
+    })
+  }
+
   deleteLesson = () => {
-    this.setState({ loading: true })
     this.props.client.mutate({
       mutation: DELETE_LESSON,
       variables: {
@@ -370,6 +494,7 @@ class AdminLesson extends React.Component {
     const { classes } = this.props
     return(
       <div>
+      <Button className={classes.button} color="primary" disabled={this.state.loading} onClick={() => {this.exportToXslx()}}>Liste des cours</Button>
       {this.state.loading ? (<CircularProgress size={150} className={classes.buttonProgress} />):( 
       <Container component="main" maxWidth="xl" className={classes.root}>
         <CssBaseline />
@@ -399,6 +524,11 @@ class AdminLesson extends React.Component {
               icon: () => <Info />,
               tooltip: 'Informations',
               onClick: (event, rowData) => this.handleInfosDialog(rowData.lesson)
+            },
+            {
+              icon: () => <Email />,
+              tooltip: 'Envoyer un email',
+              onClick: (event, rowData) => this.handleEmailDialog(rowData.lesson)
             }
           ]}
           options={{
@@ -839,6 +969,32 @@ class AdminLesson extends React.Component {
           <Button onClick={this.handleButtonConfirm.bind(this)} color="primary" disabled={this.state.loading}>
             Confirmer           
           </Button>  
+        </DialogActions>
+      </Dialog>
+      <Dialog open={this.state.openMessageDialog} fullWidth={true} maxWidth='md'>
+        <DialogTitle>Envoyer un message</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Ce message sera envoyé à tous les abonnés à ce cours</DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="message"
+            label="Message"
+            type="text"
+            multiline
+            rows={5}
+            fullWidth
+            value={this.state.message}
+            onChange={ event =>  {this.setState({ message: event.target.value })}}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {this.setState({ openEmail: false })}} color="default" disabled={this.state.loading}>
+            Annuler           
+          </Button>
+          <Button onClick={() => this.handleEmailDialog(null)} color="primary" disabled={this.state.loading}>
+            Confirmer           
+          </Button> 
         </DialogActions>
       </Dialog>
       <Snackbar

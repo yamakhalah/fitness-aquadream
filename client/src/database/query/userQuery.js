@@ -109,6 +109,12 @@ export const SEND_GLOBAL_EMAIL = gql`
   }
 `
 
+export const SEND_MULTI_EMAIL = gql`
+  query sendMultiEmail($users: [ID!], $message: String!) {
+    sendMultiEmail(users: $users, message: $message)
+  }
+`
+
 export const SEND_SUPPORT_EMAIL = gql`
   query sendSupportEmail($user: ID!, $message: String!) {
     sendSupportEmail(user: $user, message: $message)
