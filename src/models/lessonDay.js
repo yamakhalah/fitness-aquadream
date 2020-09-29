@@ -1,4 +1,5 @@
 const { LESSON_DAY, LESSON, TEACHER, USER } = require('./dbName')
+const { ApolloError } = require('apollo-server')
 
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
@@ -111,6 +112,7 @@ LessonDaySchema.statics.addUserDecreaseSpotCanceled = function(id, user) {
 LessonDaySchema.statics.removeUserIncreaseSpotCanceled = function(id, user, opts) {
   return LessonDay.findById(id).then(lesson => {
     var index = lesson.users.indexOf(user)
+    if(index === -1) throw new ApolloError('Index = -1')
     lesson.users.splice(index, 1)
     return LessonDay.findOneAndUpdate(
       {_id: lesson._id },
