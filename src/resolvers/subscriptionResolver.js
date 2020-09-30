@@ -189,6 +189,43 @@ export default {
       }
    },
 
+   cancelSubscriptionNoCompensation: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
+    const session = await mongoose.startSession()
+    const opts = { session }
+    session.startTransaction()
+    try{
+      //GET SUBSCRIPTION && PAYMENT DATA
+      const sub = await subscriptionModel.findById(id).populate([{ path: 'payement', model: payementModel }, { path: 'lessonsDay', model: lessonDayModel }, { path: 'lessons', model: lessonModel }, { path: 'user', model: userModel } ])
+      user = await userModel.removeSubscription(sub.user._id, sub._id, opts)
+      //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
+        for(const lesson of sub.lessons){
+          //LESSONMODEL.removeUser
+          const dLesson = await lessonModel.removeUser(lesson._id, sub.user._id, opts)
+          for(const lessonDay of lesson.lessonsDay) {
+            const dLessonDay = await lessonDayModel.removeUserIncreaseSpotLeft(lessonDay, sub.user._id, opts)
+          }
+        }
+      //CANCEL SUBSCRIPTION
+      const uSub = await subscriptionModel.findOneAndUpdate(
+        { _id: sub._id },
+        { subStatus: 'CANCELED_BY_ADMIN'},
+        { new: true }
+      ).session(session)
+      const newMollieSub = await mollieClient.customers_subscriptions.cancel(
+        sub.payement.mollieSubscriptionID,
+        { customerId: sub.payement.mollieCustomerID, }
+      )
+      await session.commitTransaction()
+      session.endSession()
+      return true
+    }catch(error) {
+      console.log(error)
+      await session.abortTransaction()
+      session.endSession()
+      return false
+    }
+  },
+
     cancelSubscriptionWithDiscount: async(parent, { id }, { models: { userModel, subscriptionModel,  payementModel, lessonModel, lessonDayModel, discountModel }}, info) => {
       const session = await mongoose.startSession()
       const opts = { session }
