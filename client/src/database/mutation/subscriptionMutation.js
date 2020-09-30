@@ -18,6 +18,12 @@ export const CANCEL_SUBSCRIPTION_REFUND = gql`
   }
 `
 
+export const CANCEL_SUBSCRIPTION_NO_COMPENSATION = gql`
+  mutation cancelSubscriptionNoCompensation($id: ID!){
+    cancelSubscriptionNoCompensation(id: $id)
+  }
+`
+
 export const PRE_CANCEL_SUBSCRIPTION =gql`
   mutation preCancelSubscription($id: ID!){
     preCancelSubscription(id: $id)

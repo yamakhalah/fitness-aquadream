@@ -57,7 +57,7 @@ export default {
 
     useCredit: async(parent, { creditID, lessonDayID, userID }, { models: { creditModel }}, info) => {
       var lessonDay = await lessonDayModel.findById({ _id: lessonDayID})
-      if(lessonDay === null || lessonDay.spotCanceled < 0) {
+      if(lessonDay === null || lessonDay.spotCanceled <= 0) {
         throw new ApolloError('There is no more spot available')
       }
       lessonDay = await lessonDayModel.addUserDecreaseSpotCanceled(lessonDayID, userID)

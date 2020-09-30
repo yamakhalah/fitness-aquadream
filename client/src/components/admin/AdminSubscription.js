@@ -247,9 +247,34 @@ export default function AdminSubscription() {
         setLoading(false)
         setOpenDeleteDialog(false)
       })
-    }else{
+    }else if('refund'){
       client.mutate({
         mutation: CANCEL_SUBSCRIPTION_REFUND,
+        variables: {
+          id: selectedSubscriptionData.subscription.id
+        },
+        refetchQueries: [{
+          query: GET_SUBSCRIPTIONS
+        }]
+      })
+      .then(result => {
+        if(result.data.cancelSubscriptionWithRefund) {
+          showSnackMessage('L\'abonnement a bien été annulé', 'success')
+        }else{
+          showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+        }
+        setLoading(false)
+        setOpenDeleteDialog(false)
+      })
+      .catch(error => {
+        console.log(error)
+        showSnackMessage('Une erreur s\'est produite durant l\'annulation', 'error')
+        setLoading(false)
+        setOpenDeleteDialog(false)
+      })
+    }else{
+      client.mutate({
+        mutation: CANCEL_SUBSCRIPTION_NO_COMPENSATION,
         variables: {
           id: selectedSubscriptionData.subscription.id
         },
@@ -414,6 +439,7 @@ export default function AdminSubscription() {
             <RadioGroup aria-label="gender" name="gender1" value={refundType} onChange={ event => {setRefundType(event.target.value)}}>
               <FormControlLabel value="discount" control={<Radio />} label="Générer un bon d'achat" />
               <FormControlLabel value="refund" control={<Radio />} label="Générer un paiement direct" />
+              <FormControlLabel value="nothing" control={<Radio />} label="Sans compensation" />
             </RadioGroup>
           </FormControl>
         </DialogContent>
