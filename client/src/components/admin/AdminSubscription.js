@@ -10,7 +10,7 @@ import MaterialTable from 'material-table'
 import { GET_SUBSCRIPTIONS } from '../../database/query/subscriptionQuery'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../database/query/lessonQuery'
-import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT, CANCEL_SUBSCRIPTION_REFUND, PRE_CANCEL_SUBSCRIPTION } from '../../database/mutation/subscriptionMutation'
+import { CHANGE_LESSON, CANCEL_SUBSCRIPTION_DISCOUNT, CANCEL_SUBSCRIPTION_REFUND,CANCEL_SUBSCRIPTION_NO_COMPENSATION, PRE_CANCEL_SUBSCRIPTION } from '../../database/mutation/subscriptionMutation'
 import moment from 'moment-timezone'
 
 moment.locale('fr')
