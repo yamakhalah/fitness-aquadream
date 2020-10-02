@@ -34,7 +34,7 @@ export default {
         isCanceled: false,
         spotCanceled: { $gte: 1 },
         dayDate: { $gte: today },
-      })
+      }).sort({ dayDate: 1 })
       return lessonsDay
     },
 

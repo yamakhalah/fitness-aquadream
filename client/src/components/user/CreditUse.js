@@ -1,5 +1,6 @@
 import React from 'react'
 import Snackbar from '@material-ui/core/Snackbar'
+import Loader from '../global/Loader'
 import { Container, Button, Typography, CssBaseline, Table, TableHead, TableCell, Tooltip, IconButton, TableRow, TableBody, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import { withStyles } from '@material-ui/core/styles';
@@ -70,6 +71,13 @@ const styles = theme => ({
 
   maxWidth: {
     width: '100%'
+  },
+  
+  loader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '80vh'
   }
 })
 
@@ -84,6 +92,7 @@ class Credit extends React.Component {
       errorMessage: '',
       openSnack: false,
       openConfirmDialog: false,
+      loading: true
     }
   }
 
@@ -101,7 +110,8 @@ class Credit extends React.Component {
       });
 
       this.setState({
-        lessonsDay: lessonsDay
+        lessonsDay: lessonsDay,
+        loading: false
       })
     })
     .catch(error => {
@@ -168,6 +178,13 @@ class Credit extends React.Component {
 
   render() {
     const { classes } = this.props
+
+    if (this.state.loading) return (
+      <div className={classes.loader}>
+        <Loader />
+      </div>
+    )
+
     return(
       <div className={classes.root}>
       <Container component="main" maxWidth="xl">

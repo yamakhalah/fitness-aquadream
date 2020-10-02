@@ -93,6 +93,7 @@ LessonDaySchema.statics.removeUserIncreaseSpotLeft = function(id, user, opts) {
   return LessonDay.findById(id).then(lesson => {
     var index = lesson.users.indexOf(user)
     lesson.users.splice(index, 1)
+    if(index === -1) throw new ApolloError('Index = -1')
     return LessonDay.findOneAndUpdate(
       {_id: lesson.id },
       { users: lesson.users, $inc: { spotLeft: 1 }},

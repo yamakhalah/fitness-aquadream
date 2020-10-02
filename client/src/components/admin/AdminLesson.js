@@ -197,8 +197,6 @@ class AdminLesson extends React.Component {
     this.state.rows.forEach(e => {
       var date = moment(e.lesson.recurenceBegin)
       var index = date.weekday()
-      console.log(e.lesson.recurenceBegin)
-      console.log(index)
       workbook.worksheets[index].addRow({
         id: e.lesson.id,
         name: e.name,

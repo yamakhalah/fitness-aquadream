@@ -112,7 +112,6 @@ export default {
       }
       await session.commitTransaction()
       session.endSession()
-      console.log(newLesson)
       return newLesson
       }catch(error){
         console.log(error)
@@ -270,11 +269,11 @@ export default {
 
     users: async ({ users }, args, { models: { userModel }}, info) => {
       if(users === undefined) return null
-      var usersList = await userModel.find({
-        _id: {
-          $in: users.map((o) => { return mongoose.Types.ObjectId(o)})
-        }
-      }) 
+      var usersList = []
+      for(const user of users) {
+        var object = await userModel.findById({ _id: user}).exec()
+        usersList.push(object)
+      }
       return usersList
     },
 

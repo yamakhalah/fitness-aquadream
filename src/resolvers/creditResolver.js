@@ -66,7 +66,7 @@ export default {
       if(lessonDay === null || credit === null || user == null) {
         throw new ApolloError('Error during use of credit')
       }
-      var mail = await sendMail(FROM, user.email, 'Aquadream - Vous avez annulé un cours', USE_CREDIT(user, lessonDay))
+      var mail = await sendMail(FROM, user.email, 'Aquadream - Vous avez utilisé un crédit', USE_CREDIT(user, lessonDay))
       return credit
     }
   },
