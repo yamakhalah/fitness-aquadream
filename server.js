@@ -11,7 +11,7 @@ const { makeExecutableSchema } = require('graphql-tools')
 import cors from 'cors'
 import cronManager from './src/cronManager'
 import { SESSION_EXPIRED } from './src/error'
-import { checkout, subscription } from './src/routes/payement'
+import { checkout, subscription, paymentReminderCheckout } from './src/routes/payement'
 import schemas from './src/schemas'
 import resolvers from './src/resolvers'
 import userModel from './src/models/user'
@@ -26,6 +26,7 @@ import errorLogModel from './src/models/errorLog'
 import noShowDateModel from './src/models/noShowDate'
 import lessonTypeModel from './src/models/lessonType'
 import lessonSubTypeModel from './src/models/lessonSubType'
+import paymentReminderModel from './src/models/paymentReminder'
 require('dotenv').config()
 
 mongoose.connect(process.env.DATABASE, {
@@ -112,6 +113,7 @@ const server = new ApolloServer({
           subscriptionModel,
           errorLogModel,
           noShowDateModel,
+          paymentReminderModel,
         }
       }
     }
@@ -130,6 +132,7 @@ if(process.env.NODE_ENV === "production") {
 
   app.post('/booking/subscription', subscription)
   app.post('/booking/checkout', checkout)
+  app.post('/booking/paymentReminderCheckout', paymentReminderCheckout)
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
@@ -139,6 +142,7 @@ if(process.env.NODE_ENV === "production") {
 
   app.post('/booking/subscription', subscription)
   app.post('/booking/checkout', checkout)
+  app.post('/booking/paymentReminderCheckout', paymentReminderCheckout)
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
@@ -149,7 +153,7 @@ app.listen({ port: process.env.PORT }, () => {
   console.log(`🚀 Server ready on port ${process.env.PORT}`)
 })
 
-process.on('SIGINT', function() {
+process.on('SIGINT', function()  {
   console.log('Shutting Down From SIGINT')
   kill(process.env.PORT, 'tcp').then(process.exit(1)).error(console.log)
 })

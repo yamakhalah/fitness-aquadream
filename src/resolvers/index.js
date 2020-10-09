@@ -10,5 +10,6 @@ import lessonSubTypeResolver from './lessonSubTypeResolver'
 import subscriptionResolver from './subscriptionResolver'
 import errorLogResolver from './errorLogResolver'
 import noShowDateResolver from './noShowDateResolver'
+import paymentReminderResolver from './paymentReminderResolver'
 
-export default [lessonTypeResolver, lessonSubTypeResolver, userResolver, discountResolver, payementResolver, teacherResolver, lessonDayResolver, lessonResolver, creditResolver, subscriptionResolver, errorLogResolver, noShowDateResolver]
+export default [paymentReminderResolver, lessonTypeResolver, lessonSubTypeResolver, userResolver, discountResolver, payementResolver, teacherResolver, lessonDayResolver, lessonResolver, creditResolver, subscriptionResolver, errorLogResolver, noShowDateResolver]

@@ -11,6 +11,7 @@ import subscriptionSchema from './subscriptionSchema'
 import teacherSchema from './teacherSchema'
 import errorLogSchema from './errorLogSchema'
 import noShowDateSchema from './noShowDateSchema'
+import paymentReminderSchema from './paymentReminderSchema'
 import { gql } from 'apollo-server'
 
 const linkSchema = gql`
@@ -22,4 +23,4 @@ const linkSchema = gql`
   }
 `
 
-export default [lessonTypeSchema, lessonSubTypeSchema, linkSchema, userSchema, creditSchema, defaultSchema, discountSchema, lessonDaySchema, lessonSchema, payementSchema, subscriptionSchema, teacherSchema, errorLogSchema, noShowDateSchema]
+export default [paymentReminderSchema, lessonTypeSchema, lessonSubTypeSchema, linkSchema, userSchema, creditSchema, defaultSchema, discountSchema, lessonDaySchema, lessonSchema, payementSchema, subscriptionSchema, teacherSchema, errorLogSchema, noShowDateSchema]

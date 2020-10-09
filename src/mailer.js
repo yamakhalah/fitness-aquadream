@@ -120,6 +120,19 @@ export function OPEN_LESSON(user, lesson) {
   '<em>PS: Ne répondez pas à ce message</em>'
 }
 
+export function PAYMENT_REMINDER(user, paymentReminder, paymentReminderURL) {
+  return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
+  '<p>Nous vous contactons car nous n\'avons pas réussi à vous débiter la dernière mensualité de votre abonnement.</p>'+
+  '<p>Nous sommes certains qu\'il s\'agit d\'une erreur, c\'est pourquoi nous vous demandons de payer cette mensualité le plus rapidement possible. Dans le cas où vous ne payez pas cette mensualité, votre abonnement sera malheureusement annulé</p>'+
+  '<p>Par mesure de prévention, il vous est impossible d\'afficher les cours concernés sur le calendrier de notre application et donc d\'annuler ceux-ci. Vos cours seront à nouveau affichés dès que vous serez en ordre de paiement.</p>'+
+  '<p>Montant: '+paymentReminder.amount+'€</p>'+
+  '<p>Lien de paiement: '+paymentReminderURL+'</p>'+
+  '<p>Cordialement,</p>'+
+  '<p>L\'équipe Aquadream</p>'+
+  '</br></br>'+
+  '<em>PS: Ne répondez pas à ce message</em>'
+}
+
 export function CONFIRM_SUBSCRIPTION(user) {
   return '<p>Bonjour '+user.firstName+' '+user.lastName+'</p>'+
   '<p> Nous vous informons que votre paiement a été accepté et que votre abonnement a été crée </p>'+

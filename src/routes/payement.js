@@ -1,10 +1,11 @@
 require('dotenv').config()
 import { createMollieClient } from '@mollie/api-client'
-import { sendMail, FROM, CONFIRM_SUBSCRIPTION } from '../mailer'
+import { sendMail, FROM, CONFIRM_SUBSCRIPTION, PAYMENT_REMINDER } from '../mailer'
 import mongoose from 'mongoose'
 import discountModel from '../models/discount'
 import payementModel from '../models/payement'
 import subscriptionModel from '../models/subscription'
+import paymentReminderModel from '../models/paymentReminder'
 import userModel from '../models/user.js'
 import lessonModel from '../models/lesson'
 import lessonDayModel from '../models/lessonDay'
@@ -34,7 +35,7 @@ const confirmAdminSubscription = async (payment) => {
         startDate: payment.metadata.startDate,
         //interval: '1 day',
         //startDate: moment().format('YYYY-MM-DD'),
-        description: payment.id,
+        description: 'Aquadream abonnement - '+payment.id,
         mandateId: payment.mandateId,
         webhookUrl: process.env.MOLLIE_WEBHOOK_SUBSCRIPTION_URL
       })
@@ -115,7 +116,7 @@ const createSubscription = async (payment) => {
         startDate: payment.metadata.startDate,
         //interval: '1 day',
         //startDate: moment().format('YYYY-MM-DD'),
-        description: payment.id,
+        description: 'Aquadream abonnement - '+payment.id,
         mandateId: payment.mandateId,
         webhookUrl: process.env.MOLLIE_WEBHOOK_SUBSCRIPTION_URL
       })
@@ -131,7 +132,7 @@ const createSubscription = async (payment) => {
         molliePaymentID: payment.id,
         mollieMandateID: mandate.id,
         mollieMandateStatus: mandate.status,
-        reference: payment.metadata.reference
+        reference: payment.metadata.reference,
       }
       //ADD PAYEMENT TO DB
       const graphqlPayement = await payementModel.create(dataPayment, opts)
@@ -170,7 +171,7 @@ const createSubscription = async (payment) => {
 
       const graphqlSubscription = await subscriptionModel.createWithLessons(dataSubscription, opts)
       const updatedGraphqlPayement = await payementModel.findOneAndUpdate(
-        { id: graphqlPayement.id },
+        { _id: graphqlPayement.id },
         { subscription: graphqlSubscription.id },
         { new: true }
       ).session(session)
@@ -229,9 +230,112 @@ export async function checkout(req, res, next){
   }
 }
 
+export async function paymentReminderCheckout(req, res, next) {
+  console.log('PAYMENT REMINDER WEBHOOK')
+  const session = await mongoose.startSession()
+  session.startTransaction()
+  const paymentID = req.body.id
+  const payment = await mollieClient.payments.get(paymentID)
+  if(payment.status === 'paid') {
+    var paymentReminder =  await paymentReminderModel.findById(payment.metadata.paymentReminderID)
+    const graphqlPayement = await payementModel.findOne({
+      mollieCustomerID: payment.customerId,
+      subscription: paymentReminder.subscription
+    })
+    var mollieSubscription = await mollieClient.customers_subscriptions.get(
+      graphqlPayement.mollieSubscriptionID,
+      { customerId: graphqlPayement.mollieCustomerID }
+    )
+    try{
+      //RESOLVE PAYMENT REMINDER
+      paymentReminder = await paymentReminderModel.updatePaymentReminder(paymentReminder.id, {resolved: true}, session)
+      //CHANGE SUBSCRIPTION STATUS
+      const graphqlSubscription = await subscriptionModel.findOneAndUpdate(
+        { _id: paymentReminder.subscription },
+        { subStatus: 'ON_GOING' },
+        { new: true }
+      ).session(session)
+      //DECREASE MOLLIE SUBSCRIPTION COUNTER
+      mollieSubscription = await mollieClient.customers_subscriptions.update(
+        graphqlPayement.mollieSubscriptionID,
+        { 
+          customerId: graphqlPayement.mollieCustomerID ,
+          times: mollieSubscription.times-1
+        }
+      )
+      await session.commitTransaction()
+      session.endSession()
+      res.sendStatus(200)
+      return
+    }catch(error){
+      console.log('CATCH ERROR')
+      console.log(error)
+      await session.abortTransaction()
+      session.endSession()
+      /*
+      mollieSubscription = mollieClient.customers_subscriptions.update(
+        graphqlPayement.mollieSubscriptionID,
+        { 
+          customerId: graphqlPayement.mollieCustomerID ,
+          times: mollieSubscription.times+1
+        }
+      )
+      */
+      res.sendStatus(469)
+      return
+    }
+  }
+  res.sendStatus(200)
+}
+
 export async function subscription(req, res, next){
   console.log('SUBSCRIPTION  WEBHOOK')
+  const paymentID = req.body.id
+  const payment = await mollieClient.payments.get(paymentID)
+  console.log(payment)
+  if(payment.status === 'failed' || payment.details.bankReasonCode) {
+    const session = await mongoose.startSession()
+    session.startTransaction()
+    try{
+      var subscriptionID = payment.subscriptionId
+      var customerID = payment.customerId
+      var amount = Number(payment.amount.value)
+      var dueDate = moment(payment.createdAt).toISOString(true)
+      var limitDate = moment(payment.createdAt).add(2, 'week').toISOString(true)
+      var graphqlUser = await userModel.findOne({
+        mollieCustomerID: customerID
+      })
+
+      var graphqlPayement = await payementModel.findOne({
+        mollieCustomerID: customerID,
+        mollieSubscriptionID: subscriptionID
+      })
+      //CREER UN PaymentReminder
+      var paymentReminder = await paymentReminderModel.create({
+        user: graphqlUser.id,
+        subscription: graphqlPayement.subscription,
+        amount: amount,
+        dueDate: dueDate,
+        limitDate: limitDate
+      }, session)
+      //create URL
+      const paymentReminderURL = process.env.MOLLIE_PAYMENT_REMINDER_URL+'/'+paymentReminder.id
+      //METTRE LA SUBSCRIPTION EN PENDING
+      var graphqlSubscription = await subscriptionModel.updateSubscription(graphqlPayement.subscription, { subStatus: 'PAYMENT_REMINDER' }, session)
+      //Envoyer un email au client l'invitant à payer
+      var email = await sendMail(FROM, graphqlUser.email, 'URGENT: Aquadream - Echec du paiement de votre abonnement', PAYMENT_REMINDER(graphqlUser, paymentReminder, paymentReminderURL))
+      await session.commitTransaction()
+      session.endSession()
+      res.sendStatus(200)
+      return
+    }catch(error) {
+      console.log(error)
+      await session.abortTransaction()
+      session.endSession()
+      res.sendStatus(469)
+      return
+    }
+  }
   //SEND PAYMENT ID everytime a payment is made. Check subsciptionID in payment
-  console.log(req)
   res.sendStatus(200)
 }

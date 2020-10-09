@@ -40,8 +40,8 @@ SubscriptionSchema.statics.createWithLessonsDay = function(data){
   return subscription.save()
 },
 
-SubscriptionSchema.statics.updateSubscription = function(id, subscription) {
-  return this.findOneAndUpdate({'_id': id}, subscription)
+SubscriptionSchema.statics.updateSubscription = function(id, subscription, session) {
+  return this.findOneAndUpdate({'_id': id}, subscription).session(session)
 }
 
 SubscriptionSchema.statics.deleteSubscription = function(id) {

@@ -60,7 +60,6 @@ export default {
 
     getPrioritySession: async (parent, { user, subscription }, { models: { userModel, payementModel }}, info) => {
       try{
-        console.log(user)
         //CHECK IF USER HAS MOLLIE CUSTOMER ID
         if(user.mollieCustomerID.length === 0){
           //IF NO CUSTOMER CREATE THE CUSTOMER

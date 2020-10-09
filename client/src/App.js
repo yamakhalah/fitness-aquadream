@@ -35,6 +35,8 @@ import NotFound from './components/global/404'
 import CGVReader from './components/global/CGV'
 import ROIReader from './components/global/ROI'
 import Support from './components/user/Support'
+import PaymentReminder from './components/user/PaymentReminder'
+import PaymentReminderCheckout from './components/user/PaymentReminderCheckout'
 
 const drawerWidth = 240;
 
@@ -134,6 +136,8 @@ export default function App(props) {
             <Switch>
               <Route exact path="/booking/checkout/:reference" component={Payement} />
               <Route exact path="/booking/prioritary-checkout/:subscription" component={PrioritaryPayement} />
+              <Route exact path="/booking/payment-reminder/:paymentReminder" component={PaymentReminder} />
+              <Route exact path="/booking/payment-reminder/checkout/:paymentReminder" component={PaymentReminderCheckout} />
               <AuthRoute user={user} component={Home} exact path="/" />
               <AuthRoute user={user} component={Credit} exact path="/credit" />
               <AuthRoute user={user} component={CreditUse} exact path="/creditUse" />
