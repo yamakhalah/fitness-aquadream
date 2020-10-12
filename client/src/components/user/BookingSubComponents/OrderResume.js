@@ -329,6 +329,13 @@ const OrderResume = ({ handleFinalPriceCallBack, preBookedLessons, bookedLessons
           <Typography variant="subtitle1" className={classes.total}>
             {orderResume.totalMonthly}€ pendant {orderResume.subDuration} mois
           </Typography>
+          Les paiements suivants seront prélevés par domiciliation jusqu'à la fin de l'abonnement
+        </ListItem>
+        <ListItem className={classes.listItem}>
+          <ListItemText primary="IMPORTANT" />
+          <Typography variant="subtitle1" className={classes.total}>
+          Les paiements suivants seront prélevés par domiciliation jusqu'à la fin de l'abonnement
+          </Typography>
         </ListItem>
       </List>
       <Container className={classes.discount}>
