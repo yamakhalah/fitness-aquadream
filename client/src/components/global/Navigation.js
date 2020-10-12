@@ -9,7 +9,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { Tooltip, AppBar, Toolbar, IconButton, Typography, Button, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { Help, VpnKey, ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
+import { AccountBalance, Help, VpnKey, ShoppingCart, Home, ChevronLeft, Add, People, DateRange, Menu, Today, Euro, Payment } from '@material-ui/icons'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { useApolloClient } from 'react-apollo'
 import { useHistory } from 'react-router-dom'
@@ -188,6 +188,14 @@ export default function Navigation(props) {
             <ListItem button key="adminCredit" className={classes.white}>
               <ListItemIcon className={classes.white}><Euro /></ListItemIcon>
               <ListItemText>Crédits</ListItemText>
+            </ListItem>
+          </Tooltip>
+        </Link>
+        <Link to="/adminPaymentReminder" className="leftNavItem">
+          <Tooltip title="Gérer les recouvrements">
+            <ListItem button key="adminPaymentReminder" className={classes.white}>
+              <ListItemIcon className={classes.white}><AccountBalance /></ListItemIcon>
+              <ListItemText>Recouvrements</ListItemText>
             </ListItem>
           </Tooltip>
         </Link>

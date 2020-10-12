@@ -39,7 +39,7 @@ export default {
         console.log(error)
       }
     },
-
+    /*
     doNotCallAGAIN: async(parent, args, { models: { payementModel } }, info) => {
       try {
         const list = await payementModel.find({})
@@ -57,7 +57,7 @@ export default {
         return false
       }
     },
-
+    */
     getPrioritySession: async (parent, { user, subscription }, { models: { userModel, payementModel }}, info) => {
       try{
         //CHECK IF USER HAS MOLLIE CUSTOMER ID

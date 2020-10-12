@@ -19,6 +19,7 @@ export default {
 
     paymentsReminder: async(parent, args, { models: { paymentReminderModel }}, info) => {
       const paymentsReminder = await paymentReminderModel.find().exec()
+      return paymentsReminder
     },
 
     getPaymentReminderSession: async(parent, { id }, { models: { paymentReminderModel }}, info) => {
@@ -50,9 +51,9 @@ export default {
     },
 
     subscription: async({ subscription }, args, { models: { subscriptionModel }}, info) => {
-      if(subscription === undefined) return {}
-      const object = await subscriptionModel.findById({ _id: subscription }).exec()
+      if(subscription === undefined) return null
+      const object = await subscriptionModel.findById({ _id: subscription}).exec()
       return object
-    },
+    }
   }
 }

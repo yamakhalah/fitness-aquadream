@@ -14,3 +14,25 @@ export const GET_PAYMENT_REMINDER = gql`
     }
   }
 `
+
+export const GET_PAYMENTS_REMINDER = gql`
+  query getPaymentsReminder {
+    paymentsReminder{
+      id
+      user{
+        id
+        firstName
+        lastName
+        email
+        phone
+      }
+      subscription{
+        id
+      }
+      amount
+      dueDate
+      limitDate
+      resolved
+    }
+  }
+`

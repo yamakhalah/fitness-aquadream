@@ -5,6 +5,7 @@ export default gql`
     id: ID!
     user: User!
     subscription: Subscription!
+    amount: Float!
     dueDate: String!
     limitDate: String!
     resolved: Boolean!
