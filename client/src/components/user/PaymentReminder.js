@@ -4,7 +4,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { useHistory } from 'react-router-dom'
 import { withRouter } from 'react-router-dom'
 import { useApolloClient } from 'react-apollo'
-import { GET_PAYMENT_REMINDER_SESSION } from '../../database/query/paymentReminderQuery'
+import { GET_PAYMENT_REMINDER_SESSION, GET_PAYMENT_REMINDER } from '../../database/query/paymentReminderQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 
 const useStyles = makeStyles(theme => ({
@@ -33,14 +33,30 @@ const PaymentReminder = (props: PaymentReminderProps) => {
   useEffect(() => {
     if(!paid){
       client.query({
-        query: GET_PAYMENT_REMINDER_SESSION,
+        query: GET_PAYMENT_REMINDER,
         variables: {
           id: props.match.params.paymentReminder
         }
       })
       .then(result => {
-        console.log(result)
-        window.location = result.data.getPaymentReminderSession._links.checkout.href
+        var paymentReminder = result.data.paymentReminder
+        if(!paymentReminder.resolved){
+          client.query({
+            query: GET_PAYMENT_REMINDER_SESSION,
+            variables: {
+              id: props.match.params.paymentReminder
+            }
+          })
+          .then(result => {
+            window.location = result.data.getPaymentReminderSession._links.checkout.href
+          })
+          .catch(error => {
+            console.log(error)
+          })
+        }else{
+          setPaid(true)
+          setLoading(false)
+        }
       })
       .catch(error => {
         console.log(error)

@@ -13,7 +13,7 @@ moment.locale('fr')
 export default {
   Query: {
     paymentReminder: async(parent, { id }, { models: { paymentReminderModel }}, info) => {
-      const paymentReminder = await paymentReminderModel.findById(id).exec()
+      const paymentReminder = await paymentReminderModel.findById({_id: id}).exec()
       return paymentReminder
     },
 
