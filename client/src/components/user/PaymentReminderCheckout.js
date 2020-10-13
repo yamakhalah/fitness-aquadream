@@ -46,7 +46,6 @@ const PaymentReminderCheckout = (props: PaymentReminderProps) => {
           fetchPolicy: 'network-only'
         })
         .then(result => {
-          console.log(result)
           if(result.data.paymentReminder.resolved) {
             setSuccess(true)
             setLoading(false)
