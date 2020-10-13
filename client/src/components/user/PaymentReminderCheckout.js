@@ -47,7 +47,7 @@ const PaymentReminderCheckout = (props: PaymentReminderProps) => {
         })
         .then(result => {
           console.log(result)
-          if(result.data.getPaymentReminder.resolved) {
+          if(result.data.paymentReminder.resolved) {
             setSuccess(true)
             setLoading(false)
           }else{
