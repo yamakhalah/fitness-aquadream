@@ -65,7 +65,11 @@ const Home = () => {
         desc: lessonDay.lesson.comment,
       }
       lLessonsDay[lessonDay.id] = lessonDay
-      events.push(event)
+      var dayDate = moment(lessonDay.dayDate)
+      if(dayDate.month() === 10 && dayDate.date() >= 2 && dayDate.date() <= 8) {
+      }
+      else{
+        events.push(event)}
     }
     const views = ['month','week']
     setEvents(events)
