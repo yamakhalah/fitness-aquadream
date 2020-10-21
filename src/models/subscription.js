@@ -1,4 +1,5 @@
 const { USER, PAYEMENT, LESSON_BUNDLE, LESSON, LESSON_DAY, SUBSCRIPTION } = require( './dbName');
+const { ApolloError } = require('apollo-server')
 
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
@@ -48,16 +49,17 @@ SubscriptionSchema.statics.deleteSubscription = function(id) {
   return this.findOneAndDelete({'_id': id})
 }
 
-SubscriptionSchema.statics.changeLesson = function(id, oldLesson, newLesson, opts) {
+SubscriptionSchema.statics.changeLesson = function(id, oldLesson, newLesson, session) {
   return Subscription.findById(id).then(subscription => {
     var index = subscription.lessons.indexOf(oldLesson)
+    if(index === -1) throw new ApolloError('-1')
     subscription.lessons.splice(index, 1)
     subscription.lessons.push(newLesson)
     return Subscription.findOneAndUpdate(
       { _id: subscription._id },
       { lessons: subscription.lessons },
-      { new: true, opts}
-    )
+      { new: true }
+    ).session(session)
   })
 }
 

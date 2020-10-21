@@ -82,7 +82,7 @@ export default {
 
         //REMOVE OLD LESSON FROM SUBSCRIPTION
         //ADD NEW LESSON TO SUBSCRIPTIOn
-        var graphQLNewSubscription = await subscriptionModel.changeLesson(subscription, oldLesson, newLesson, opts)
+        var graphQLNewSubscription = await subscriptionModel.changeLesson(subscription, oldLesson, newLesson, session)
         await session.commitTransaction()
         session.endSession()
         //SEND EMAIL
