@@ -290,6 +290,8 @@ export async function paymentReminderCheckout(req, res, next) {
 
 export async function subscription(req, res, next){
   console.log('SUBSCRIPTION  WEBHOOK')
+  console.log(req.body.id)
+  console.log(req.body)
   const paymentID = req.body.id
   const payment = await mollieClient.payments.get(paymentID)
   console.log(payment)
