@@ -290,12 +290,11 @@ export async function paymentReminderCheckout(req, res, next) {
 
 export async function subscription(req, res, next){
   console.log('SUBSCRIPTION  WEBHOOK')
-  console.log(req.body.id)
-  console.log(req.body)
   const paymentID = req.body.id
   const payment = await mollieClient.payments.get(paymentID)
-  console.log(payment)
   if(payment.status === 'failed' || payment.details.bankReasonCode) {
+    console.log('PAYMENT FAILED')
+    console.log(payment)
     const session = await mongoose.startSession()
     session.startTransaction()
     try{
@@ -326,18 +325,21 @@ export async function subscription(req, res, next){
       var graphqlSubscription = await subscriptionModel.updateSubscription(graphqlPayement.subscription, { subStatus: 'PAYMENT_REMINDER' }, session)
       //Envoyer un email au client l'invitant à payer
       var email = await sendMail(FROM, graphqlUser.email, 'URGENT: Aquadream - Echec du paiement de votre abonnement', PAYMENT_REMINDER(graphqlUser, paymentReminder, paymentReminderURL))
+      console.log('PAYMENT REMINDER CREATED')
       await session.commitTransaction()
       session.endSession()
       res.sendStatus(200)
       return
     }catch(error) {
+      console.log('PAYMENT REMINDER ERROR')
       console.log(error)
       await session.abortTransaction()
       session.endSession()
       res.sendStatus(469)
       return
     }
+  }else{
+    res.sendStatus(200)
+    return
   }
-  //SEND PAYMENT ID everytime a payment is made. Check subsciptionID in payment
-  res.sendStatus(200)
 }
