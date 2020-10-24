@@ -196,7 +196,7 @@ export default {
     try{
       //GET SUBSCRIPTION && PAYMENT DATA
       const sub = await subscriptionModel.findById(id).populate([{ path: 'payement', model: payementModel }, { path: 'lessonsDay', model: lessonDayModel }, { path: 'lessons', model: lessonModel }, { path: 'user', model: userModel } ])
-      user = await userModel.removeSubscription(sub.user._id, sub._id, opts)
+      var user = await userModel.removeSubscription(sub.user._id, sub._id, opts)
       //REMOVE USER FOR EVERY LESSONS/LESSONS DAY
         for(const lesson of sub.lessons){
           //LESSONMODEL.removeUser
