@@ -247,7 +247,7 @@ export default function AdminSubscription() {
         setLoading(false)
         setOpenDeleteDialog(false)
       })
-    }else if('refund'){
+    }else if(refundType === 'refund'){
       client.mutate({
         mutation: CANCEL_SUBSCRIPTION_REFUND,
         variables: {
