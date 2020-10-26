@@ -19,6 +19,12 @@ const useStyles = makeStyles(theme => ({
     marginTop: 25,
     marginBottom: 25
   },
+
+  typoWarning: {
+    marginTop: 25,
+    marginBottom: 25,
+    color: 'red'
+  }
 }))
 
 export default function Support(props) {
@@ -64,6 +70,9 @@ export default function Support(props) {
       <CssBaseline />
       <Typography component="h1" variant="h5" className={classes.typoTitle}>
         Envoyer un message au support
+      </Typography>
+      <Typography component="h1" variant="h6" className={classes.typoWarning}>
+        POUR TOUTE QUESTION AUTRE QU'UN BUG SUR NOTRE SITE WEB, MERCI DE CONTACTER contact@aquadream-temploux.be
       </Typography>
       <Typography component="body1" className={classes.typoTitle}>
         Vous êtes au bon endroit si vous avez le moindre soucis avec le site web d'Aquadream. Merci d'être le plus précis possible concernant le problème que vous rencontrez afin que nous puissions rapidement nous occuper de votre problème.

@@ -46,6 +46,7 @@ const Home = () => {
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
+  const [covid, setOpenSnack] = React.useState(false)
 
 
   const initCalendar = (data) => {
@@ -170,6 +171,7 @@ const Home = () => {
 
   if(data) return(
     <div style={{ height: 900 }} className={classes.root}>
+      <h2>En raison des circonstances actuelles, il n'est pas possible d'annuler des cours.</h2>
       <Calendar
         events={events}
         views={views}
@@ -205,7 +207,7 @@ const Home = () => {
           </Button>
           {selectedLessonDay !== null &&  (
             <div>
-            {canBeCanceled() && (
+            {canBeCanceled() && covid && (
               <Button onClick={handleCancel.bind(this)} className={classes.cancelButton} disabled={loading}>
                 Annuler le cours          
               </Button> 
