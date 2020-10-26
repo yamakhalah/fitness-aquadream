@@ -46,7 +46,7 @@ const Home = () => {
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
-  const [covid, setOpenSnack] = React.useState(false)
+  const [covid,] = React.useState(false)
 
 
   const initCalendar = (data) => {
