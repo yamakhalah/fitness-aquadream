@@ -31,7 +31,8 @@ export default {
         }).sort({ recurenceBegin: 1, name: 1}).exec()
         return lessons
       }catch(error){
-        console.log(error)
+        console.log(error) 
+        return []
       }
     },
 
@@ -46,6 +47,17 @@ export default {
       }catch(error){
         console.log(error)
         return []
+      }
+    },
+
+    lessonsForUser: async (parent, {user}, { models: { lessonModel }}, info) => {
+      try{
+        const lessons = await lessonModel.find(
+          { users: { $in: [user] }}
+        )
+      }catch(error){
+        console.log(error)
+        return [] 
       }
     }
   },

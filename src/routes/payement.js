@@ -1,4 +1,5 @@
 require('dotenv').config()
+import { LESSON } from '../models/dbName'
 import { createMollieClient } from '@mollie/api-client'
 import { sendMail, FROM, CONFIRM_SUBSCRIPTION, PAYMENT_REMINDER } from '../mailer'
 import mongoose from 'mongoose'
@@ -230,6 +231,29 @@ export async function checkout(req, res, next){
   }
 }
 
+/*
+export async function test(req, res, next) {
+  var weekToAdd = 5
+  var beginDate = moment("26/10/2020_23:59", 'DD/MM/YYYY_HH:mm').toISOString()
+  var subTypes = new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6')
+  var lessonsDay = await lessonDayModel.find({
+    'dayDate': { $gte: beginDate}
+  }).populate(LESSON).exec()
+  lessonsDay.forEach(lessonDay => {
+    if(subTypes.toString().includes(lessonDay.lesson.lessonSubType[0].toString())) {
+      var dayDate = moment(lessonDay.dayDate).add(weekToAdd, 'week').toISOString(true)
+      console.log(dayDate)
+      var newLessonDay = lessonDayModel.findOneAndUpdate(
+        { _id: lessonDay.id },
+        { dayDate: dayDate}
+      )
+    }
+  });
+  res.sendStatus(200)
+  return
+}
+*/
+
 export async function paymentReminderCheckout(req, res, next) {
   console.log('PAYMENT REMINDER WEBHOOK')
   const session = await mongoose.startSession()
@@ -256,13 +280,15 @@ export async function paymentReminderCheckout(req, res, next) {
         { new: true }
       ).session(session)
       //DECREASE MOLLIE SUBSCRIPTION COUNTER
-      mollieSubscription = await mollieClient.customers_subscriptions.update(
-        graphqlPayement.mollieSubscriptionID,
-        { 
-          customerId: graphqlPayement.mollieCustomerID ,
-          times: mollieSubscription.times-1
-        }
-      )
+      if(paymentReminder.type === 'FAILED'){
+        mollieSubscription = await mollieClient.customers_subscriptions.update(
+          graphqlPayement.mollieSubscriptionID,
+          { 
+            customerId: graphqlPayement.mollieCustomerID ,
+            times: mollieSubscription.times-1
+          }
+        )
+      }
       await session.commitTransaction()
       session.endSession()
       res.sendStatus(200)
@@ -312,13 +338,26 @@ export async function subscription(req, res, next){
         mollieSubscriptionID: subscriptionID
       })
       //CREER UN PaymentReminder
-      var paymentReminder = await paymentReminderModel.create({
-        user: graphqlUser.id,
-        subscription: graphqlPayement.subscription,
-        amount: amount,
-        dueDate: dueDate,
-        limitDate: limitDate
-      }, session)
+      var paymentReminder = null
+      if(payment.details.bankReasonCode) {
+        paymentReminder = await paymentReminderModel.create({
+          user: graphqlUser.id,
+          subscription: graphqlPayement.subscription,
+          amount: amount,
+          type: 'RETRO',
+          dueDate: dueDate,
+          limitDate: limitDate
+        }, session)
+      }else{
+        paymentReminder = await paymentReminderModel.create({
+          user: graphqlUser.id,
+          subscription: graphqlPayement.subscription,
+          amount: amount,
+          type: 'FAILED',
+          dueDate: dueDate,
+          limitDate: limitDate
+        }, session)
+      }
       //create URL
       const paymentReminderURL = process.env.MOLLIE_PAYMENT_REMINDER_URL+'/'+paymentReminder.id
       //METTRE LA SUBSCRIPTION EN PENDING

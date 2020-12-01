@@ -9,6 +9,7 @@ import { ExpandMore, Money } from '@material-ui/icons'
 import { GET_SUBSCRIPTIONS_FOR_USER } from '../../database/query/subscriptionQuery'
 import { GET_AUTHENTIFICATION } from '../../store/authentification'
 import { GET_MOLLIE_SUBSCRIPTION_DATA } from '../../database/query/payementQuery'
+import { GET_PAYMENT_REMINDER_BY_SUB } from '../../database/query/paymentReminderQuery'
 import { lessonSubTypeToIMG } from '../../utils/enumToString'
 import moment from 'moment-timezone'
 import '../../style/css/navigation.css'
@@ -120,10 +121,6 @@ export default function Subscription(props) {
     })
   }
 
-  const correctPayment = (subscriptionData) => {
-    //TODO
-  }
-
   const handleSnackClose = () => {
     setOpenSnack(false)
   }
@@ -132,6 +129,21 @@ export default function Subscription(props) {
     setErrorMessage(message)
     setErrorVariant(type)
     setOpenSnack(true)
+  }
+
+  const paymentReminder = (subscriptionData) => {
+    client.query({
+      query: GET_PAYMENT_REMINDER_BY_SUB,
+      variables: {
+        sub: subscriptionData.subscription.id
+      }
+    })
+    .then(result => {
+      window.location = "https://www.app.aquadream-temploux.be/booking/payment-reminder/"+result.paymentReminderBySub.id
+    })
+    .error(error => {
+      console.log(error)
+    })
   }
 
   const sortSubscriptions = (subscriptions) => {
@@ -224,6 +236,16 @@ export default function Subscription(props) {
                         </Link>
                       </Grid>
                     }
+                    {subscriptionData.subscription.subStatus === 'PAYMENT_REMINDER' && 
+                      <Grid item xs={8} md={8}>
+                        <div className={classes.statusKO}>
+                          En retard de paiement
+                        </div>
+                        <Button className={classes.expansionPanel} variant="contained" color="primary" onClick={paymentReminder(subscriptionData)}>
+                          Payer
+                        </Button>
+                      </Grid>
+                    }
                     {(subscriptionData.subscription.subStatus === 'WAITING_BEGIN' || subscriptionData.subscription.subStatus === 'ON_GOING' ) && 
                       <React.Fragment>
                       <Grid item xs={8} md={8}>
@@ -309,7 +331,7 @@ export default function Subscription(props) {
                     {subscriptionData.mollieSubscription && (
                       <React.Fragment>
                         {subscriptionData.mollieSubscription.status === 'suspended' && (
-                          <IconButton onClick={correctPayment(subscriptionData)}>
+                          <IconButton onClick={null}>
                             <Money />
                           </IconButton>
                         )}

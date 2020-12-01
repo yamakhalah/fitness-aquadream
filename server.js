@@ -143,6 +143,7 @@ if(process.env.NODE_ENV === "production") {
   app.post('/booking/subscription', subscription)
   app.post('/booking/checkout', checkout)
   app.post('/booking/paymentReminderCheckout', paymentReminderCheckout)
+  //app.post('/booking/test', test)
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))

@@ -69,8 +69,11 @@ const Home = () => {
       var dayDate = moment(lessonDay.dayDate)
       if(dayDate.month() === 10 && dayDate.date() >= 2 && dayDate.date() <= 8) {
       }
-      else{
-        events.push(event)}
+      else if(new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6').includes(lessonDay.lesson.lessonSubType.id)){
+        events.push(event)
+      }else{
+
+      }
     }
     const views = ['month','week']
     setEvents(events)
@@ -171,7 +174,7 @@ const Home = () => {
 
   if(data) return(
     <div style={{ height: 900 }} className={classes.root}>
-      <h2>En raison des circonstances actuelles, il n'est pas possible d'annuler des cours.</h2>
+      <h2>En raison des circonstances actuelles, il n'est pas possible d'annuler les cours qui n'ont officiellement pas repris.</h2>
       <Calendar
         events={events}
         views={views}
@@ -207,7 +210,7 @@ const Home = () => {
           </Button>
           {selectedLessonDay !== null &&  (
             <div>
-            {canBeCanceled() && covid && (
+            {canBeCanceled() && (
               <Button onClick={handleCancel.bind(this)} className={classes.cancelButton} disabled={loading}>
                 Annuler le cours          
               </Button> 

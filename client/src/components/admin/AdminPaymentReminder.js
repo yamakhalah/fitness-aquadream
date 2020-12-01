@@ -2,10 +2,13 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Loader from '../global/Loader'
-import { useQuery, useMutation } from  'react-apollo'
+import { useQuery, useApolloClient } from  'react-apollo'
 import { Snackbar, Button, Dialog, DialogActions, DialogTitle, DialogContent, IconButton, Container, CssBaseline, Tooltip } from '@material-ui/core';
+import { MailOutline, Done } from '@material-ui/icons'
+import { CustomSnackBar } from '../global/CustomSnackBar'
 import MaterialTable from 'material-table'
-import { GET_PAYMENTS_REMINDER } from '../../database/query/paymentReminderQuery'
+import { GET_PAYMENTS_REMINDER, SEND_PAYMENTS_REMINDER_EMAIL } from '../../database/query/paymentReminderQuery'
+import { VALIDATE_PAYMENT } from '../../database/mutation/paymentReminderMutation'
 import moment from 'moment-timezone'
 
 moment.locale('fr')
@@ -45,11 +48,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function AdminPaymentReminder(props) {
   const classes = useStyles()
+  const [client, setClient] = React.useState(useApolloClient())
   const [selectedPaymentReminder, setSelectedPaymentReminder] = React.useState(null)
   const [selectedIndex, setSelectedIndex] = React.useState(null)
   const [openSnack, setOpenSnack] =  React.useState(null)
   const [errorMessage, setErrorMessage] = React.useState('')
   const [errorVariant, setErrorVariant] = React.useState('error')
+  const [loading, setLoading] = React.useState(true)
   const [columns,] = React.useState([
     { title: 'Identifiant', field: 'id' },
     { title: 'Utilisateur', field: 'user' },
@@ -62,7 +67,7 @@ export default function AdminPaymentReminder(props) {
   ])
   const [rows, setRows] = React.useState([])
 
-  const {loading, error, data } = useQuery(
+  const {loadingQuery, error, data } = useQuery(
     GET_PAYMENTS_REMINDER,
     {
       onCompleted: (newData) => {
@@ -70,6 +75,7 @@ export default function AdminPaymentReminder(props) {
         for(const paymentReminder of newData.paymentsReminder) {
           lRows.push({
             id: paymentReminder.id,
+            userID: paymentReminder.user.id,
             user: paymentReminder.user.firstName+' '+paymentReminder.user.lastName,
             email: paymentReminder.user.email,
             phone: paymentReminder.user.phone,
@@ -80,6 +86,7 @@ export default function AdminPaymentReminder(props) {
           })
         }
         setRows(sortPayments(lRows))
+        setLoading(false)
       }
     }
   )
@@ -92,7 +99,68 @@ export default function AdminPaymentReminder(props) {
     })
   }
 
-  if(loading) return (
+  const handleSnackClose = () => {
+    setOpenSnack(false)
+  }
+
+  const validatePayment = (rowData) => {
+    setLoading(true)
+    client.mutate({
+      mutation: VALIDATE_PAYMENT,
+      variables: { id: rowData.id },
+      refetchQueries: [{
+        query: GET_PAYMENTS_REMINDER
+      }]
+    })
+    .then(result => {
+      if(result.data.sendReminderEmail) {
+        showSnackMessage('Rappel de paiement validé !', 'success')
+      }else{
+        showSnackMessage('Une erreur s\'est produite durant la validation', 'error')
+      }
+      setLoading(false)
+    })
+    .catch(error => {
+      console.log(error)
+      showSnackMessage('Une erreur s\'est produite durant la validation', 'error')
+      setLoading(false)
+    })
+  }
+
+  const showSnackMessage = (message, type) => {
+    setErrorMessage(message)
+    setErrorVariant(type)
+    setOpenSnack(true)
+  }
+
+  const sendReminderEmail = (rowData) => {
+    setLoading(true)
+    client.query({
+      query:  SEND_PAYMENTS_REMINDER_EMAIL,
+      variables: {
+        user: rowData.userID,
+        paymentReminder: rowData.id
+      },
+      refetchQueries: [{
+        query: GET_PAYMENTS_REMINDER
+      }]
+    })
+    .then(result => {
+      if(result.data.sendReminderEmail) {
+        showSnackMessage('Un email a été envoyé !', 'success')
+      }else{
+        showSnackMessage('Une erreur s\'est produite durant l\'envoi', 'error')
+      }
+      setLoading(false)
+    })
+    .catch(error => {
+      console.log(error)
+      showSnackMessage('Une erreur s\'est produite durant l\'envoi', 'error')
+      setLoading(false)
+    })
+  }
+
+  if(loadingQuery || loading) return (
     <div className={classes.loader}>
       <Loader />
     </div>
@@ -109,8 +177,37 @@ export default function AdminPaymentReminder(props) {
           options={{
               filtering: true
           }}
+          actions={[
+            rowData => ({
+              icon: () =>  <MailOutline />,
+              tooltip: 'Envoyer un rappel',
+              onClick: (event, rowData) => sendReminderEmail(rowData),
+              disabled: rowData.status === 'Payé'
+            }),
+            rowData => ({
+              icon: () => <Done />,
+              tooltip: 'Valider le paiement',
+              onClick: (event, rowData) => validatePayment(rowData),
+              disabled: rowData.status === 'Payé'
+            })
+          ]}
         />
       </Container>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={openSnack}
+        autoHideDuration={5000}
+        onClose={handleSnackClose}
+      >
+        <CustomSnackBar
+          onClose={handleSnackClose}
+          variant={errorVariant}
+          message={errorMessage}
+        />
+      </Snackbar>
     </div>
   )
 }

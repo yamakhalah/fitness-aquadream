@@ -15,11 +15,12 @@ const PaymentReminderSchema = new Schema ({
   amount: { type: Number, required: true, min: 0 },
   dueDate: { type: String, required: true },
   limitDate: { type: String, required: true },
+  type: { type: String, required: true },
   resolved: { type: Boolean, required: true, default: false }
 })
 
 PaymentReminderSchema.statics.create = function(data, session) {
-  const paymentReminder = new PaymentReminder({ user: data.user, subscription: data.subscription, amount: data.amount, dueDate: data.dueDate, limitDate: data.limitDate })
+  const paymentReminder = new PaymentReminder({ user: data.user, subscription: data.subscription, amount: data.amount, dueDate: data.dueDate, limitDate: data.limitDate, type: data.type })
   return paymentReminder.save(session)
 }
 

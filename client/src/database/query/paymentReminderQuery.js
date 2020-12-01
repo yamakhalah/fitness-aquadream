@@ -15,6 +15,15 @@ export const GET_PAYMENT_REMINDER = gql`
   }
 `
 
+export const GET_PAYMENT_REMINDER_BY_SUB = gql`
+  query getPaymentReminderBySub($sub: ID!) {
+    paymentReminderBySub(id: $id) {
+      id
+      resolved
+    }
+  }
+`
+
 export const GET_PAYMENTS_REMINDER = gql`
   query getPaymentsReminder {
     paymentsReminder{
@@ -34,5 +43,11 @@ export const GET_PAYMENTS_REMINDER = gql`
       limitDate
       resolved
     }
+  }
+`
+
+export const SEND_PAYMENTS_REMINDER_EMAIL = gql`
+  query sendPaymentsReminderEmail($user: ID!, $paymentReminder: ID!) {
+    sendPaymentsReminderEmail(user: $user, paymentReminder: $paymentReminder)
   }
 `

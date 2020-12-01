@@ -283,7 +283,7 @@ class SignUp extends React.Component {
                       onChange={event => this.handleCheck(event)}
                   />
                   <Link className={classes.active} href="/cgv" target="_blank" onClick={event => event.pevent}>
-                    J'ai lu et j'accepte les CGU
+                    J'ai lu et j'accepte les conditions générales de vente
                   </Link>
                 </label>
               </Grid>

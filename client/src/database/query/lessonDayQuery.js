@@ -12,6 +12,9 @@ export const GET_LESSONS_DAY_FROM_TODAY = gql`
           firstName
           lastName
         }
+        lessonSubType{
+          id
+        }
       }
       teacher{
         id

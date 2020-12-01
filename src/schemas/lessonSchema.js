@@ -75,6 +75,7 @@ export default gql`
     lessonsWaitingOrGoing: [Lesson!]!
     lessonsWaitingOrGoingFree: [Lesson!]!
     lessons: [Lesson!]!
+    lessonsForUser(user: ID!): [Lesson!]!
   }
 
   extend type Mutation {
