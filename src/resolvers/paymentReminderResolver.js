@@ -3,7 +3,7 @@ import userModel from '../models/user'
 import subscriptionModel from '../models/subscription'
 import mongoose from 'mongoose'
 import moment from 'moment'
-import { sendMail } from '../mailer'
+import { sendMail, FROM, PAYMENT_REMINDER } from '../mailer'
 import { ApolloError } from 'apollo-server'
 import { createMollieClient } from '@mollie/api-client'
 const mollieClient = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY })
@@ -24,8 +24,8 @@ export default {
 
     sendPaymentsReminderEmail: async(parent, { user, paymentReminder }, { models: { paymentReminderModel, userModel }}, info) => {
       try{
-        const graphqlPaymentReminder = await paymentReminderModel.findById({paymentReminder})
-        const graphqlUser= await userModel.findById({user})
+        const graphqlPaymentReminder = await paymentReminderModel.findById(paymentReminder)
+        const graphqlUser= await userModel.findById(user)
         const paymentReminderURL = process.env.MOLLIE_PAYMENT_REMINDER_URL+'/'+graphqlPaymentReminder.id
         var email = await sendMail(FROM, graphqlUser.email, 'URGENT: Aquadream - Nouveau Rappel de paiement', PAYMENT_REMINDER(graphqlUser, graphqlPaymentReminder, paymentReminderURL))
         return true

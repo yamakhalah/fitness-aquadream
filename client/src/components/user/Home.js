@@ -46,7 +46,6 @@ const Home = () => {
   const [errorVariant, setErrorVariant] = React.useState('error')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [openSnack, setOpenSnack] = React.useState(false)
-  const [covid,] = React.useState(false)
 
 
   const initCalendar = (data) => {
@@ -72,7 +71,6 @@ const Home = () => {
       else if(new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6').includes(lessonDay.lesson.lessonSubType.id)){
         events.push(event)
       }else{
-
       }
     }
     const views = ['month','week']
