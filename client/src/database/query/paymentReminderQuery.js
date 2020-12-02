@@ -17,7 +17,7 @@ export const GET_PAYMENT_REMINDER = gql`
 
 export const GET_PAYMENT_REMINDER_BY_SUB = gql`
   query getPaymentReminderBySub($sub: ID!) {
-    paymentReminderBySub(id: $id) {
+    paymentReminderBySub(sub: $sub) {
       id
       resolved
     }

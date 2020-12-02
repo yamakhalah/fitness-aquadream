@@ -22,6 +22,7 @@ export default gql`
     paymentReminder(id: ID!): PaymentReminder!
     paymentsReminder: [PaymentReminder!]!
     getPaymentReminderSession(id: ID!): JSON!
+    paymentReminderBySub(sub: ID!): PaymentReminder!
     sendPaymentsReminderEmail(user: ID!, paymentReminder: ID!): Boolean!
   }
 

@@ -81,7 +81,7 @@ export default function Subscription(props) {
     var lSubscriptionsData = []
     var promises = []
     for(const subscription of data.subscriptionsForUser){
-      if(subscription.subStatus !== 'WAITING_PAYEMENT' ){ 
+      if(subscription.subStatus !== 'WAITING_PAYEMENT'){ 
         const promise = new Promise((resolve, reject) => {
           client.query({
             query: GET_MOLLIE_SUBSCRIPTION_DATA,
@@ -110,6 +110,7 @@ export default function Subscription(props) {
           mollieSubscription: null
         })
       }
+
     }
     Promise.all(promises.map(p => p.catch(e => e)))
     .then(results => {
@@ -139,9 +140,10 @@ export default function Subscription(props) {
       }
     })
     .then(result => {
+      console.log(result)
       window.location = "https://www.app.aquadream-temploux.be/booking/payment-reminder/"+result.paymentReminderBySub.id
     })
-    .error(error => {
+    .catch(error => {
       console.log(error)
     })
   }
@@ -241,7 +243,7 @@ export default function Subscription(props) {
                         <div className={classes.statusKO}>
                           En retard de paiement
                         </div>
-                        <Button className={classes.expansionPanel} variant="contained" color="primary" onClick={paymentReminder(subscriptionData)}>
+                        <Button className={classes.expansionPanel} variant="contained" color="primary" onClick={ () => paymentReminder(subscriptionData)}>
                           Payer
                         </Button>
                       </Grid>

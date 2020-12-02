@@ -35,6 +35,11 @@ export default {
       }
     },
 
+    paymentReminderBySub: async(parent, { sub }, { models: { paymentReminderModel }}, info) => {
+      const paymentReminder = await paymentReminderModel.findOne({ subscription: sub }).exec()
+      return paymentReminder
+    },
+
     getPaymentReminderSession: async(parent, { id }, { models: { paymentReminderModel }}, info) => {
       const paymentReminder = await paymentReminderModel.findById(id).populate([{ path: 'user', model: userModel }])
       const molliePayment = await mollieClient.payments.create({
