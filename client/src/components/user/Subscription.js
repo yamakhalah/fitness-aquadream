@@ -141,7 +141,7 @@ export default function Subscription(props) {
     })
     .then(result => {
       console.log(result)
-      window.location = "https://www.app.aquadream-temploux.be/booking/payment-reminder/"+result.paymentReminderBySub.id
+      window.location = "https://www.app.aquadream-temploux.be/booking/payment-reminder/"+result.data.paymentReminderBySub.id
     })
     .catch(error => {
       console.log(error)

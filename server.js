@@ -11,7 +11,7 @@ const { makeExecutableSchema } = require('graphql-tools')
 import cors from 'cors'
 import cronManager from './src/cronManager'
 import { SESSION_EXPIRED } from './src/error'
-import { checkout, subscription, paymentReminderCheckout } from './src/routes/payement'
+import { checkout, subscription, paymentReminderCheckout, test } from './src/routes/payement'
 import schemas from './src/schemas'
 import resolvers from './src/resolvers'
 import userModel from './src/models/user'
@@ -143,7 +143,7 @@ if(process.env.NODE_ENV === "production") {
   app.post('/booking/subscription', subscription)
   app.post('/booking/checkout', checkout)
   app.post('/booking/paymentReminderCheckout', paymentReminderCheckout)
-  //app.post('/booking/test', test)
+  app.post('/booking/test', test)
 
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))

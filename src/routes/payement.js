@@ -231,28 +231,32 @@ export async function checkout(req, res, next){
   }
 }
 
-/*
+
 export async function test(req, res, next) {
+  res.sendStatus(200)
+  return
   var weekToAdd = 5
   var beginDate = moment("26/10/2020_23:59", 'DD/MM/YYYY_HH:mm').toISOString()
-  var subTypes = new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6')
+  var subTypes = new Array('5e34545245fe1c003150fdf8', '5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6')
   var lessonsDay = await lessonDayModel.find({
     'dayDate': { $gte: beginDate}
   }).populate(LESSON).exec()
   lessonsDay.forEach(lessonDay => {
     if(subTypes.toString().includes(lessonDay.lesson.lessonSubType[0].toString())) {
-      var dayDate = moment(lessonDay.dayDate).add(weekToAdd, 'week').toISOString(true)
+      var dayDate = moment(lessonDay.dayDate).add(5, 'week').toISOString(true)
+      console.log(lessonDay.lesson.lessonSubType[0])
+      console.log(lessonDay.dayDate)
       console.log(dayDate)
       var newLessonDay = lessonDayModel.findOneAndUpdate(
-        { _id: lessonDay.id },
+        { _id: lessonDay._id },
         { dayDate: dayDate}
-      )
+      ).exec()
     }
   });
   res.sendStatus(200)
   return
 }
-*/
+
 
 export async function paymentReminderCheckout(req, res, next) {
   console.log('PAYMENT REMINDER WEBHOOK')
