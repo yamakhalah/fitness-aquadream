@@ -68,7 +68,7 @@ const Home = () => {
       var dayDate = moment(lessonDay.dayDate)
       if(dayDate.month() === 10 && dayDate.date() >= 2 && dayDate.date() <= 8) {
       }
-      else if(new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6').includes(lessonDay.lesson.lessonSubType.id)){
+      else if(new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6', '5e34545245fe1c003150fdf8').includes(lessonDay.lesson.lessonSubType.id)){
         events.push(event)
       }else{
       }
@@ -155,7 +155,7 @@ const Home = () => {
     setOpenSnack(false)
   }
 
-  const { load, error, data } = useQuery(GET_ACTIVE_LESSONS_DAY_FOR_USER, { fetchPolicy: 'network-only', variables: { user: user.userID}, onCompleted: initCalendar})
+  const { load, error, data } = useQuery(GET_ACTIVE_LESSONS_DAY_FOR_USER, { fetchPolicy: 'network-only', variables: { user: user.userID }, onCompleted: initCalendar})
 
   if (loading) return (
     <div className={classes.loader}>
