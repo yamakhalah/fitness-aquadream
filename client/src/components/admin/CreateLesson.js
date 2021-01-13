@@ -105,6 +105,7 @@ class CreateLesson extends React.Component {
       totalLessons: 0,
       totalMonth: 0,
       isOpened: false,
+      isHidden: false,
       isUnitPurchasable: false,
       spotTotal: 0,
       open: false,
@@ -219,7 +220,6 @@ class CreateLesson extends React.Component {
         this.setState({ selectedDayDate: event.getDay()})
         break
       case 'recurenceEnd':
-        console.log()
         this.setState({
           [id]: moment(event, 'DD/MM/YYYY').hour(this.state.timeEnd.hour()).minute(this.state.timeEnd.minute())
         })
@@ -361,7 +361,8 @@ class CreateLesson extends React.Component {
       dateType: this.state.dateType,
       name: this.state.name,
       comment: this.state.info,
-      isOpened: this.state.isOpened
+      isOpened: this.state.isOpened,
+      isHidden: !this.state.isHidden
     }
 
     const lessonsDay = this.createLessonsDay()
@@ -393,13 +394,13 @@ class CreateLesson extends React.Component {
   createLessonsDay = () => {
     var counter = 0
     var lessonsDay = []
-    var indexDate = this.state.recurenceBegin.clone()
-    var endDate = this.state.recurenceEnd.clone()
+    var indexDate = moment(this.state.recurenceBegin.toISOString())
+    var endDate = moment(this.state.recurenceEnd.toISOString())
     while(indexDate.isSameOrBefore(endDate)) {
       var dateValid = true
       this.state.noShowDates.forEach(element => {
-        var beginInterval = moment(element.begin)
-        var endInterval = moment(element.end)
+        var beginInterval = moment(element.begin, 'YYYY-MM-DDTHH:mm:ss.SSSSZ')
+        var endInterval = moment(element.end, 'YYYY-MM-DDTHH:mm:ss.SSSSZ')
         if(indexDate.isSameOrAfter(beginInterval) && indexDate.isSameOrBefore(endInterval)) {
           dateValid = false
         }
@@ -921,6 +922,22 @@ class CreateLesson extends React.Component {
                     startAdornment={<InputAdornment position="start">€</InputAdornment>}
                   />
                 </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3}>
+              <FormControlLabel
+                  required
+                  control={
+                  <Switch 
+                    name="isHidden"
+                    id="isHidden"
+                    value="false"
+                    checked={this.state.isHidden}
+                    onChange={event => this.handleSwitchChange(event)}
+                    color="primary"
+                  />
+                  }
+                  label="Visibilité du cours"
+                />
               </Grid>
             </Grid>
             <Typography className={classes.title} component="h6" variant="h6">

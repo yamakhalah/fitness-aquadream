@@ -5,12 +5,12 @@ import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import { MuiPickersUtilsProvider, KeyboardTimePicker } from '@material-ui/pickers'
 import { FormControl, InputLabel, Select, MenuItem, TextField, TablePagination, CircularProgress, Tooltip, Button, DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions, Container, CssBaseline, Typography, Table, TableHead, TableRow, TableCell, TableBody, IconButton, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid } from '@material-ui/core'
-import { Email, MeetingRoom, ExpandMore, Edit, Delete, Info, CollectionsBookmarkRounded } from '@material-ui/icons'
+import { Visibility, VisibilityOff, Email, MeetingRoom, ExpandMore, Edit, Delete, Info, CollectionsBookmarkRounded } from '@material-ui/icons'
 import { CustomSnackBar } from '../global/CustomSnackBar'
 import MaterialTable from 'material-table'
 import Excel from 'exceljs'
-import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS } from '../../database/query/lessonQuery'
-import { OPEN_LESSON, UPDATE_LESSON, CANCEL_LESSON, DELETE_LESSON } from '../../database/mutation/lessonMutation'
+import { GET_LESSONS_WAITING_OR_GOING_FULL, GET_LESSONS_WAITING_OR_GOING_FREE, GET_LESSONS } from '../../database/query/lessonQuery'
+import { OPEN_LESSON, UPDATE_LESSON, CANCEL_LESSON, DELETE_LESSON, UPDATE_IS_HIDDEN } from '../../database/mutation/lessonMutation'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { SEND_MULTI_EMAIL } from '../../database/query/userQuery'
 import { dateToDayString } from '../../utils/dateTimeConverter'
@@ -460,6 +460,36 @@ class AdminLesson extends React.Component {
     })
   }
 
+  updateIsHidden = (lesson, index) => {
+    lesson.isHidden = !lesson.isHidden
+    this.props.client.mutate({
+      mutation: UPDATE_IS_HIDDEN,
+      variables: {
+        id: lesson.id,
+        isHidden: lesson.isHidden
+      },
+      /*
+      refetchQueries: [
+        {
+          query: GET_LESSONS_WAITING_OR_GOING_FREE
+        }
+      ]
+      */
+    }).then(result => {
+      if(result.data.updateIsHidden) {
+        this.showSnackMessage('La visibilité du cours a été changée', 'success')
+      }else{
+        lesson.isHidden = !lesson.isHidden
+        this.showSnackMessage('Erreur lors du changement de visibilité du cours', 'error')
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      lesson.isHidden = !lesson.isHidden
+      this.showSnackMessage('Erreur lors du changement de visibilité du cours', 'error')
+    })
+  }
+
   deleteLesson = () => {
     this.props.client.mutate({
       mutation: DELETE_LESSON,
@@ -506,6 +536,11 @@ class AdminLesson extends React.Component {
               tooltip: 'Editer le cours',
               onClick: (event, rowData) => this.openEditDialog(rowData.lesson, rowData.tableData.id)
             },
+            rowData => ({
+              icon: () => rowData.lesson.isHidden ? <VisibilityOff /> : <Visibility /> ,
+              tooltip: rowData.lesson.isHidden ? 'Visibilité publique du cours (actuellement non visible)':'Visibilité publique du cours (actuellement visible)',
+              onClick: (event, rowData) => this.updateIsHidden(rowData.lesson, rowData.tableData.id),
+            }),
             rowData => ({
               icon: () => <MeetingRoom />,
               tooltip: 'Ouvrir le cours',

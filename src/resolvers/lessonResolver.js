@@ -27,7 +27,6 @@ export default {
         var today = moment().add(2, 'hours').toISOString(true)
         const lessons = await lessonModel.find({ 
           'status': ["WAITING_BEGIN", "ON_GOING"],
-          'classicDate': { $lte: today}
         }).sort({ recurenceBegin: 1, name: 1}).exec()
         return lessons
       }catch(error){
@@ -41,7 +40,9 @@ export default {
         var today = moment().add(2, 'hours').toISOString(true)
         const lessons = await lessonModel.find({ 
           'status': ["WAITING_BEGIN", "ON_GOING"],
-          'spotLeft': { $gt: 0}
+          'spotLeft': { $gt: 0},
+          'classicDate': { $lte: today},
+          'isHidden': false
         }).sort({ recurenceBegin: 1, name: 1}).exec()
         return lessons ? lessons : []
       }catch(error){
@@ -62,8 +63,8 @@ export default {
     }
   },
   Mutation: {
-    createLesson: async(parent, { lessonsDay, lessonType, lessonSubType, teacher, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened }, { models: { lessonModel }}, info) => {
-      const lesson = await lessonModel.create({ lessonsDay, lessonType, lessonSubType, teacher, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened })
+    createLesson: async(parent, { lessonsDay, lessonType, lessonSubType, teacher, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened, isHidden }, { models: { lessonModel }}, info) => {
+      const lesson = await lessonModel.create({ lessonsDay, lessonType, lessonSubType, teacher, discount, name, comment ,address, pricing, totalMonth, totalLessons, classicDate, priorityDate, recurenceBegin, recurenceEnd, spotLeft, spotTotal, mainType, dateType, isOpened, isHidden })
       return lesson
     },
 
@@ -90,6 +91,20 @@ export default {
         await session.abortTransaction()
         session.endSession()
         throw new ApolloError('Error')
+      }
+    },
+
+    updateIsHidden: async(parent, {id, isHidden}, { models: { lessonModel }}, info) => {
+      try{
+        var lesson = await lessonModel.findOneAndUpdate(
+          { _id: id },
+          { isHidden: isHidden },
+          { new: true }
+        )
+        return true
+      }catch(error) {
+        console.log(error)
+        return false
       }
     },
 

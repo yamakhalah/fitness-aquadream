@@ -43,6 +43,7 @@ export default gql`
     dateType: DateType!
     status: StatusType!
     isOpened: Boolean!
+    isHidden: Boolean!
   }
 
   input LessonInput {
@@ -68,6 +69,7 @@ export default gql`
     dateType: String!
     status: String
     isOpened: Boolean!
+    isHidden: Boolean!
   }
 
   extend type Query {
@@ -80,8 +82,9 @@ export default gql`
 
   extend type Mutation {
     putTeacherInLesson: [Lesson!]!
-    createLesson(lessonsDay: [ID!]!, lessonType: ID!, lessonSubType: ID!, discount: String!, name: String!, comment: String!, address: AddressInput!, pricing: PricingInput!, totalMonth: Int!, totalLessons: Int!, classicDate: String!, priorityDate: String!, recurenceBegin: String!, recurenceEnd: String!, spotLeft: Int!, spotTotal: Int!, mainType: String!, dateType: String!, isOpened: Boolean!): Lesson!
+    createLesson(lessonsDay: [ID!]!, lessonType: ID!, lessonSubType: ID!, discount: String!, name: String!, comment: String!, address: AddressInput!, pricing: PricingInput!, totalMonth: Int!, totalLessons: Int!, classicDate: String!, priorityDate: String!, recurenceBegin: String!, recurenceEnd: String!, spotLeft: Int!, spotTotal: Int!, mainType: String!, dateType: String!, isOpened: Boolean!, isHidden: Boolean!): Lesson!
     createLessonAndLessonsDay(lesson: LessonInput!, lessonsDay: [LessonDayInput!]!): Boolean
+    updateIsHidden(id: ID!, isHidden: Boolean!): Boolean!
     updateLesson(id: ID!, name: String!, comment: String!, spotLeft: Int!, spotTotal: Int!, pricing: PricingInput!, recurenceBegin: String!, recurenceEnd: String!, teacher: ID!): Lesson!
     deleteLesson(id: ID!): Lesson!
     openLesson(id: ID!): Lesson!

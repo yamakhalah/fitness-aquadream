@@ -47,9 +47,9 @@ cron.schedule('5 0 */1 * * *', async () => {
   }
 })
 
-//CHECK LESSON DAY STATUS
+//CHECK LESSON STATUS
 cron.schedule('5 0 */1 * * *', async () => {
-  console.log('CRON TASK: Lessons BEGIN')
+  console.log('CRON TASK: Lessons DAY BEGIN')
   const session = await mongoose.startSession()
   const opts = { session }
   session.startTransaction() 

@@ -59,11 +59,12 @@ const LessonSchema = new Schema({
   mainType: { type: String, required: true },
   dateType: { type: String, required: true },
   status: { type: String, required: true, default: 'WAITING_BEGIN'},
-  isOpened: { type: Boolean, required: true}
+  isOpened: { type: Boolean, required: true},
+  isHidden: { type: Boolean, required: true}
 })
 
 LessonSchema.statics.create = function(data, opts) {
-const lesson = new Lesson({ lessonsDay: data.lessonsDay, lessonType: data.lessonType, lessonSubType: data.lessonSubType, teacher: data.teacher, discount: data.discount, address: data.address, pricing: data.pricing, totalLessons: data.totalLessons, totalMonth: data.totalMonth, classicDate: data.classicDate, priorityDate: data.priorityDate, recurenceBegin: data.recurenceBegin, recurenceEnd: data.recurenceEnd, spotLeft: data.spotLeft, spotTotal: data.spotTotal, lessonType: data.lessonType, lessonSubType: data.lessonSubType, mainType: data.mainType, dateType: data.dateType, name: data.name, comment: data.comment, isOpened: data.isOpened })
+const lesson = new Lesson({ lessonsDay: data.lessonsDay, lessonType: data.lessonType, lessonSubType: data.lessonSubType, teacher: data.teacher, discount: data.discount, address: data.address, pricing: data.pricing, totalLessons: data.totalLessons, totalMonth: data.totalMonth, classicDate: data.classicDate, priorityDate: data.priorityDate, recurenceBegin: data.recurenceBegin, recurenceEnd: data.recurenceEnd, spotLeft: data.spotLeft, spotTotal: data.spotTotal, lessonType: data.lessonType, lessonSubType: data.lessonSubType, mainType: data.mainType, dateType: data.dateType, name: data.name, comment: data.comment, isOpened: data.isOpened, isHidden: data.isHidden })
 return lesson.save(opts)
 },
 

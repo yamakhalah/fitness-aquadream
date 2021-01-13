@@ -66,12 +66,7 @@ const Home = () => {
       }
       lLessonsDay[lessonDay.id] = lessonDay
       var dayDate = moment(lessonDay.dayDate)
-      if(dayDate.month() === 10 && dayDate.date() >= 2 && dayDate.date() <= 8) {
-      }
-      else if(new Array('5e3453f345fe1c003150fdf1','5e34542845fe1c003150fdf6', '5e34545245fe1c003150fdf8').includes(lessonDay.lesson.lessonSubType.id)){
-        events.push(event)
-      }else{
-      }
+      events.push(event)
     }
     const views = ['month','week']
     setEvents(events)

@@ -86,7 +86,9 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   },
   error: {
-    marginTop: '10rem'
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   tableRoot: {
     verticalAlign: 'top',

@@ -113,7 +113,7 @@ export default function AdminPaymentReminder(props) {
       }]
     })
     .then(result => {
-      if(result.data.sendReminderEmail) {
+      if(result.data.validatePayment) {
         showSnackMessage('Rappel de paiement validé !', 'success')
       }else{
         showSnackMessage('Une erreur s\'est produite durant la validation', 'error')

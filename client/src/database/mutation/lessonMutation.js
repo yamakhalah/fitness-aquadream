@@ -1,8 +1,8 @@
 import { gql } from 'apollo-boost'
 
 export const CREATE_LESSON = gql`
-  mutation createLesson($lessonsDay: [ID!]!, $lessonType: ID!, $lessonSubType: ID!, $discount: String!, $name: String!, $comment: String!, $address: AddressInput!, $pricing: PricingInput!, $totalMonth: Int!, $totalLessons: Int!, $classicDate: String!, $priorityDate: String!, $recurenceBegin: String!, $recurenceEnd: String!, $spotLeft: Int!, $spotTotal: Int!, $mainType: String!, $dateType: String!, $isOpened: Boolean!) {
-    createLesson(lessonsDay: $lessonsDay, lessonType: $lessonType, lessonSubType: $lessonSubType, discount: $discount, name: $name, comment: $comment, address: $address, pricing: $pricing, totalMonth: $totalMonth, totalLessons: $totalLessons, classicDate: $classicDate, priorityDate: $priorityDate, recurenceBegin: $recurenceBegin, recurenceEnd: $recurenceEnd, spotLeft: $spotLeft, spotTotal: $spotTotal, mainType: $mainType, dateType: $dateType, isOpened: $isOpened) {
+  mutation createLesson($lessonsDay: [ID!]!, $lessonType: ID!, $lessonSubType: ID!, $discount: String!, $name: String!, $comment: String!, $address: AddressInput!, $pricing: PricingInput!, $totalMonth: Int!, $totalLessons: Int!, $classicDate: String!, $priorityDate: String!, $recurenceBegin: String!, $recurenceEnd: String!, $spotLeft: Int!, $spotTotal: Int!, $mainType: String!, $dateType: String!, $isOpened: Boolean!, $isHidden: Boolean!) {
+    createLesson(lessonsDay: $lessonsDay, lessonType: $lessonType, lessonSubType: $lessonSubType, discount: $discount, name: $name, comment: $comment, address: $address, pricing: $pricing, totalMonth: $totalMonth, totalLessons: $totalLessons, classicDate: $classicDate, priorityDate: $priorityDate, recurenceBegin: $recurenceBegin, recurenceEnd: $recurenceEnd, spotLeft: $spotLeft, spotTotal: $spotTotal, mainType: $mainType, dateType: $dateType, isOpened: $isOpened, isHidden: $isHidden) {
       id
     }
   }
@@ -243,5 +243,12 @@ export const UPDATE_LESSON = gql`
       isOpened
     }
   }
+`
+
+export const UPDATE_IS_HIDDEN = gql`
+  mutation updateIsHidden($id: ID!, $isHidden: Boolean!){
+    updateIsHidden(id: $id, isHidden: $isHidden)
+  }
+
 `
 

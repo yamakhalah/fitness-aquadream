@@ -77,6 +77,7 @@ export const GET_LESSONS = gql`
       mainType
       dateType
       isOpened
+      isHidden
     }
   }
 `
@@ -152,6 +153,7 @@ export const GET_LESSONS_WAITING_OR_GOING = gql`
       mainType
       dateType
       isOpened
+      isHidden
     }
   }
 `
@@ -204,6 +206,7 @@ export const GET_LESSONS_WAITING_OR_GOING_FREE = gql`
       mainType
       dateType
       isOpened
+      isHidden
     }
   }
 `
@@ -274,6 +277,7 @@ export const GET_LESSONS_WAITING_OR_GOING_FULL = gql`
       mainType
       dateType
       isOpened
+      isHidden
     }
   }
 `
