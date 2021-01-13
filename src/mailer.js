@@ -217,7 +217,9 @@ export function SUPPORT_MAIL(user, message) {
 }
 
 var transport = mailer.createTransport({
-  host: "ssl0.ovh.net",
+  pool: true,
+  name: 'aquadream-temploux.be',
+  host: 'ssl0.ovh.net',
   port: 587,
   secure: false,
   auth: {
