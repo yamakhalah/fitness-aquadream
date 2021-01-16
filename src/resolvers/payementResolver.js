@@ -72,6 +72,13 @@ export default {
           user.mollieCustomerID = mollieUser.id
         }
 
+        var startDate = moment(subscription.validityBegin)
+        var today = moment()
+        today.add(14, 'days')
+        while(startDate.isSameOrBefore(today)) {
+          startDate.add(1, 'months')
+        }
+
         var graphqlUser = await userModel.findOneAndUpdate(
           { _id: user.id },
           { mollieCustomerID: user.mollieCustomerID },
@@ -95,7 +102,7 @@ export default {
             subDuration: Math.ceil(moment(subscription.validityEnd).diff(moment(subscription.validityBegin), 'months', true)),
             totalMonthly: subscription.totalMonth,
             total: subscription.total,
-            startDate: '2020-10-01',
+            startDate: startDate.format('YYYY-MM-DD'),
             endDate: moment(subscription.validityEnd).format('YYYY-MM-DD'),
             lessons: subscription.lessons,
             reference: ref,
@@ -153,6 +160,7 @@ export default {
 
         var startDate = moment(orderResume.recurenceBegin)
         var today = moment()
+        today.add(14, 'days')
         while(startDate.isSameOrBefore(today)) {
           startDate.add(1, 'months')
         }
