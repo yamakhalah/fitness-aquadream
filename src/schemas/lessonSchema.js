@@ -17,6 +17,7 @@ export default gql`
     WAITING_BEGIN
     ON_GOING
     DONE
+    EXPIRED
   }
 
   type Lesson {

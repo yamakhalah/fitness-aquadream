@@ -6,8 +6,9 @@ import { Add, Info, Remove, LowPriority, Close } from '@material-ui/icons'
 import { lessonSubTypeToString } from '../../../utils/enumToString'
 import { dateToDayString } from '../../../utils/dateTimeConverter'
 import { makeStyles } from '@material-ui/core/styles'
-import { useQuery } from 'react-apollo'
+import { useQuery, useApolloClient } from 'react-apollo'
 import { GET_LESSONS_WAITING_OR_GOING_FREE } from '../../../database/query/lessonQuery'
+import { GET_NO_SHOW_DATE } from '../../../database/query/noShowDateQuery'
 import { textAlign, borderRadius } from '@material-ui/system';
 
 moment.locale('fr')
@@ -138,6 +139,7 @@ const useStyles = makeStyles(theme => ({
 
 const LessonPicker = ({ handleChangeCallback }) => {
   const classes = useStyles()
+  const [client, setClient] = React.useState(useApolloClient())
   const [selectedType, setSelectedType] = React.useState([2,"AQUA_BIKING"])
   const [selectedModalLesson, setSelectedModalLesson] = React.useState(null)
   const [openInfoModal, setOpenInfoModal] = React.useState(false)
@@ -167,35 +169,57 @@ const LessonPicker = ({ handleChangeCallback }) => {
 
   const initLessonPicker = (data) => {
     var lessonsDic = lessonsBySubType
-    data.lessonsWaitingOrGoingFree.forEach(lesson => {
-      var element = {...lesson}
-      element.pricing = {...element.pricing}
-      var today = moment()
-      var startDate = moment(element.recurenceBegin)
-      var reduction1X = 0
-      var reduction2X = 0
-      var reduction3X = 0
-      while(startDate.isSameOrBefore(today)) {
-        reduction1X += element.pricing.unitPrice
-        reduction2X += element.pricing.unitPrice2X
-        reduction3X += element.pricing.unitPrice3X
-        startDate.add(7, 'days')
-      }
-      var startDate = moment(element.recurenceBegin)
-      while(startDate.isSameOrBefore(today)){
-        startDate.add(1, 'months')
-        element.totalMonth--
-      }
-      element.pricing.totalPrice = Math.ceil(element.pricing.totalPrice-reduction1X)
-      element.pricing.totalPrice2X = Math.ceil(element.pricing.totalPrice2X-reduction2X)
-      element.pricing.totalPrice3X = Math.ceil(element.pricing.totalPrice3X-reduction3X)
-      element.pricing.monthlyPrice = Math.ceil(element.pricing.totalPrice/element.totalMonth)
-      element.pricing.monthlyPrice2X = Math.ceil(element.pricing.totalPrice/element.totalMonth)
-      element.pricing.monthlyPrice3X = Math.ceil(element.pricing.totalPrice/element.totalMonth)
-      lessonsDic[element.lessonSubType.name].push(element)
-    });
-    setLessonsBySubType(lessonsDic)
-    handleListItemClick('AQUA_BIKING', 2)
+    client.query({
+      query: GET_NO_SHOW_DATE,
+    }).then(result => {
+      var noShowDates = result.data.noShowDates
+      data.lessonsWaitingOrGoingFree.forEach(lesson => {
+        var element = {...lesson}
+        element.pricing = {...element.pricing}
+        var today = moment()
+        var startDate = moment(element.recurenceBegin)
+        var reduction1X = 0
+        var reduction2X = 0
+        var reduction3X = 0
+        while(startDate.isSameOrBefore(today)) {
+          if(checkNoShow(startDate, noShowDates)){
+            startDate.add(7, 'days')
+          }else{
+            reduction1X += element.pricing.unitPrice
+            reduction2X += element.pricing.unitPrice2X
+            reduction3X += element.pricing.unitPrice3X
+            startDate.add(7, 'days')
+          }
+        }
+        var startDate = moment(element.recurenceBegin)
+        while(startDate.isSameOrBefore(today)){
+          startDate.add(1, 'months')
+          element.totalMonth--
+        }
+        element.pricing.totalPrice = Math.ceil(element.pricing.totalPrice-reduction1X)
+        element.pricing.totalPrice2X = Math.ceil(element.pricing.totalPrice2X-reduction2X)
+        element.pricing.totalPrice3X = Math.ceil(element.pricing.totalPrice3X-reduction3X)
+        element.pricing.monthlyPrice = Math.ceil(element.pricing.totalPrice/element.totalMonth)
+        element.pricing.monthlyPrice2X = Math.ceil(element.pricing.totalPrice/element.totalMonth)
+        element.pricing.monthlyPrice3X = Math.ceil(element.pricing.totalPrice/element.totalMonth)
+        lessonsDic[element.lessonSubType.name].push(element)
+      });
+      setLessonsBySubType(lessonsDic)
+      handleListItemClick('AQUA_BIKING', 2)
+    }).catch(error => {
+
+    })
+  }
+
+  const checkNoShow = (startDate, noShowDates) => {
+    for(const noShow of noShowDates){
+      var begin = moment(noShow.begin, 'YYYY-MM-DDTHH:mm:ss.SSSSZ')
+      var end = moment(noShow.end, 'YYYY-MM-DDTHH:mm:ss.SSSSZ')
+      if(startDate.isSameOrAfter(begin) && startDate.isSameOrBefore(end)){
+        return true
+      } 
+    }
+    return false
   }
 
   const handleListItemClick = (key, index) => {

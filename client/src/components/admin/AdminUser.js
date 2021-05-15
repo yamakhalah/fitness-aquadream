@@ -1,17 +1,22 @@
 import React from 'react'
 import Loader from '../global/Loader'
 import { withStyles } from '@material-ui/core/styles';
-import { Euro } from '@material-ui/icons'
+import { Euro, Payment } from '@material-ui/icons'
 import { withRouter } from 'react-router-dom'
 import { withApollo } from 'react-apollo'
 import Snackbar from '@material-ui/core/Snackbar'
 import MaterialTable from 'material-table'
-import { InputAdornment, IconButton, Tooltip, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField, Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
+import { dateToDayString } from '../../utils/dateTimeConverter'
+import { FormControl, InputLabel, Select, MenuItem, InputAdornment, IconButton, Tooltip, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField, Container, CssBaseline, Typography, Table, TableHead, TableRow, Checkbox, TableCell, TableBody } from '@material-ui/core'
 import { GET_USERS, SEND_GLOBAL_EMAIL } from '../../database/query/userQuery'
 import { GET_TEACHERS } from '../../database/query/teacherQuery'
 import { UPDATE_IS_ADMIN, UPDATE_IS_TEACHER } from '../../database/mutation/userMutation'
 import { ADMIN_CREATE_DISCOUNT } from '../../database/mutation/discountMutation'
 import { CustomSnackBar } from '../global/CustomSnackBar'
+import moment from 'moment-timezone'
+
+moment.locale('fr')
+moment.tz.setDefault('Europe/Brussels')
 
 const styles = theme => ({
   root: {
@@ -80,8 +85,13 @@ class AdminUser extends React.Component {
       loading: false,
       message: '',
       openDiscountDialog: false,
+      openCreditDialog: false,
       selectedUser: null,
-      discountValue: 0
+      discountValue: 0,
+      selectedCreditLesson: null,
+      selectedCreditLessonDay: null,
+      userLessons: [],
+      userLessonsDay: []
     }
   }
 
@@ -230,10 +240,35 @@ class AdminUser extends React.Component {
     }else{
       this.setState(
         {
-          openDiscountDialog: false,
+          openDiscountDialog: false
         }
       )
     }
+  }
+
+  handleCreditDialog = (user) => {
+    /*
+    if(!this.state.openCreditDialog){
+      this.props.client.query({
+        query: // GET LESSONS FOR USER,
+        variables: {
+          user: 
+        }
+      })
+      this.setState(
+        {
+          openCreditDialog: true,
+          selectedUser: user
+        }
+      )
+    }else{
+      this.setState(
+        {
+          openCreditDialog: false,
+        }
+      )
+    }
+    */
   }
 
   render(){
@@ -255,9 +290,14 @@ class AdminUser extends React.Component {
           data={this.state.rows}
           actions={[
             {
-              icon: () => <Euro />,
+              icon: () => <Payment />,
               tooltip: 'Ajouter un bon d\'achat',
               onClick: (event, rowData) => this.handleDiscountDialog(rowData.user)
+            },
+            {
+              icon: () => <Euro />,
+              tooltip: 'Ajouter un crédit',
+              onClick: (event, rowData) => this.handleCreditDialog(rowData.user)
             }
           ]}
           options={{
@@ -296,6 +336,40 @@ class AdminUser extends React.Component {
         <DialogTitle>Créer un bon d'achat</DialogTitle>
         <DialogContent>
           <DialogContentText>Un bon d'achat sera généré pour {this.state.selectedUser ? this.state.selectedUser.firstName : '' } {this.state.selectedUser ? this.state.selectedUser.lastName : '' } de la valeur entrée ci-dessous. L'utilisateur recevra un email avec son code.</DialogContentText>
+          <FormControl required variant="outlined" className={classes.formControl}>
+            <InputLabel id="lessonType">Sélectionnez le cours</InputLabel>
+              <Select
+                labelId="lesson"
+                id="lesson"
+                value={this.state.selectedCreditLesson ? this.state.selectedCreditLesson : ''}
+                name="lesson"
+                label="Cours choisis"
+                labelWidth={80}
+                onChange={event => {
+                this.setState({ selectedCreditLesson: event.target.value})
+              }}
+              >
+              <MenuItem value={this.state.selectedCreditLesson ? this.state.selectedCreditLesson : '' } disabled>
+                {this.state.selectedCreditLesson ? (this.state.selectedCreditLesson.name +' '+dateToDayString(this.state.selectedCreditLesson.recurenceBegin)+' '+ moment(this.state.selectedCreditLesson.recurenceBegin).format('HH:mm')) : ''}
+              </MenuItem>
+              
+              
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {this.setState({ openDiscountDialog: false })}} color="default" disabled={this.state.loading}>
+            Annuler           
+          </Button>
+          <Button onClick={() => this.createDiscount()} color="primary" disabled={this.state.loading}>
+            Confirmer           
+          </Button> 
+        </DialogActions>
+      </Dialog>
+      <Dialog open={this.state.openCreditDialog} fullWidth={true} maxWidth='md'>
+        <DialogTitle>Ajouter un crédit</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Un crédit sera généré pour {this.state.selectedUser ? this.state.selectedUser.firstName : '' } {this.state.selectedUser ? this.state.selectedUser.lastName : '' } de la valeur entrée ci-dessous. L'utilisateur recevra un email avec son code.</DialogContentText>
           <TextField
             autoFocus
             margin="dense"
