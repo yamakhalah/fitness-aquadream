@@ -143,6 +143,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
   const [selectedType, setSelectedType] = React.useState([2,"AQUA_BIKING"])
   const [selectedModalLesson, setSelectedModalLesson] = React.useState(null)
   const [openInfoModal, setOpenInfoModal] = React.useState(false)
+  const [loader, setLoader] = React.useState(true)
   const [selectedLessons, setSelectedLessons] = React.useState([])
   const [selectedLessonsByDay, setSelectedLessonsByDay] = React.useState([[], [], [], [], [], [], []])
   const [bookedLessons, setBookedLessons] = React.useState([])
@@ -206,6 +207,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
       });
       setLessonsBySubType(lessonsDic)
       handleListItemClick('AQUA_BIKING', 2)
+      setLoader(false)
     }).catch(error => {
 
     })
@@ -300,7 +302,7 @@ const LessonPicker = ({ handleChangeCallback }) => {
 
   const { loading, error, data } = useQuery(GET_LESSONS_WAITING_OR_GOING_FREE, { fetchPolicy: 'network-only', onCompleted: initLessonPicker } ) 
 
-  if (loading) return (
+  if (loader) return (
     <div className={classes.loader}>
       <Loader />
     </div>
